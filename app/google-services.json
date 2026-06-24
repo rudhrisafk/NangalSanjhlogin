@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "613748859911",
+    "project_id": "nangal-seva",
+    "storage_bucket": "nangal-seva.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613748859911:android:95bf598a551595550a76a2",
+        "android_client_info": {
+          "package_name": "com.nangalsanjh.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9oGJ62KySvu4GbJcEjgO4JY7aFUTlYPQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

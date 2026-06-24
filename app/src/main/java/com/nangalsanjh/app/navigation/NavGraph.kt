@@ -1,0 +1,216 @@
+package com.nangalsanjh.app.navigation
+
+import android.app.Activity
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.nangalsanjh.app.screens.*
+import com.nangalsanjh.app.viewmodel.AuthViewModel
+
+sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
+    object Login : Screen("login")
+    object OTP : Screen("otp")
+    object ProfileSetup : Screen("profile_setup")
+    object RoleSelection : Screen("role_selection")
+    object WorkerCategory : Screen("worker_category")
+    object AdminPasscode : Screen("admin_passcode")
+    object Home : Screen("home")
+}
+
+@Composable
+fun NangalSevaNavHost() {
+    val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    val context = LocalContext.current
+
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val error by authViewModel.error.collectAsState()
+    val otpSent by authViewModel.otpSent.collectAsState()
+    val verificationComplete by authViewModel.verificationComplete.collectAsState()
+    val profileSaved by authViewModel.profileSaved.collectAsState()
+    val lastPhone by authViewModel.lastPhone.collectAsState()
+    val savedName by authViewModel.savedName.collectAsState()
+    val savedRole by authViewModel.savedRole.collectAsState()
+
+    var tempName by remember { mutableStateOf("") }
+    var tempAddress by remember { mutableStateOf("") }
+    var tempRole by remember { mutableStateOf("") }
+
+    // ── LOGIN PERSISTENCE ─────────────────────────────
+    var startDestination by remember { mutableStateOf(Screen.Splash.route) }
+    var persistedName by remember { mutableStateOf("") }
+    var persistedRole by remember { mutableStateOf("") }
+    var isCheckingAuth by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            // User already logged in - Firestore se data lo
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        persistedName = doc.getString("name") ?: ""
+                        persistedRole = doc.getString("role") ?: "seeker"
+                        startDestination = "${Screen.Home.route}/$persistedName/$persistedRole"
+                    }
+                    isCheckingAuth = false
+                }
+                .addOnFailureListener {
+                    isCheckingAuth = false
+                }
+        } else {
+            isCheckingAuth = false
+        }
+    }
+
+    // Jab tak auth check ho raha hai splash dikhao
+    if (isCheckingAuth) {
+        SplashScreen { }
+        return
+    }
+
+    LaunchedEffect(otpSent) {
+        if (otpSent) {
+            navController.navigate("${Screen.OTP.route}/$lastPhone") {
+                launchSingleTop = true
+            }
+            authViewModel.resetOtpSent()
+        }
+    }
+
+    LaunchedEffect(verificationComplete) {
+        if (verificationComplete) {
+            navController.navigate(Screen.ProfileSetup.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+            authViewModel.resetState()
+        }
+    }
+
+    LaunchedEffect(profileSaved) {
+        if (profileSaved) {
+            navController.navigate("${Screen.Home.route}/$savedName/$savedRole") {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+            authViewModel.resetProfileSaved()
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        composable(Screen.Splash.route) {
+            SplashScreen {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            }
+        }
+
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onLoginClick = { phone ->
+                    if (context is Activity) {
+                        authViewModel.sendOTP(phone, context)
+                    }
+                },
+                isLoading = isLoading,
+                error = error
+            )
+        }
+
+        composable(
+            route = "${Screen.OTP.route}/{phoneNumber}",
+            arguments = listOf(navArgument("phoneNumber") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?: ""
+            OTPScreen(
+                phoneNumber = phoneNumber,
+                onVerifyClick = { otp -> authViewModel.verifyOTP(otp) },
+                onResendClick = {
+                    if (context is Activity) {
+                        authViewModel.resendOTP(phoneNumber, context)
+                    }
+                },
+                isLoading = isLoading,
+                error = error
+            )
+        }
+
+        composable(Screen.ProfileSetup.route) {
+            ProfileSetupScreen(
+                onContinueClick = { name, address ->
+                    tempName = name
+                    tempAddress = address
+                    navController.navigate(Screen.RoleSelection.route)
+                },
+                isLoading = isLoading,
+                error = error
+            )
+        }
+
+        composable(Screen.RoleSelection.route) {
+            RoleSelectionScreen(
+                onRoleSelected = { role ->
+                    tempRole = role
+                    when (role) {
+                        "worker" -> navController.navigate(Screen.WorkerCategory.route)
+                        "admin" -> navController.navigate(Screen.AdminPasscode.route)
+                        else -> authViewModel.saveUserProfile(tempName, tempAddress, role)
+                    }
+                }
+            )
+        }
+
+        composable(Screen.WorkerCategory.route) {
+            WorkerCategoryScreen(
+                onCategorySelected = { category ->
+                    authViewModel.saveUserProfile(tempName, tempAddress, tempRole, category)
+                },
+                isLoading = isLoading
+            )
+        }
+
+        composable(Screen.AdminPasscode.route) {
+            AdminPasscodeScreen(
+                onPasscodeVerified = {
+                    authViewModel.saveUserProfile(tempName, tempAddress, tempRole)
+                },
+                isLoading = isLoading
+            )
+        }
+
+        composable(
+            route = "${Screen.Home.route}/{userName}/{userRole}",
+            arguments = listOf(
+                navArgument("userName") { type = NavType.StringType },
+                navArgument("userRole") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val userName = backStackEntry.arguments?.getString("userName") ?: ""
+            val userRole = backStackEntry.arguments?.getString("userRole") ?: "seeker"
+            HomeScreen(
+                userRole = userRole,
+                userName = userName,
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+    }
+}
