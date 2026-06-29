@@ -7,13 +7,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,18 +23,13 @@ import com.nangalsanjh.app.R
 fun LoginScreen(
     onLoginClick: (String) -> Unit,
     onBloodInfoSaved: (String, String, Boolean) -> Unit = { _, _, _ -> },
+    onPhoneChanged: (String) -> Unit = {},
     isLoading: Boolean = false,
     error: String? = null,
     isReturningUser: Boolean = false,
     existingBloodGroup: String = ""
 ) {
     var phoneNumber by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var selectedBloodGroup by remember { mutableStateOf("") }
-    var donorConsent by remember { mutableStateOf(false) }
-    var showBloodSection by remember { mutableStateOf(false) }
-
-    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
 
     Box(
         modifier = Modifier
@@ -96,7 +88,14 @@ fun LoginScreen(
             // Phone with +91
             OutlinedTextField(
                 value = phoneNumber,
-                onValueChange = { if (it.length <= 10) phoneNumber = it },
+                onValueChange = {
+                    if (it.length <= 10) {
+                        phoneNumber = it
+                        if (it.length == 10) {
+                            onPhoneChanged("+91$it")
+                        }
+                    }
+                },
                 label = { Text("Phone Number") },
                 placeholder = { Text("98765 43210") },
                 leadingIcon = {
@@ -129,158 +128,6 @@ fun LoginScreen(
                 )
             )
 
-            // Sirf naye user ke liye age aur blood group dikhao
-            if (!isReturningUser) {
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = age,
-                    onValueChange = {
-                        if (it.length <= 3) {
-                            age = it
-                            showBloodSection =
-                                it.toIntOrNull()?.let { a -> a in 18..65 } ?: false
-                            if (!showBloodSection) {
-                                selectedBloodGroup = ""
-                                donorConsent = false
-                            }
-                        }
-                    },
-                    label = { Text("Age") },
-                    placeholder = { Text("Your age") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                    )
-                )
-
-                if (showBloodSection) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("🩸", fontSize = 20.sp)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        "Blood Group",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        "Optional — Help save lives in Nangal",
-                                        fontSize = 11.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = 0.5f
-                                        )
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Column {
-                                bloodGroups.chunked(4).forEach { row ->
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        row.forEach { group ->
-                                            FilterChip(
-                                                selected = selectedBloodGroup == group,
-                                                onClick = {
-                                                    selectedBloodGroup =
-                                                        if (selectedBloodGroup == group) ""
-                                                        else group
-                                                    if (selectedBloodGroup.isEmpty())
-                                                        donorConsent = false
-                                                },
-                                                label = {
-                                                    Text(
-                                                        group,
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                },
-                                                modifier = Modifier.weight(1f),
-                                                colors = FilterChipDefaults.filterChipColors(
-                                                    selectedContainerColor = Color(0xFF880E4F),
-                                                    selectedLabelColor = Color.White
-                                                )
-                                            )
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                }
-                            }
-
-                            if (selectedBloodGroup.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row(
-                                    verticalAlignment = Alignment.Top,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Checkbox(
-                                        checked = donorConsent,
-                                        onCheckedChange = { donorConsent = it },
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = Color(0xFF880E4F)
-                                        )
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        "I am willing to donate blood if needed. Anyone in need may contact me through Nangal Seva.",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = 0.8f
-                                        ),
-                                        modifier = Modifier.padding(top = 12.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Returning user — show existing blood group info
-                if (existingBloodGroup.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF880E4F).copy(alpha = 0.1f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("🩸", fontSize = 20.sp)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                "Blood Group: $existingBloodGroup",
-                                fontSize = 13.sp,
-                                color = Color(0xFF880E4F),
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }
-
             if (error != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
@@ -301,12 +148,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = {
-                    if (!isReturningUser) {
-                        onBloodInfoSaved(selectedBloodGroup, age, donorConsent)
-                    }
-                    onLoginClick("+91$phoneNumber")
-                },
+                onClick = { onLoginClick("+91$phoneNumber") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun RoleSelectionScreen(
+    currentRole: String = "",
     onRoleSelected: (String) -> Unit,
 ) {
     var selectedRole by remember { mutableStateOf("") }
@@ -52,6 +53,7 @@ fun RoleSelectionScreen(
             subtitle = "Find workers & report civic issues",
             icon = Icons.Default.Person,
             isSelected = selectedRole == "seeker",
+            isCurrent = currentRole == "seeker",
         ) {
             selectedRole = "seeker"
         }
@@ -63,6 +65,7 @@ fun RoleSelectionScreen(
             subtitle = "Offer your services to the community",
             icon = Icons.Default.Build,
             isSelected = selectedRole == "worker",
+            isCurrent = currentRole == "worker",
         ) {
             selectedRole = "worker"
         }
@@ -74,6 +77,7 @@ fun RoleSelectionScreen(
             subtitle = "Municipal / Government Official",
             icon = Icons.Default.AdminPanelSettings,
             isSelected = selectedRole == "admin",
+            isCurrent = currentRole == "admin",
         ) {
             selectedRole = "admin"
         }
@@ -85,7 +89,7 @@ fun RoleSelectionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            enabled = selectedRole.isNotEmpty()
+            enabled = selectedRole.isNotEmpty() && selectedRole != currentRole
         ) {
             Text("Continue", fontSize = 16.sp)
         }
@@ -98,6 +102,7 @@ fun RoleCard(
     subtitle: String,
     icon: ImageVector,
     isSelected: Boolean,
+    isCurrent: Boolean = false,
     onClick: () -> Unit
 ) {
     val borderColor = if (isSelected)
@@ -139,7 +144,7 @@ fun RoleCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
@@ -154,6 +159,21 @@ fun RoleCard(
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
+            }
+
+            if (isCurrent) {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        "Active",
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }

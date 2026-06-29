@@ -21,12 +21,45 @@ fun HomeScreen(
     userRole: String,
     userName: String,
     onLogout: () -> Unit = {},
+    onRoleSwitched: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var showAIAssistant by remember { mutableStateOf(false) }
     var showEmergency by remember { mutableStateOf(false) }
     var showBloodDonors by remember { mutableStateOf(false) }
     var showProfile by remember { mutableStateOf(false) }
+    var showRoleSelection by remember { mutableStateOf(false) }
+    var showAdminPasscodeDialog by remember { mutableStateOf(false) }   // NEW
+
+    // ── ROLE SELECTION SCREEN (Switch Profile se yahan aata hai) ──
+    if (showRoleSelection) {
+        RoleSelectionScreen(
+            onRoleSelected = { newRole ->
+                if (newRole == "admin") {
+                    // Admin select kiya -> seedha switch nahi, passcode dialog dikhao
+                    showAdminPasscodeDialog = true
+                } else {
+                    showRoleSelection = false
+                    showProfile = false
+                    onRoleSwitched(newRole)
+                }
+            }
+        )
+
+        // Admin passcode dialog yahi pe overlay hoga (RoleSelectionScreen ke upar)
+        if (showAdminPasscodeDialog) {
+            AdminPasscodeInlineDialog(
+                onDismiss = { showAdminPasscodeDialog = false },
+                onVerified = {
+                    showAdminPasscodeDialog = false
+                    showRoleSelection = false
+                    showProfile = false
+                    onRoleSwitched("admin")
+                }
+            )
+        }
+        return
+    }
 
     if (showProfile) {
         Scaffold(
@@ -61,6 +94,9 @@ fun HomeScreen(
                     onLogout = {
                         showProfile = false
                         onLogout()
+                    },
+                    onSwitchProfile = {
+                        showRoleSelection = true
                     }
                 )
             }
@@ -83,7 +119,6 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // Admin aur Worker ke liye SOS top bar mein
                     if (userRole == "admin" || userRole == "worker") {
                         IconButton(onClick = { showEmergency = true }) {
                             Text("🚨", fontSize = 20.sp)

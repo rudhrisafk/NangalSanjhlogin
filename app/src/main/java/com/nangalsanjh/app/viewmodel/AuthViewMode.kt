@@ -155,6 +155,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             "phone" to phone,
             "address" to address,
             "role" to role,
+            "activeRole" to role,
+            "roles" to listOf(role),
             "category" to category,
             "price" to price,
             "about" to about,
