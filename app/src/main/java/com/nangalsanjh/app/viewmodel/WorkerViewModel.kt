@@ -14,7 +14,10 @@ data class WorkerModel(
     val address: String = "",
     val isAvailable: Boolean = true,
     val rating: Float = 0f,
-    val jobsDone: Int = 0
+    val jobsDone: Int = 0,
+    val price: String = "",
+    val about: String = "",
+    val aadhar: String = ""
 )
 
 class WorkerViewModel : ViewModel() {
@@ -31,9 +34,7 @@ class WorkerViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    init {
-        fetchWorkers()
-    }
+    init { fetchWorkers() }
 
     fun fetchWorkers() {
         _isLoading.value = true
@@ -52,9 +53,12 @@ class WorkerViewModel : ViewModel() {
                         category = doc.getString("category") ?: "",
                         phone = doc.getString("phone") ?: "",
                         address = doc.getString("address") ?: "",
-                        isAvailable = doc.getBoolean("isAvailable") ?: true,
+                        isAvailable = doc.getBoolean("isAvailable") ?: false,
                         rating = (doc.getDouble("rating") ?: 0.0).toFloat(),
-                        jobsDone = (doc.getLong("jobsDone") ?: 0L).toInt()
+                        jobsDone = (doc.getLong("jobsDone") ?: 0L).toInt(),
+                        price = doc.getString("price") ?: "",
+                        about = doc.getString("about") ?: "",
+                        aadhar = doc.getString("aadhar") ?: ""
                     )
                 } ?: emptyList()
                 _workers.value = list

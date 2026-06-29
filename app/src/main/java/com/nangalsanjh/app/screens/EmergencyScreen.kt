@@ -1,14 +1,13 @@
 package com.nangalsanjh.app.screens
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,13 +18,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 
 data class EmergencyContact(
     val name: String,
     val number: String,
     val emoji: String,
     val color: Color,
-    val description: String
+    val description: String,
 )
 
 val emergencyContacts = listOf(
@@ -91,7 +91,7 @@ fun EmergencyScreen(
                     ),
                     onClick = {
                         val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:112")
+                            data = "tel:112".toUri()
                         }
                         context.startActivity(intent)
                     }
@@ -154,7 +154,7 @@ fun EmergencyScreen(
                             )
                         }
                         Icon(
-                            Icons.Default.ArrowForward,
+                            Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
                             tint = Color.White
                         )
@@ -177,13 +177,12 @@ fun EmergencyScreen(
             items(emergencyContacts) { contact ->
                 EmergencyContactCard(
                     contact = contact,
-                    onCallClick = {
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:${contact.number}")
-                        }
-                        context.startActivity(intent)
+                ) {
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = "tel:${contact.number}".toUri()
                     }
-                )
+                    context.startActivity(intent)
+                }
             }
         }
     }

@@ -33,7 +33,7 @@ fun AdminPasscodeScreen(
             imageVector = Icons.Default.Lock,
             contentDescription = "Admin",
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(64.dp),
         )
 
         Spacer(modifier = Modifier.height(16.dp))

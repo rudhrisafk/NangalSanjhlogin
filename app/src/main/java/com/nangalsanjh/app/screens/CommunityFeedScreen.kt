@@ -19,18 +19,18 @@ import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PostViewModel
 
 @Composable
-fun CommunityFeedScreen(userName: String) {
+fun CommunityFeedScreen(userName: String, userRole: String = "seeker") {
     val postViewModel: PostViewModel = viewModel()
     val posts by postViewModel.posts.collectAsState()
     val isLoading by postViewModel.isLoading.collectAsState()
     val postSuccess by postViewModel.postSuccess.collectAsState()
 
-    var showPostDialog by remember { mutableStateOf(value = false) }
+    var showPostDialog by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("All") }
 
     val filters = listOf(
         "All", "🔧 Plumber", "⚡ Electrician",
-        "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour",
+        "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour"
     )
 
     LaunchedEffect(postSuccess) {
@@ -42,12 +42,11 @@ fun CommunityFeedScreen(userName: String) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-
             ScrollableTabRow(
                 selectedTabIndex = filters.indexOf(selectedFilter).coerceAtLeast(0),
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.primary,
-                edgePadding = 8.dp,
+                edgePadding = 8.dp
             ) {
                 filters.forEachIndexed { _, filter ->
                     Tab(
@@ -109,19 +108,21 @@ fun CommunityFeedScreen(userName: String) {
             }
         }
 
-        // ✅ New Post Button - RIGHT pe
-        FloatingActionButton(
-            onClick = { showPostDialog = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.secondary
-        ) {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = "Post",
-                tint = MaterialTheme.colorScheme.onSecondary
-            )
+        // ✅ Sirf Worker ko post karne ka option
+        if (userRole == "worker") {
+            FloatingActionButton(
+                onClick = { showPostDialog = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.secondary
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Post",
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
+            }
         }
     }
 
@@ -138,9 +139,7 @@ fun CommunityFeedScreen(userName: String) {
 
 @Composable
 fun RealPostCard(post: Post) {
-    val timeAgo = remember(post.timeStamp) {
-        getTimeAgo(post.timeStamp)
-    }
+    val timeAgo = remember(post.timeStamp) { getTimeAgo(post.timeStamp) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -254,7 +253,7 @@ fun NewPostDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("What do you need?") },
+                    label = { Text("What service are you offering?") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3
                 )

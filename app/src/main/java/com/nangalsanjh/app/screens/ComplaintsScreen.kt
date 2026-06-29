@@ -1,19 +1,27 @@
 package com.nangalsanjh.app.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.location.LocationServices
 import com.nangalsanjh.app.viewmodel.ComplaintModel
 import com.nangalsanjh.app.viewmodel.ComplaintViewModel
 
@@ -23,7 +31,6 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
     val complaints by complaintViewModel.complaints.collectAsState()
     val isLoading by complaintViewModel.isLoading.collectAsState()
     val submitSuccess by complaintViewModel.submitSuccess.collectAsState()
-
     var showComplaintDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(submitSuccess) {
@@ -35,17 +42,11 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading && complaints.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else if (complaints.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📋", fontSize = 48.sp)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -58,9 +59,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                         Button(
                             onClick = { showComplaintDialog = true },
                             shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text("Report an Issue")
-                        }
+                        ) { Text("Report an Issue") }
                     }
                 }
             }
@@ -84,9 +83,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
         if (userRole == "seeker" || userRole.isEmpty()) {
             FloatingActionButton(
                 onClick = { showComplaintDialog = true },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "New Complaint")
@@ -97,8 +94,8 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
     if (showComplaintDialog) {
         NewComplaintDialog(
             onDismiss = { showComplaintDialog = false },
-            onSubmit = { category, description, location ->
-                complaintViewModel.submitComplaint(userName, category, description, location)
+            onSubmit = { category, description, location, lat, lng ->
+                complaintViewModel.submitComplaint(userName, category, description, location, lat, lng)
             },
             isLoading = isLoading
         )
@@ -114,7 +111,6 @@ fun RealComplaintCard(
     var showUpdateDialog by remember { mutableStateOf(false) }
     var updateText by remember { mutableStateOf("") }
     var selectedStatus by remember { mutableStateOf("In Review") }
-
     val timeAgo = remember(complaint.timeStamp) { getTimeAgo(complaint.timeStamp) }
 
     val statusColor = when (complaint.status) {
@@ -126,12 +122,9 @@ fun RealComplaintCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,25 +149,19 @@ fun RealComplaintCard(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 "👤 ${complaint.reporter}",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
             Text(
                 complaint.description,
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -190,7 +177,6 @@ fun RealComplaintCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }
-
             if (complaint.departmentUpdate.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
@@ -205,28 +191,17 @@ fun RealComplaintCard(
                     )
                 }
             }
-
             if (userRole == "admin") {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
-                        onClick = {
-                            selectedStatus = "In Review"
-                            showUpdateDialog = true
-                        },
+                        onClick = { selectedStatus = "In Review"; showUpdateDialog = true },
                         modifier = Modifier.weight(1f)
-                    ) {
-                        Text("In Review", fontSize = 11.sp)
-                    }
+                    ) { Text("In Review", fontSize = 11.sp) }
                     Button(
-                        onClick = {
-                            selectedStatus = "Resolved"
-                            showUpdateDialog = true
-                        },
+                        onClick = { selectedStatus = "Resolved"; showUpdateDialog = true },
                         modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Resolve", fontSize = 11.sp)
-                    }
+                    ) { Text("Resolve", fontSize = 11.sp) }
                 }
             }
         }
@@ -256,14 +231,10 @@ fun RealComplaintCard(
                 Button(onClick = {
                     onStatusUpdate(complaint.id, selectedStatus, updateText)
                     showUpdateDialog = false
-                }) {
-                    Text("Update")
-                }
+                }) { Text("Update") }
             },
             dismissButton = {
-                TextButton(onClick = { showUpdateDialog = false }) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { showUpdateDialog = false }) { Text("Cancel") }
             }
         )
     }
@@ -272,28 +243,40 @@ fun RealComplaintCard(
 @Composable
 fun NewComplaintDialog(
     onDismiss: () -> Unit,
-    onSubmit: (String, String, String) -> Unit,
+    onSubmit: (String, String, String, Double, Double) -> Unit,
     isLoading: Boolean = false
 ) {
+    val context = LocalContext.current
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("🕳️ Pothole") }
     var customCategory by remember { mutableStateOf("") }
+    var latitude by remember { mutableStateOf(0.0) }
+    var longitude by remember { mutableStateOf(0.0) }
+    var locationFetched by remember { mutableStateOf(false) }
+    val isOther = selectedCategory == "❓ Other"
 
     val categories = listOf(
-        "🕳️ Pothole",
-        "💡 Street Light",
-        "🗑️ Garbage",
-        "💧 Water Leakage",
-        "🚧 Road",
-        "⚡ Electricity",
-        "🏫 School/Education",
-        "🏥 Hospital/Health",
-        "🌳 Parks/Environment",
-        "❓ Other"
+        "🕳️ Pothole", "💡 Street Light", "🗑️ Garbage",
+        "💧 Water Leakage", "🚧 Road", "⚡ Electricity",
+        "🏫 School/Education", "🏥 Hospital/Health",
+        "🌳 Parks/Environment", "❓ Other"
     )
 
-    val isOther = selectedCategory == "❓ Other"
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+            fusedClient.lastLocation.addOnSuccessListener { loc ->
+                loc?.let {
+                    latitude = it.latitude
+                    longitude = it.longitude
+                    locationFetched = true
+                }
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -319,8 +302,6 @@ fun NewComplaintDialog(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-
-                // Custom category field for Other
                 if (isOther) {
                     OutlinedTextField(
                         value = customCategory,
@@ -333,7 +314,6 @@ fun NewComplaintDialog(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -346,25 +326,58 @@ fun NewComplaintDialog(
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    label = { Text("Location") },
+                    label = { Text("Location / Area") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (hasPermission) {
+                            val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+                            fusedClient.lastLocation.addOnSuccessListener { loc ->
+                                loc?.let {
+                                    latitude = it.latitude
+                                    longitude = it.longitude
+                                    locationFetched = true
+                                }
+                            }
+                        } else {
+                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (locationFetched) Color(0xFF2E7D32)
+                        else MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        if (locationFetched) "📍 Location Captured!" else "📍 Use My GPS Location",
+                        fontSize = 13.sp
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
                     val finalCategory = if (isOther && customCategory.isNotBlank())
-                        "❓ $customCategory"
-                    else
-                        selectedCategory
-                    onSubmit(finalCategory, description, location)
+                        "❓ $customCategory" else selectedCategory
+                    onSubmit(finalCategory, description, location, latitude, longitude)
                 },
-                enabled = description.isNotBlank() &&
-                        location.isNotBlank() &&
-                        (!isOther || customCategory.isNotBlank()) &&
-                        !isLoading,
+                enabled = description.isNotBlank() && location.isNotBlank() &&
+                        (!isOther || customCategory.isNotBlank()) && !isLoading,
                 shape = RoundedCornerShape(8.dp)
             ) {
                 if (isLoading) {
