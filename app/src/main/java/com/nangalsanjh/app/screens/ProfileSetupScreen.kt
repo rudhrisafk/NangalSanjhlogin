@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 fun ProfileSetupScreen(
     onContinueClick: (String, String) -> Unit,
     isLoading: Boolean = false,
-    error: String? = null
+    error: String? = null,
 ) {
     var name by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }

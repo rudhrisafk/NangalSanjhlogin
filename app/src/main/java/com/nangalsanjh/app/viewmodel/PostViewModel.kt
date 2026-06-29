@@ -1,14 +1,11 @@
 package com.nangalsanjh.app.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 data class Post(
     val id: String = "",
@@ -38,9 +35,7 @@ class PostViewModel : ViewModel() {
     private val _postSuccess = MutableStateFlow(false)
     val postSuccess: StateFlow<Boolean> = _postSuccess
 
-    init {
-        fetchPosts()
-    }
+    init { fetchPosts() }
 
     fun fetchPosts() {
         _isLoading.value = true
@@ -53,17 +48,22 @@ class PostViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val postList = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(Post::class.java)?.copy(id = doc.id)
+                    Post(
+                        id = doc.id,
+                        userName = doc.getString("userName") ?: "",
+                        userPhone = doc.getString("userPhone") ?: "",
+                        userRole = doc.getString("userRole") ?: "",
+                        category = doc.getString("category") ?: "",
+                        description = doc.getString("description") ?: "",
+                        timeStamp = doc.getLong("timeStamp") ?: 0L,
+                        replies = (doc.getLong("replies") ?: 0L).toInt()
+                    )
                 } ?: emptyList()
                 _posts.value = postList
             }
     }
 
-    fun createPost(
-        userName: String,
-        category: String,
-        description: String
-    ) {
+    fun createPost(userName: String, category: String, description: String) {
         val uid = auth.currentUser?.uid ?: return
         val phone = auth.currentUser?.phoneNumber ?: ""
 

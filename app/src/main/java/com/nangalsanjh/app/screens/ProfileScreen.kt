@@ -3,18 +3,21 @@ package com.nangalsanjh.app.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.nangalsanjh.app.viewmodel.ProfileViewModel
 
 @Composable
@@ -29,10 +32,14 @@ fun ProfileScreen(
     val updateSuccess by profileViewModel.updateSuccess.collectAsState()
 
     var showEditDialog by remember { mutableStateOf(false) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
+    var showBloodGroupDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(updateSuccess) {
         if (updateSuccess) {
             showEditDialog = false
+            showCategoryDialog = false
+            showBloodGroupDialog = false
             profileViewModel.resetUpdateSuccess()
         }
     }
@@ -53,7 +60,6 @@ fun ProfileScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Avatar
         Surface(
             shape = RoundedCornerShape(50.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
@@ -86,7 +92,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Role Badge
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
@@ -100,7 +105,6 @@ fun ProfileScreen(
                 )
             }
 
-            // Worker Category Badge
             if (profile.role == "worker" && profile.category.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Surface(
@@ -118,7 +122,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Address
             if (profile.address.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -135,11 +138,28 @@ fun ProfileScreen(
                     )
                 }
             }
+
+            // Blood Group Badge
+            if (profile.bloodGroup.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0xFF880E4F).copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        "🩸 ${profile.bloodGroup}",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        fontSize = 12.sp,
+                        color = Color(0xFF880E4F),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Stats Row
+        // Stats
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -153,15 +173,9 @@ fun ProfileScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatCard(
-                    count = profile.postsCount.toString(),
-                    label = "Posts",
-                    emoji = "📝"
-                )
+                StatCard(count = profile.postsCount.toString(), label = "Posts", emoji = "📝")
                 Divider(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .width(1.dp),
+                    modifier = Modifier.height(50.dp).width(1.dp),
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 )
                 StatCard(
@@ -171,9 +185,7 @@ fun ProfileScreen(
                 )
                 if (profile.role == "worker") {
                     Divider(
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(1.dp),
+                        modifier = Modifier.height(50.dp).width(1.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
                     StatCard(
@@ -194,6 +206,28 @@ fun ProfileScreen(
             subtitle = "Change name or address",
             onClick = { showEditDialog = true }
         )
+
+        // Worker — Change Category
+        if (profile.role == "worker") {
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.Default.Build,
+                title = "Change Work Category",
+                subtitle = profile.category.ifEmpty { "Set your category" },
+                onClick = { showCategoryDialog = true }
+            )
+        }
+
+        // Blood Group Change
+        Spacer(modifier = Modifier.height(8.dp))
+        ProfileMenuItem(
+            icon = Icons.Default.Favorite,
+            title = "Blood Group",
+            subtitle = if (profile.bloodGroup.isEmpty()) "Set your blood group"
+            else "Current: ${profile.bloodGroup}",
+            onClick = { showBloodGroupDialog = true }
+        )
+
         Spacer(modifier = Modifier.height(8.dp))
         ProfileMenuItem(
             icon = Icons.Default.History,
@@ -236,6 +270,30 @@ fun ProfileScreen(
             onDismiss = { showEditDialog = false },
             onSave = { name, address ->
                 profileViewModel.updateProfile(name, address)
+            }
+        )
+    }
+
+    // Change Category Dialog
+    if (showCategoryDialog) {
+        ChangeCategoryDialog(
+            currentCategory = profile.category,
+            isLoading = isLoading,
+            onDismiss = { showCategoryDialog = false },
+            onSave = { newCategory ->
+                profileViewModel.updateCategory(newCategory)
+            }
+        )
+    }
+
+    // Blood Group Dialog
+    if (showBloodGroupDialog) {
+        ChangeBloodGroupDialog(
+            currentBloodGroup = profile.bloodGroup,
+            isLoading = isLoading,
+            onDismiss = { showBloodGroupDialog = false },
+            onSave = { bloodGroup, isDonor ->
+                profileViewModel.updateBloodGroup(bloodGroup, isDonor)
             }
         )
     }
@@ -300,9 +358,7 @@ fun ProfileMenuItem(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
@@ -321,7 +377,6 @@ fun ProfileMenuItem(
                     )
                 }
             }
-
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = null,
@@ -345,9 +400,7 @@ fun EditProfileDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text("Edit Profile", fontWeight = FontWeight.Bold)
-        },
+        title = { Text("Edit Profile", fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 OutlinedTextField(
@@ -386,9 +439,184 @@ fun EditProfileDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+@Composable
+fun ChangeCategoryDialog(
+    currentCategory: String,
+    isLoading: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    val categories = listOf(
+        "🔧 Plumber", "⚡ Electrician", "🎨 Painter",
+        "🪚 Carpenter", "🧱 Mason", "🧹 Cleaner", "👷 Labour", "❓ Other"
+    )
+    var selectedCategory by remember { mutableStateOf(currentCategory) }
+    var customCategory by remember { mutableStateOf("") }
+    val isOther = selectedCategory == "❓ Other"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Work Category", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                categories.forEach { category ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selectedCategory == category,
+                            onClick = { selectedCategory = category },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                        Text(
+                            category,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                if (isOther) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = customCategory,
+                        onValueChange = { customCategory = it },
+                        label = { Text("Enter your work type") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
             }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val final = if (isOther && customCategory.isNotBlank())
+                        customCategory.trim() else selectedCategory
+                    onSave(final)
+                },
+                enabled = selectedCategory.isNotEmpty() &&
+                        (!isOther || customCategory.isNotBlank()) && !isLoading,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Save")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+@Composable
+fun ChangeBloodGroupDialog(
+    currentBloodGroup: String,
+    isLoading: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (String, Boolean) -> Unit
+) {
+    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    var selectedBloodGroup by remember { mutableStateOf(currentBloodGroup) }
+    var isDonor by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("🩸 Blood Group", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text(
+                    "Select your blood group",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Column {
+                    bloodGroups.chunked(4).forEach { row ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            row.forEach { group ->
+                                FilterChip(
+                                    selected = selectedBloodGroup == group,
+                                    onClick = {
+                                        selectedBloodGroup =
+                                            if (selectedBloodGroup == group) "" else group
+                                    },
+                                    label = {
+                                        Text(
+                                            group,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Color(0xFF880E4F),
+                                        selectedLabelColor = Color.White
+                                    )
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
+                }
+                if (selectedBloodGroup.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = isDonor,
+                            onCheckedChange = { isDonor = it },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFF880E4F)
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "I am willing to donate blood if needed",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(selectedBloodGroup, isDonor) },
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF880E4F)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text("Save")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
 }

@@ -14,10 +14,12 @@ data class ComplaintModel(
     val category: String = "",
     val description: String = "",
     val location: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
     val timeStamp: Long = 0L,
     val status: String = "Pending",
     val departmentUpdate: String = "",
-    val uid: String = ""
+    val uid: String = "",
 )
 
 class ComplaintViewModel : ViewModel() {
@@ -28,7 +30,7 @@ class ComplaintViewModel : ViewModel() {
     private val _complaints = MutableStateFlow<List<ComplaintModel>>(emptyList())
     val complaints: StateFlow<List<ComplaintModel>> = _complaints
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(value = false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _error = MutableStateFlow<String?>(null)
@@ -37,9 +39,7 @@ class ComplaintViewModel : ViewModel() {
     private val _submitSuccess = MutableStateFlow(false)
     val submitSuccess: StateFlow<Boolean> = _submitSuccess
 
-    init {
-        fetchComplaints()
-    }
+    init { fetchComplaints() }
 
     fun fetchComplaints() {
         _isLoading.value = true
@@ -52,7 +52,20 @@ class ComplaintViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val list = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(ComplaintModel::class.java)?.copy(id = doc.id)
+                    ComplaintModel(
+                        id = doc.id,
+                        reporter = doc.getString("reporter") ?: "",
+                        userPhone = doc.getString("userPhone") ?: "",
+                        category = doc.getString("category") ?: "",
+                        description = doc.getString("description") ?: "",
+                        location = doc.getString("location") ?: "",
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0,
+                        timeStamp = doc.getLong("timeStamp") ?: 0L,
+                        status = doc.getString("status") ?: "Pending",
+                        departmentUpdate = doc.getString("departmentUpdate") ?: "",
+                        uid = doc.getString("uid") ?: ""
+                    )
                 } ?: emptyList()
                 _complaints.value = list
             }
@@ -62,11 +75,12 @@ class ComplaintViewModel : ViewModel() {
         reporter: String,
         category: String,
         description: String,
-        location: String
+        location: String,
+        latitude: Double = 0.0,
+        longitude: Double = 0.0
     ) {
         val uid = auth.currentUser?.uid ?: return
         val phone = auth.currentUser?.phoneNumber ?: ""
-
         _isLoading.value = true
         _error.value = null
 
@@ -76,6 +90,8 @@ class ComplaintViewModel : ViewModel() {
             "category" to category,
             "description" to description,
             "location" to location,
+            "latitude" to latitude,
+            "longitude" to longitude,
             "timeStamp" to System.currentTimeMillis(),
             "status" to "Pending",
             "departmentUpdate" to "",
@@ -100,48 +116,10 @@ class ComplaintViewModel : ViewModel() {
         departmentUpdate: String
     ) {
         db.collection("complaints").document(complaintId)
-            .get()
-            .addOnSuccessListener { doc ->
-                val reporterUid = doc.getString("uid") ?: return@addOnSuccessListener
-                val category = doc.getString("category") ?: ""
-
-                // Status update karo
-                db.collection("complaints").document(complaintId)
-                    .update(
-                        mapOf(
-                            "status" to newStatus,
-                            "departmentUpdate" to departmentUpdate
-                        )
-                    )
-
-                // Reporter ka FCM token lo aur notification bhejo
-                db.collection("users").document(reporterUid)
-                    .get()
-                    .addOnSuccessListener { userDoc ->
-                        val fcmToken = userDoc.getString("fcmToken") ?: return@addOnSuccessListener
-                        sendComplaintNotification(fcmToken, category, newStatus)
-                    }
-            }
+            .update(mapOf("status" to newStatus, "departmentUpdate" to departmentUpdate))
     }
 
     fun resetSubmitSuccess() {
         _submitSuccess.value = false
-    }
-
-    private fun sendComplaintNotification(
-        token: String,
-        category: String,
-        status: String
-    ) {
-        // Firebase Admin SDK se bheja jaata hai
-        // Abhi ke liye Firestore mein save karo
-        db.collection("notifications").add(
-            hashMapOf(
-                "token" to token,
-                "title" to "Complaint Update 🏛️",
-                "body" to "Aapki $category complaint ka status: $status",
-                "timestamp" to System.currentTimeMillis()
-            )
-        )
     }
 }

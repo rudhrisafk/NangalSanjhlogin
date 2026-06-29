@@ -1,7 +1,7 @@
 package com.nangalsanjh.app.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -25,6 +25,48 @@ fun HomeScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var showAIAssistant by remember { mutableStateOf(false) }
     var showEmergency by remember { mutableStateOf(false) }
+    var showBloodDonors by remember { mutableStateOf(false) }
+    var showProfile by remember { mutableStateOf(false) }
+
+    if (showProfile) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            "Profile",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { showProfile = false }) {
+                            Icon(
+                                Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+            }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                ProfileScreen(
+                    userName = userName,
+                    userRole = userRole,
+                    onLogout = {
+                        showProfile = false
+                        onLogout()
+                    }
+                )
+            }
+        }
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -41,18 +83,18 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // 🚨 Emergency Button
-                    IconButton(onClick = { showEmergency = true }) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFB71C1C)
-                        ) {
-                            Text(
-                                "🚨",
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(4.dp)
-                            )
+                    // Admin aur Worker ke liye SOS top bar mein
+                    if (userRole == "admin" || userRole == "worker") {
+                        IconButton(onClick = { showEmergency = true }) {
+                            Text("🚨", fontSize = 20.sp)
                         }
+                    }
+                    IconButton(onClick = { showProfile = true }) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Profile",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -63,17 +105,48 @@ fun HomeScreen(
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 getNavItems(userRole).forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label, fontSize = 11.sp) },
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    if (item.isSOS) {
+                        NavigationBarItem(
+                            icon = {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = Color(0xFFB71C1C),
+                                    modifier = Modifier.size(52.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center,
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            Text("🚨", fontSize = 18.sp)
+                                            Text(
+                                                "SOS",
+                                                fontSize = 8.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            label = {},
+                            selected = false,
+                            onClick = { showEmergency = true }
                         )
-                    )
+                    } else {
+                        NavigationBarItem(
+                            icon = { Icon(item.icon, contentDescription = item.label) },
+                            label = { Text(item.label, fontSize = 11.sp) },
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            )
+                        )
+                    }
                 }
             }
         },
@@ -81,7 +154,9 @@ fun HomeScreen(
             if (userRole != "admin") {
                 FloatingActionButton(
                     onClick = { showAIAssistant = true },
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape,
+                    modifier = Modifier.size(50.dp)
                 ) {
                     Text("🤖", fontSize = 20.sp)
                 }
@@ -103,15 +178,16 @@ fun HomeScreen(
         }
     }
 
-    // AI Assistant
     if (showAIAssistant) {
         AIAssistantDialog { showAIAssistant = false }
     }
 
-    // Emergency Screen
     if (showEmergency) {
         Dialog(
-            onDismissRequest = { showEmergency = false },
+            onDismissRequest = {
+                showEmergency = false
+                showBloodDonors = false
+            },
             properties = DialogProperties(
                 usePlatformDefaultWidth = false,
                 dismissOnBackPress = true,
@@ -127,9 +203,24 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        horizontalArrangement = Arrangement.End
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { showEmergency = false }) {
+                        if (showBloodDonors) {
+                            IconButton(onClick = { showBloodDonors = false }) {
+                                Icon(
+                                    Icons.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.width(48.dp))
+                        }
+                        IconButton(onClick = {
+                            showEmergency = false
+                            showBloodDonors = false
+                        }) {
                             Icon(
                                 Icons.Default.Close,
                                 contentDescription = "Close",
@@ -137,7 +228,11 @@ fun HomeScreen(
                             )
                         }
                     }
-                    EmergencyScreen()
+                    if (showBloodDonors) {
+                        BloodDonorsScreen()
+                    } else {
+                        EmergencyScreen(onBloodDonors = { showBloodDonors = true })
+                    }
                 }
             }
         }
@@ -146,44 +241,48 @@ fun HomeScreen(
 
 data class NavItem(
     val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Home,
+    val isSOS: Boolean = false
 )
 
 fun getNavItems(role: String): List<NavItem> = when (role) {
     "worker" -> listOf(
         NavItem("Feed", Icons.Default.Home),
         NavItem("My Jobs", Icons.Default.Work),
-        NavItem("Profile", Icons.Default.Person)
+        NavItem("Map", Icons.Default.Map)
     )
     "admin" -> listOf(
         NavItem("Complaints", Icons.Default.Report),
         NavItem("Resolved", Icons.Default.CheckCircle),
-        NavItem("Profile", Icons.Default.Person)
+        NavItem("Map", Icons.Default.Map)
     )
     else -> listOf(
         NavItem("Feed", Icons.Default.Home),
         NavItem("Services", Icons.Default.Build),
+        NavItem("SOS", isSOS = true),
         NavItem("Complaints", Icons.Default.Report),
-        NavItem("Profile", Icons.Default.Person)
+        NavItem("Map", Icons.Default.Map)
     )
 }
 
 @Composable
 fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
-        0 -> CommunityFeedScreen(userName = userName)
+        0 -> CommunityFeedScreen(userName = userName, userRole = "seeker")
         1 -> ServicesScreen()
-        2 -> ComplaintsScreen(userRole = "seeker", userName = userName)
-        3 -> ProfileScreen(userName = userName, userRole = "seeker", onLogout = onLogout)
+        3 -> ComplaintsScreen(userRole = "seeker", userName = userName)
+        4 -> MapScreen()
+        else -> CommunityFeedScreen(userName = userName, userRole = "seeker")
     }
 }
 
 @Composable
 fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
-        0 -> CommunityFeedScreen(userName = userName)
+        0 -> CommunityFeedScreen(userName = userName, userRole = "worker")
         1 -> WorkerJobsScreen()
-        2 -> ProfileScreen(userName = userName, userRole = "worker", onLogout = onLogout)
+        2 -> MapScreen()
+        else -> CommunityFeedScreen(userName = userName, userRole = "worker")
     }
 }
 
@@ -192,6 +291,7 @@ fun AdminContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
         0 -> ComplaintsScreen(userRole = "admin", userName = userName)
         1 -> ResolvedComplaintsScreen()
-        2 -> ProfileScreen(userName = userName, userRole = "admin", onLogout = onLogout)
+        2 -> MapScreen()
+        else -> ComplaintsScreen(userRole = "admin", userName = userName)
     }
 }

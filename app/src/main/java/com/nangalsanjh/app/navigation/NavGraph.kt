@@ -44,25 +44,24 @@ fun NangalSevaNavHost() {
     var tempAddress by remember { mutableStateOf("") }
     var tempRole by remember { mutableStateOf("") }
 
-    // ── LOGIN PERSISTENCE ─────────────────────────────
+    // Login Persistence + Returning User Check
     var startDestination by remember { mutableStateOf(Screen.Splash.route) }
-    var persistedName by remember { mutableStateOf("") }
-    var persistedRole by remember { mutableStateOf("") }
     var isCheckingAuth by remember { mutableStateOf(true) }
+    var isReturningUser by remember { mutableStateOf(false) }
+    var existingBloodGroup by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // User already logged in - Firestore se data lo
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(currentUser.uid)
                 .get()
                 .addOnSuccessListener { doc ->
                     if (doc.exists()) {
-                        persistedName = doc.getString("name") ?: ""
-                        persistedRole = doc.getString("role") ?: "seeker"
-                        startDestination = "${Screen.Home.route}/$persistedName/$persistedRole"
+                        val name = doc.getString("name") ?: ""
+                        val role = doc.getString("role") ?: "seeker"
+                        startDestination = "${Screen.Home.route}/$name/$role"
                     }
                     isCheckingAuth = false
                 }
@@ -74,7 +73,6 @@ fun NangalSevaNavHost() {
         }
     }
 
-    // Jab tak auth check ho raha hai splash dikhao
     if (isCheckingAuth) {
         SplashScreen { }
         return
@@ -91,10 +89,30 @@ fun NangalSevaNavHost() {
 
     LaunchedEffect(verificationComplete) {
         if (verificationComplete) {
-            navController.navigate(Screen.ProfileSetup.route) {
-                popUpTo(Screen.Login.route) { inclusive = true }
+            // Check if user already exists in Firestore
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        if (doc.exists()) {
+                            // Returning user — go home directly
+                            val name = doc.getString("name") ?: ""
+                            val role = doc.getString("role") ?: "seeker"
+                            navController.navigate("${Screen.Home.route}/$name/$role") {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
+                        } else {
+                            // New user — go to profile setup
+                            navController.navigate(Screen.ProfileSetup.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
+                        }
+                        authViewModel.resetState()
+                    }
             }
-            authViewModel.resetState()
         }
     }
 
@@ -120,14 +138,32 @@ fun NangalSevaNavHost() {
         }
 
         composable(Screen.Login.route) {
+            // Check if phone number already registered
             LoginScreen(
                 onLoginClick = { phone ->
+                    // Check if returning user
+                    FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .whereEqualTo("phone", phone)
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            if (!snapshot.isEmpty) {
+                                isReturningUser = true
+                                existingBloodGroup =
+                                    snapshot.documents[0].getString("bloodGroup") ?: ""
+                            }
+                        }
                     if (context is Activity) {
                         authViewModel.sendOTP(phone, context)
                     }
                 },
+                onBloodInfoSaved = { bloodGroup, age, consent ->
+                    authViewModel.setBloodInfo(bloodGroup, age, consent)
+                },
                 isLoading = isLoading,
-                error = error
+                error = error,
+                isReturningUser = isReturningUser,
+                existingBloodGroup = existingBloodGroup
             )
         }
 
@@ -176,8 +212,11 @@ fun NangalSevaNavHost() {
 
         composable(Screen.WorkerCategory.route) {
             WorkerCategoryScreen(
-                onCategorySelected = { category ->
-                    authViewModel.saveUserProfile(tempName, tempAddress, tempRole, category)
+                onCategorySelected = { category, price, about, aadhar ->
+                    authViewModel.saveUserProfile(
+                        tempName, tempAddress, tempRole,
+                        category, price, about, aadhar
+                    )
                 },
                 isLoading = isLoading
             )
@@ -206,6 +245,8 @@ fun NangalSevaNavHost() {
                 userName = userName,
                 onLogout = {
                     authViewModel.logout()
+                    isReturningUser = false
+                    existingBloodGroup = ""
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }

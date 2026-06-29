@@ -15,7 +15,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -73,8 +72,11 @@ dependencies {
     implementation("com.google.firebase:firebase-appcheck-debug:18.0.0")
     implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
 
-    // Gemini AI SDK ← YE NAYA ADD HUA
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
+    implementation("org.osmdroid:osmdroid-android:6.1.17")
+
+    implementation("com.google.android.gms:play-services-location:21.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

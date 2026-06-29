@@ -13,6 +13,7 @@ data class UserProfile(
     val address: String = "",
     val role: String = "",
     val category: String = "",
+    val bloodGroup: String = "",
     val postsCount: Int = 0,
     val complaintsCount: Int = 0,
     val jobsDone: Int = 0
@@ -35,9 +36,7 @@ class ProfileViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    init {
-        fetchProfile()
-    }
+    init { fetchProfile() }
 
     fun fetchProfile() {
         val uid = auth.currentUser?.uid ?: return
@@ -50,7 +49,6 @@ class ProfileViewModel : ViewModel() {
                     _isLoading.value = false
                     return@addSnapshotListener
                 }
-
                 if (doc != null && doc.exists()) {
                     val profile = UserProfile(
                         uid = uid,
@@ -59,6 +57,7 @@ class ProfileViewModel : ViewModel() {
                         address = doc.getString("address") ?: "",
                         role = doc.getString("role") ?: "",
                         category = doc.getString("category") ?: "",
+                        bloodGroup = doc.getString("bloodGroup") ?: "",
                         jobsDone = (doc.getLong("jobsDone") ?: 0L).toInt()
                     )
                     _profile.value = profile
@@ -69,20 +68,20 @@ class ProfileViewModel : ViewModel() {
     }
 
     private fun fetchCounts(uid: String) {
-        // Posts count
         db.collection("posts")
             .whereEqualTo("uid", uid)
             .addSnapshotListener { snapshot, _ ->
-                val count = snapshot?.documents?.size ?: 0
-                _profile.value = _profile.value.copy(postsCount = count)
+                _profile.value = _profile.value.copy(
+                    postsCount = snapshot?.documents?.size ?: 0
+                )
             }
 
-        // Complaints count
         db.collection("complaints")
             .whereEqualTo("uid", uid)
             .addSnapshotListener { snapshot, _ ->
-                val count = snapshot?.documents?.size ?: 0
-                _profile.value = _profile.value.copy(complaintsCount = count)
+                _profile.value = _profile.value.copy(
+                    complaintsCount = snapshot?.documents?.size ?: 0
+                )
             }
     }
 
@@ -91,13 +90,64 @@ class ProfileViewModel : ViewModel() {
         _isLoading.value = true
 
         db.collection("users").document(uid)
-            .update(
-                mapOf(
-                    "name" to name,
-                    "address" to address
-                )
-            )
+            .update(mapOf("name" to name, "address" to address))
             .addOnSuccessListener {
+                _isLoading.value = false
+                _updateSuccess.value = true
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                _error.value = e.localizedMessage
+            }
+    }
+
+    fun updateCategory(category: String) {
+        val uid = auth.currentUser?.uid ?: return
+        _isLoading.value = true
+
+        db.collection("users").document(uid)
+            .update("category", category)
+            .addOnSuccessListener {
+                _isLoading.value = false
+                _updateSuccess.value = true
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                _error.value = e.localizedMessage
+            }
+    }
+
+    fun updateBloodGroup(bloodGroup: String, isDonor: Boolean) {
+        val uid = auth.currentUser?.uid ?: return
+        val name = _profile.value.name
+        val phone = _profile.value.phone
+        _isLoading.value = true
+
+        db.collection("users").document(uid)
+            .update(mapOf("bloodGroup" to bloodGroup, "isDonor" to isDonor))
+            .addOnSuccessListener {
+                if (isDonor && bloodGroup.isNotEmpty()) {
+                    db.collection("blood_donors")
+                        .whereEqualTo("uid", uid)
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            if (snapshot.isEmpty) {
+                                db.collection("blood_donors").add(
+                                    hashMapOf(
+                                        "uid" to uid,
+                                        "name" to name,
+                                        "phone" to phone,
+                                        "bloodGroup" to bloodGroup,
+                                        "area" to _profile.value.address,
+                                        "createdAt" to System.currentTimeMillis()
+                                    )
+                                )
+                            } else {
+                                snapshot.documents[0].reference
+                                    .update("bloodGroup", bloodGroup)
+                            }
+                        }
+                }
                 _isLoading.value = false
                 _updateSuccess.value = true
             }
