@@ -21,17 +21,20 @@ import com.nangalsanjh.app.theme.NangalSevaTheme
 class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
+        ActivityResultContracts.RequestPermission(),
     ) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Initialize Firebase (Optional, but good practice before App Check)
+        com.google.firebase.FirebaseApp.initializeApp(this)
+
         // App Check
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(
-            DebugAppCheckProviderFactory.getInstance()
+            DebugAppCheckProviderFactory.getInstance(),
         )
 
         // Notification Permission

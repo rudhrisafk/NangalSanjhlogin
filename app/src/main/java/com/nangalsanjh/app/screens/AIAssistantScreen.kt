@@ -1,11 +1,29 @@
 package com.nangalsanjh.app.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
@@ -14,12 +32,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.nangalsanjh.app.data.GeminiService
+import com.nangalsanjh.app.data.OpenRouterService
 import kotlinx.coroutines.launch
 
 data class ChatMessage(
@@ -33,7 +53,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
 
     var inputText by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(value = false) }
+    var isLoading by remember { mutableStateOf(false) }
     var messages by remember {
         mutableStateOf(
             listOf(
@@ -47,6 +67,21 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val chatHistory = remember { mutableListOf<Pair<String, String>>() }
     val suggestions = listOf("Plumber chahiye", "Light nahi hai", "App help")
 
+    // Keyboard detection
+    val imeInsets = WindowInsets.ime
+    val density = LocalDensity.current
+    val isImeVisible by remember {
+        derivedStateOf { imeInsets.getBottom(density) > 0 }
+    }
+
+    // Auto-scroll when keyboard opens
+    LaunchedEffect(isImeVisible) {
+        if (isImeVisible && messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
+
+    // Auto-scroll when new message arrives
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
@@ -55,15 +90,29 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 
     fun sendMessage(text: String) {
         if (text.isBlank() || isLoading) return
-        messages += ChatMessage(text = text, isUser = true)
+
+        val userMsg = ChatMessage(text = text, isUser = true)
+        messages = messages + userMsg
         chatHistory.add(Pair("user", text))
         inputText = ""
         isLoading = true
+
         coroutineScope.launch {
-            val response = GeminiService.sendMessage(text, chatHistory.dropLast(1))
-            chatHistory.add(Pair("model", response))
-            messages += ChatMessage(text = response, isUser = false)
-            isLoading = false
+            try {
+                val response = OpenRouterService.sendMessage(
+                    userMessage = text,
+                    chatHistory = chatHistory.dropLast(1)
+                )
+                chatHistory.add(Pair("model", response))
+                messages = messages + ChatMessage(text = response, isUser = false)
+            } catch (e: Exception) {
+                messages = messages + ChatMessage(
+                    text = "❌ Error: ${e.localizedMessage ?: "Something went wrong. Please try again."}",
+                    isUser = false
+                )
+            } finally {
+                isLoading = false
+            }
         }
     }
 
@@ -72,7 +121,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = true,
-            decorFitsSystemWindows = false
+            decorFitsSystemWindows = true   // ✅ Important for keyboard
         )
     ) {
         Surface(
@@ -83,7 +132,6 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .imePadding()  // ← keyboard ke saath adjust hoga
             ) {
                 // Header
                 Row(
@@ -105,7 +153,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "Powered by Gemini",
+                                "Powered by AI",
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -143,13 +191,18 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                     }
                 }
 
-                // Messages
+                // Messages List
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 12.dp
+                    ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(messages) { message ->
@@ -193,19 +246,28 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
-                        .navigationBarsPadding()  // ← sirf input pe lagao
+                        .navigationBarsPadding()
+                        .imePadding()  // ✅ Keyboard pushes this up
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
                         value = inputText,
                         onValueChange = { inputText = it },
-                        placeholder = {
-                            Text("Kuch bhi poocho...", fontSize = 14.sp)
-                        },
+                        placeholder = { Text("Kuch bhi poocho...", fontSize = 14.sp) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(24.dp),
-                        maxLines = 3,
+                        maxLines = 4,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Send
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (inputText.isNotBlank() && !isLoading) {
+                                    sendMessage(inputText.trim())
+                                }
+                            }
+                        ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(

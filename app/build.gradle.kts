@@ -69,8 +69,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("com.google.firebase:firebase-appcheck-debug:18.0.0")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
+    implementation(libs.firebase.appcheck)
+    implementation(libs.firebase.appcheck.debug)
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
 
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
