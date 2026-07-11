@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -120,8 +121,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            decorFitsSystemWindows = true   // ✅ Important for keyboard
+            decorFitsSystemWindows = false
         )
     ) {
         Surface(
@@ -195,7 +195,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .weight(1f)
+                        .height(300.dp)
                         .fillMaxWidth(),
                     contentPadding = PaddingValues(
                         start = 16.dp,

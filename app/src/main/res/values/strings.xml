@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">NangalSanjh</string>
+    <string name="app_name">Nangal Seva</string>
+    <string name="tagline">Serving the Community</string>
+    <string name="version_text">Version 1.0</string>
 </resources>
