@@ -19,7 +19,7 @@ data class ComplaintModel(
     val timeStamp: Long = 0L,
     val status: String = "Pending",
     val departmentUpdate: String = "",
-    val uid: String = "",
+    val uid: String = ""
 )
 
 class ComplaintViewModel : ViewModel() {
@@ -30,7 +30,7 @@ class ComplaintViewModel : ViewModel() {
     private val _complaints = MutableStateFlow<List<ComplaintModel>>(emptyList())
     val complaints: StateFlow<List<ComplaintModel>> = _complaints
 
-    private val _isLoading = MutableStateFlow(value = false)
+    private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _error = MutableStateFlow<String?>(null)
@@ -106,7 +106,7 @@ class ComplaintViewModel : ViewModel() {
             }
             .addOnFailureListener { e ->
                 _isLoading.value = false
-                _error.value = e.localizedMessage ?: "Failed to submit complaint"
+                _error.value = e.localizedMessage ?: "Failed to submit"
             }
     }
 
@@ -117,6 +117,10 @@ class ComplaintViewModel : ViewModel() {
     ) {
         db.collection("complaints").document(complaintId)
             .update(mapOf("status" to newStatus, "departmentUpdate" to departmentUpdate))
+    }
+
+    fun deleteComplaint(complaintId: String) {
+        db.collection("complaints").document(complaintId).delete()
     }
 
     fun resetSubmitSuccess() {

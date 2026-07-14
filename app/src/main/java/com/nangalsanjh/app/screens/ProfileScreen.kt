@@ -2,10 +2,16 @@ package com.nangalsanjh.app.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,9 +19,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.nangalsanjh.app.viewmodel.ComplaintViewModel
+import com.nangalsanjh.app.viewmodel.PointsViewModel
+import com.nangalsanjh.app.viewmodel.PostViewModel
 import com.nangalsanjh.app.viewmodel.ProfileViewModel
 
 @Composable
@@ -23,18 +37,22 @@ fun ProfileScreen(
     userName: String,
     userRole: String,
     onLogout: () -> Unit = {},
-    onSwitchProfile: () -> Unit = {}
+    onRoleSwitch: ((String) -> Unit)? = null,
 ) {
     val profileViewModel: ProfileViewModel = viewModel()
+    val pointsViewModel: PointsViewModel = viewModel()
     val profile by profileViewModel.profile.collectAsState()
     val isLoading by profileViewModel.isLoading.collectAsState()
     val updateSuccess by profileViewModel.updateSuccess.collectAsState()
+    val userPoints by pointsViewModel.userPoints.collectAsState()
 
-    var showEditDialog by remember { mutableStateOf(false) }
-    var showCategoryDialog by remember { mutableStateOf(false) }
-    var showBloodGroupDialog by remember { mutableStateOf(false) }
-    var showRoleSwitchDialog by remember { mutableStateOf(false) }
-    var showAdminPasscodeDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(value = false) }
+    var showCategoryDialog by remember { mutableStateOf(value = false) }
+    var showBloodGroupDialog by remember { mutableStateOf(value = false) }
+    var showMyPosts by remember { mutableStateOf(value = false) }
+    var showMyComplaints by remember { mutableStateOf(value = false) }
+    var showAbout by remember { mutableStateOf(value = false) }
+    var showSwitchProfile by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(updateSuccess) {
         if (updateSuccess) {
@@ -45,11 +63,27 @@ fun ProfileScreen(
         }
     }
 
-    val activeRole = profile.role.ifEmpty { userRole }
-    val roleEmoji = when (activeRole) {
+    val currentRole = userRole
+
+    val roleEmoji = when (currentRole) {
         "worker" -> "👷"
         "admin" -> "🏛️"
         else -> "👤"
+    }
+
+    if (showMyPosts) {
+        MyPostsScreen { showMyPosts = false }
+        return
+    }
+
+    if (showMyComplaints) {
+        MyComplaintsScreen { showMyComplaints = false }
+        return
+    }
+
+    if (showAbout) {
+        AboutScreen { showAbout = false }
+        return
     }
 
     Column(
@@ -60,7 +94,7 @@ fun ProfileScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Surface(
             shape = RoundedCornerShape(50.dp),
@@ -94,69 +128,41 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Active Role Badge
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-            ) {
-                Text(
-                    "Active: ${activeRole.replaceFirstChar { it.uppercase() }}",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        currentRole.replaceFirstChar { it.uppercase() },
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
 
-            // All roles chips
-            if (profile.roles.size > 1) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    profile.roles.forEach { role ->
-                        val isActive = role == activeRole
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = if (isActive)
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                            else
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
-                        ) {
-                            Text(
-                                "${roleIcon(role)} ${role.replaceFirstChar { it.uppercase() }}",
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                                fontSize = 11.sp,
-                                color = if (isActive)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                        }
+                if (profile.bloodGroup.isNotEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFF880E4F).copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            "🩸 ${profile.bloodGroup}",
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                            fontSize = 12.sp,
+                            color = Color(0xFF880E4F),
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
 
-            if (activeRole == "worker" && profile.category.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
-                ) {
-                    Text(
-                        profile.category,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             if (profile.address.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        Icons.Default.Home,
-                        contentDescription = null,
+                        Icons.Default.Home, null,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                         modifier = Modifier.size(14.dp)
                     )
@@ -168,27 +174,120 @@ fun ProfileScreen(
                     )
                 }
             }
-
-            if (profile.bloodGroup.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = Color(0xFF880E4F).copy(alpha = 0.15f)
-                ) {
-                    Text(
-                        "🩸 ${profile.bloodGroup}",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
-                        color = Color(0xFF880E4F),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Stats
+        if (currentRole == "seeker") {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                userPoints.level,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                "${userPoints.points} Seva Points",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                userPoints.points.toString(),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val progress = (userPoints.points.toFloat() /
+                            userPoints.nextLevelPoints.toFloat()).coerceIn(0f, 1f)
+
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        "${userPoints.points}/${userPoints.nextLevelPoints} pts to next level",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                "🏆 Seva Points Levels",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            listOf(
+                                "🌱 Nagarik" to "0 - 99",
+                                "🥉 Seva Sevak" to "100 - 199",
+                                "🥈 Seva Mitra" to "200 - 299",
+                                "⭐ Seva Ratna" to "300 - 499",
+                                "🏆 Seva Samrat" to "500+"
+                            ).forEach { (level, range) ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        level,
+                                        fontSize = 12.sp,
+                                        color = if (userPoints.level == level)
+                                            MaterialTheme.colorScheme.primary
+                                        else
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                        fontWeight = if (userPoints.level == level)
+                                            FontWeight.Bold else FontWeight.Normal
+                                    )
+                                    Text(
+                                        range,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -199,63 +298,27 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StatCard(count = profile.postsCount.toString(), label = "Posts", emoji = "📝")
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier.height(50.dp).width(1.dp),
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 )
-                StatCard(count = profile.complaintsCount.toString(), label = "Complaints", emoji = "📋")
-                if (activeRole == "worker") {
-                    Divider(
+                StatCard(
+                    count = profile.complaintsCount.toString(),
+                    label = "Complaints",
+                    emoji = "📋"
+                )
+                if (currentRole == "worker") {
+                    HorizontalDivider(
                         modifier = Modifier.height(50.dp).width(1.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
-                    StatCard(count = profile.jobsDone.toString(), label = "Jobs Done", emoji = "✅")
+                    StatCard(count = profile.jobsDone.toString(), label = "Jobs", emoji = "✅")
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ── SWITCH PROFILE — ek click me RoleSelectionScreen khulega ──
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            )
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    "Switch Profile",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    "Currently: $roleEmoji ${activeRole.replaceFirstChar { it.uppercase() }}",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Button(
-                    onClick = onSwitchProfile,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    enabled = !isLoading
-                ) {
-                    Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Switch Profile")
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Menu Items
         ProfileMenuItem(
             icon = Icons.Default.Edit,
             title = "Edit Profile",
@@ -263,7 +326,7 @@ fun ProfileScreen(
             onClick = { showEditDialog = true }
         )
 
-        if (activeRole == "worker") {
+        if (currentRole == "worker") {
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Build,
@@ -282,30 +345,45 @@ fun ProfileScreen(
             onClick = { showBloodGroupDialog = true }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-        ProfileMenuItem(
-            icon = Icons.Default.History,
-            title = "My Posts",
-            subtitle = "${profile.postsCount} posts",
-            onClick = {}
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        ProfileMenuItem(
-            icon = Icons.Default.Report,
-            title = "My Complaints",
-            subtitle = "${profile.complaintsCount} complaints",
-            onClick = {}
-        )
+        if (currentRole == "worker") {
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.AutoMirrored.Filled.Article,
+                title = "My Posts",
+                subtitle = "${profile.postsCount} posts",
+                onClick = { showMyPosts = true }
+            )
+        }
+
+        if (currentRole == "seeker") {
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.Default.Report,
+                title = "My Complaints",
+                subtitle = "${profile.complaintsCount} complaints",
+                onClick = { showMyComplaints = true }
+            )
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         ProfileMenuItem(
             icon = Icons.Default.Info,
             title = "About Nangal Seva",
-            subtitle = "Version 1.0",
-            onClick = {}
+            subtitle = "Version 1.0 • Nangal, Punjab",
+            onClick = { showAbout = true }
         )
+
         Spacer(modifier = Modifier.height(8.dp))
         ProfileMenuItem(
-            icon = Icons.Default.Logout,
+            icon = Icons.Default.SwitchAccount,
+            title = "Switch Profile",
+            subtitle = "Currently: ${currentRole.replaceFirstChar { it.uppercase() }}",
+            onClick = { showSwitchProfile = true }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        ProfileMenuItem(
+            icon = Icons.AutoMirrored.Filled.Logout,
             title = "Logout",
             subtitle = "Sign out from app",
             onClick = onLogout,
@@ -315,7 +393,6 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(24.dp))
     }
 
-    // Dialogs
     if (showEditDialog) {
         EditProfileDialog(
             currentName = profile.name,
@@ -338,120 +415,248 @@ fun ProfileScreen(
     if (showBloodGroupDialog) {
         ChangeBloodGroupDialog(
             currentBloodGroup = profile.bloodGroup,
-            currentAge = profile.age,
             currentIsDonor = profile.isDonor,
             isLoading = isLoading,
             onDismiss = { showBloodGroupDialog = false },
-            onSave = { bloodGroup, age, isDonor ->
-                profileViewModel.updateBloodGroupAndAge(bloodGroup, age, isDonor)
+            onSave = { bloodGroup, isDonor ->
+                profileViewModel.updateBloodGroup(bloodGroup, isDonor)
             }
         )
     }
 
-    // Admin Passcode Dialog
-    if (showAdminPasscodeDialog) {
-        AdminPasscodeInlineDialog(
-            onDismiss = { showAdminPasscodeDialog = false },
-            onVerified = {
-                showAdminPasscodeDialog = false
-                profileViewModel.switchToRole("admin")
+    if (showSwitchProfile) {
+        SwitchProfileDialog(
+            currentRole = currentRole,
+            onDismiss = { showSwitchProfile = false },
+            onSwitch = { newRole ->
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    ?: return@SwitchProfileDialog
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .update("role", newRole)
+                    .addOnSuccessListener {
+                        showSwitchProfile = false
+                        onRoleSwitch?.invoke(newRole)
+                    }
             }
         )
     }
 }
 
-fun roleIcon(role: String): String = when (role) {
-    "worker" -> "👷"
-    "admin" -> "🏛️"
-    else -> "👤"
-}
-
-// One-tap role switch button — active role ko highlight/disable karta hai,
-// baaki roles pe click karte hi seedha switch ho jata hai (no extra form/screen).
+// ── Switch Profile Dialog ────────────────────────────────────
 @Composable
-fun RoleSwitchButton(
-    label: String,
-    emoji: String,
-    isActive: Boolean,
-    enabled: Boolean,
-    isDanger: Boolean = false,
-    onClick: () -> Unit
-) {
-    if (isActive) {
-        Button(
-            onClick = {},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            enabled = false,
-            colors = ButtonDefaults.buttonColors(
-                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                disabledContentColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("$emoji $label (Active)")
-        }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            enabled = enabled,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = if (isDanger) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurface
-            )
-        ) {
-            Text("$emoji Switch to $label")
-        }
-    }
-}
-
-// Admin passcode dialog inline (profile screen ke andar)
-@Composable
-fun AdminPasscodeInlineDialog(
+fun SwitchProfileDialog(
+    currentRole: String,
     onDismiss: () -> Unit,
-    onVerified: () -> Unit
+    onSwitch: (String) -> Unit
 ) {
-    val ADMIN_PASSCODE = "NANGAL@ADMIN123" // Apna passcode yahan
-    var input by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf(false) }
+    var selectedRole by remember { mutableStateOf(currentRole) }
+    var showAdminPasscode by remember { mutableStateOf(false) }
+    var passcode by remember { mutableStateOf("") }
+    var passcodeError by remember { mutableStateOf<String?>(null) }
+    var showPassword by remember { mutableStateOf(false) }
+
+    if (showAdminPasscode) {
+        AlertDialog(
+            onDismissRequest = {
+                showAdminPasscode = false
+                passcode = ""
+                passcodeError = null
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Lock, null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Admin Passcode", fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        "Enter department passcode to switch to Admin role",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = passcode,
+                        onValueChange = {
+                            passcode = it
+                            passcodeError = null
+                        },
+                        label = { Text("Passcode") },
+                        singleLine = true,
+                        visualTransformation = if (showPassword)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(onClick = { showPassword = !showPassword }) {
+                                Icon(
+                                    if (showPassword) Icons.Default.VisibilityOff
+                                    else Icons.Default.Visibility,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        isError = passcodeError != null
+                    )
+                    if (passcodeError != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            passcodeError!!,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (passcode == ADMIN_PASSCODE) {
+                            onSwitch("admin")
+                            showAdminPasscode = false
+                            passcode = ""
+                        } else {
+                            passcodeError = "⚠️ Invalid passcode"
+                            passcode = ""
+                        }
+                    },
+                    enabled = passcode.isNotBlank(),
+                    shape = RoundedCornerShape(8.dp)
+                ) { Text("Verify & Switch") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showAdminPasscode = false
+                        passcode = ""
+                        passcodeError = null
+                    }
+                ) { Text("Cancel") }
+            }
+        )
+        return
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("🏛️ Admin Access", fontWeight = FontWeight.Bold) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.SwitchAccount, null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Switch Profile", fontWeight = FontWeight.Bold)
+            }
+        },
         text = {
             Column {
                 Text(
-                    "Enter admin passcode to switch to Admin mode",
+                    "Select your role. Admin requires a passcode.",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = {
-                        input = it
-                        error = false
-                    },
-                    label = { Text("Passcode") },
-                    isError = error,
-                    supportingText = if (error) {{ Text("Wrong passcode!", color = MaterialTheme.colorScheme.error) }} else null,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                listOf(
+                    Triple("seeker", "👤", "Find workers & report issues"),
+                    Triple("worker", "👷", "Offer your services"),
+                    Triple("admin", "🏛️", "Municipal Official (passcode required)")
+                ).forEach { (role, emoji, desc) ->
+                    val isSelected = selectedRole == role
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            else
+                                MaterialTheme.colorScheme.surface
+                        ),
+                        border = if (isSelected)
+                            androidx.compose.foundation.BorderStroke(
+                                2.dp, MaterialTheme.colorScheme.primary
+                            )
+                        else null,
+                        onClick = { selectedRole = role }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(emoji, fontSize = 24.sp)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    role.replaceFirstChar { it.uppercase() },
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = if (isSelected)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    desc,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                )
+                            }
+                            if (role == "admin") {
+                                Icon(
+                                    Icons.Default.Lock, null,
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            if (isSelected) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.CheckCircle, null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (input.trim() == ADMIN_PASSCODE) onVerified()
-                    else error = true
+                    if (selectedRole == currentRole) {
+                        onDismiss()
+                        return@Button
+                    }
+                    if (selectedRole == "admin") {
+                        showAdminPasscode = true
+                    } else {
+                        onSwitch(selectedRole)
+                    }
                 },
                 shape = RoundedCornerShape(8.dp)
-            ) { Text("Verify") }
+            ) {
+                Text(
+                    if (selectedRole == "admin") "Continue →"
+                    else "Switch to ${selectedRole.replaceFirstChar { it.uppercase() }}"
+                )
+            }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
@@ -459,7 +664,184 @@ fun AdminPasscodeInlineDialog(
     )
 }
 
-// Baaki composables same rehte hain (StatCard, ProfileMenuItem, EditProfileDialog, etc.)
+// ── My Posts Screen ──────────────────────────────────────────
+@Composable
+fun MyPostsScreen(onBack: () -> Unit) {
+    val postViewModel: PostViewModel = viewModel()
+    val allPosts by postViewModel.posts.collectAsState()
+    val isLoading by postViewModel.isLoading.collectAsState()
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val myPosts = allPosts.filter { it.uid == currentUid }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
+            }
+            Text(
+                "My Posts", fontWeight = FontWeight.Bold, fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (myPosts.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("📭", fontSize = 56.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No posts yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text("Post your services to get started", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                }
+            }
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(myPosts) { post ->
+                    RealPostCard(post = post, userRole = "worker", onContactClick = {})
+                }
+            }
+        }
+    }
+}
+
+// ── My Complaints Screen ─────────────────────────────────────
+@Composable
+fun MyComplaintsScreen(onBack: () -> Unit) {
+    val complaintViewModel: ComplaintViewModel = viewModel()
+    val allComplaints by complaintViewModel.complaints.collectAsState()
+    val isLoading by complaintViewModel.isLoading.collectAsState()
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val myComplaints = allComplaints.filter { it.uid == currentUid }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
+            }
+            Text(
+                "My Complaints", fontWeight = FontWeight.Bold, fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (myComplaints.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("📋", fontSize = 56.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No complaints yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text("Report a civic issue to get started", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                }
+            }
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(myComplaints) { complaint ->
+                    RealComplaintCard(
+                        complaint = complaint,
+                        userRole = "seeker",
+                        onStatusUpdate = { _, _, _ -> },
+                        onDelete = {},
+                        onAddPoints = { _, _, _ -> }
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ── About Screen ─────────────────────────────────────────────
+@Composable
+fun AboutScreen(onBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
+            }
+            Text(
+                "About Nangal Seva", fontWeight = FontWeight.Bold, fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("🏙️", fontSize = 64.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Nangal Seva", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            Text("ਨੰਗਲ ਸੇਵਾ", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Apna Shehar, Apni Zimmedari", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+            Spacer(modifier = Modifier.height(32.dp))
+            AboutCard("🎯", "Our Mission", "Nangal Seva is a hyperlocal community platform built for the town of Nangal, Punjab. Our goal is to connect citizens, local workers, and municipal departments in one powerful mobile application.")
+            Spacer(modifier = Modifier.height(16.dp))
+            AboutCard("👥", "Who We Serve", "• Citizens (Seekers) — Report civic issues, find local workers, earn Seva Points\n• Workers — Showcase services, connect with people in need\n• Admin (Municipal Officials) — Manage complaints, update statuses, reward active citizens")
+            Spacer(modifier = Modifier.height(16.dp))
+            AboutCard("✨", "Key Features", "• Community Feed — Local service posts\n• Complaint Portal — Civic issue reporting with GPS\n• Services Directory — Verified local workers\n• Blood Donors — Emergency blood contact\n• Live Map — Complaint tracking on Nangal map\n• AI Assistant — Powered by Gemini\n• Emergency SOS — One tap emergency contacts\n• Seva Points — Reward system for active citizens")
+            Spacer(modifier = Modifier.height(16.dp))
+            AboutCard("📍", "Location", "Nangal, District Rupnagar, Punjab, India\nNear Bhakra Nangal Dam")
+            Spacer(modifier = Modifier.height(16.dp))
+            AboutCard("ℹ️", "App Info", "Version: 1.0\nPlatform: Android\nBuilt with: Kotlin + Jetpack Compose\nBackend: Firebase Firestore\nAI: Google Gemini")
+            Spacer(modifier = Modifier.height(24.dp))
+            Text("Made with ❤️ for Nangal", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
+        }
+    }
+}
+
+@Composable
+fun AboutCard(emoji: String, title: String, description: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(emoji, fontSize = 22.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), lineHeight = 20.sp)
+        }
+    }
+}
+
 @Composable
 fun StatCard(count: String, label: String, emoji: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -484,22 +866,16 @@ fun ProfileMenuItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         onClick = onClick
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = if (isDestructive)
-                    MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
-                else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        icon,
-                        contentDescription = title,
+                        icon, contentDescription = title,
                         tint = if (isDestructive) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
@@ -509,9 +885,7 @@ fun ProfileMenuItem(
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                    title, fontSize = 14.sp, fontWeight = FontWeight.Medium,
                     color = if (isDestructive) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.onSurface
                 )
@@ -519,59 +893,28 @@ fun ProfileMenuItem(
                     Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                 }
             }
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                modifier = Modifier.size(18.dp)
-            )
+            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), modifier = Modifier.size(18.dp))
         }
     }
 }
 
 @Composable
-fun EditProfileDialog(
-    currentName: String,
-    currentAddress: String,
-    isLoading: Boolean,
-    onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit
-) {
+fun EditProfileDialog(currentName: String, currentAddress: String, isLoading: Boolean, onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
     var name by remember { mutableStateOf(currentName) }
     var address by remember { mutableStateOf(currentAddress) }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit Profile", fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Full Name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = { Text("Area / Mohalla") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
+                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Area / Mohalla") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
             }
         },
         confirmButton = {
-            Button(
-                onClick = { onSave(name.trim(), address.trim()) },
-                enabled = name.isNotBlank() && address.isNotBlank() && !isLoading,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary)
-                else Text("Save")
+            Button(onClick = { onSave(name.trim(), address.trim()) }, enabled = name.isNotBlank() && address.isNotBlank() && !isLoading, shape = RoundedCornerShape(8.dp)) {
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text("Save")
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
@@ -579,17 +922,11 @@ fun EditProfileDialog(
 }
 
 @Composable
-fun ChangeCategoryDialog(
-    currentCategory: String,
-    isLoading: Boolean,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit
-) {
+fun ChangeCategoryDialog(currentCategory: String, isLoading: Boolean, onDismiss: () -> Unit, onSave: (String) -> Unit) {
     val categories = listOf("🔧 Plumber", "⚡ Electrician", "🎨 Painter", "🪚 Carpenter", "🧱 Mason", "🧹 Cleaner", "👷 Labour", "❓ Other")
     var selectedCategory by remember { mutableStateOf(currentCategory) }
     var customCategory by remember { mutableStateOf("") }
     val isOther = selectedCategory == "❓ Other"
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Change Work Category", fontWeight = FontWeight.Bold) },
@@ -597,38 +934,19 @@ fun ChangeCategoryDialog(
             Column {
                 categories.forEach { category ->
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = selectedCategory == category,
-                            onClick = { selectedCategory = category },
-                            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                        )
-                        Text(category, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                        RadioButton(selected = selectedCategory == category, onClick = { selectedCategory = category }, colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary))
+                        Text(category, fontSize = 14.sp)
                     }
                 }
                 if (isOther) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = customCategory,
-                        onValueChange = { customCategory = it },
-                        label = { Text("Enter your work type") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    OutlinedTextField(value = customCategory, onValueChange = { customCategory = it }, label = { Text("Enter your work type") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(12.dp))
                 }
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val final = if (isOther && customCategory.isNotBlank()) customCategory.trim() else selectedCategory
-                    onSave(final)
-                },
-                enabled = selectedCategory.isNotEmpty() && (!isOther || customCategory.isNotBlank()) && !isLoading,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary)
-                else Text("Save")
+            Button(onClick = { val final = if (isOther && customCategory.isNotBlank()) customCategory.trim() else selectedCategory; onSave(final) }, enabled = selectedCategory.isNotEmpty() && (!isOther || customCategory.isNotBlank()) && !isLoading, shape = RoundedCornerShape(8.dp)) {
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text("Save")
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
@@ -638,52 +956,23 @@ fun ChangeCategoryDialog(
 @Composable
 fun ChangeBloodGroupDialog(
     currentBloodGroup: String,
-    currentAge: String,
     currentIsDonor: Boolean,
     isLoading: Boolean,
     onDismiss: () -> Unit,
-    onSave: (String, String, Boolean) -> Unit
+    onSave: (String, Boolean) -> Unit
 ) {
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
     var selectedBloodGroup by remember { mutableStateOf(currentBloodGroup) }
-    var age by remember { mutableStateOf(currentAge) }
     var isDonor by remember { mutableStateOf(currentIsDonor) }
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("🩸 Blood Group & Age", fontWeight = FontWeight.Bold) },
+        title = { Text("🩸 Blood Group", fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                OutlinedTextField(
-                    value = age,
-                    onValueChange = { if (it.length <= 3) age = it },
-                    label = { Text("Age") },
-                    placeholder = { Text("Your age") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text("Select your blood group", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                Spacer(modifier = Modifier.height(12.dp))
                 bloodGroups.chunked(4).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         row.forEach { group ->
-                            FilterChip(
-                                selected = selectedBloodGroup == group,
-                                onClick = {
-                                    selectedBloodGroup = if (selectedBloodGroup == group) "" else group
-                                    if (selectedBloodGroup.isEmpty()) isDonor = false
-                                },
-                                label = { Text(group, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF880E4F),
-                                    selectedLabelColor = Color.White
-                                )
-                            )
+                            FilterChip(selected = selectedBloodGroup == group, onClick = { selectedBloodGroup = if (selectedBloodGroup == group) "" else group }, label = { Text(group, fontSize = 12.sp, fontWeight = FontWeight.Bold) }, modifier = Modifier.weight(1f), colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFF880E4F), selectedLabelColor = Color.White))
                         }
                     }
                     Spacer(modifier = Modifier.height(6.dp))
@@ -691,11 +980,7 @@ fun ChangeBloodGroupDialog(
                 if (selectedBloodGroup.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = isDonor,
-                            onCheckedChange = { isDonor = it },
-                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFF880E4F))
-                        )
+                        Checkbox(checked = isDonor, onCheckedChange = { isDonor = it }, colors = CheckboxDefaults.colors(checkedColor = Color(0xFF880E4F)))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("I am willing to donate blood if needed", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
                     }
@@ -703,14 +988,8 @@ fun ChangeBloodGroupDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = { onSave(selectedBloodGroup, age, isDonor) },
-                enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F)),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
-                else Text("Save")
+            Button(onClick = { onSave(selectedBloodGroup, isDonor) }, enabled = !isLoading, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F)), shape = RoundedCornerShape(8.dp)) {
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White) else Text("Save")
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }

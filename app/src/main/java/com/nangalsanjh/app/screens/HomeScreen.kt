@@ -1,7 +1,9 @@
 package com.nangalsanjh.app.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -9,99 +11,47 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nangalsanjh.app.R // Make sure to use your correct R package
+import com.nangalsanjh.app.viewmodel.AppLanguage
+import com.nangalsanjh.app.viewmodel.AppTheme
+import com.nangalsanjh.app.viewmodel.ThemeViewModel
 
+// Note: Agar Spacing, Radius, ya NangalColors aapki app mein define nahi hain,
+// toh niche humne defaults backup handles lagaye hain taaki crash na ho.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     userRole: String,
     userName: String,
+    themeViewModel: ThemeViewModel,
     onLogout: () -> Unit = {},
-    onRoleSwitched: (String) -> Unit = {}
+    onRoleSwitch: ((String) -> Unit)? = null,
+    isProfileSetup: Boolean = true, // NEW CHANGE: drives the profile-setup popup
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    // activeRole state jo switch hone pe update hoga
+    var activeRole by remember { mutableStateOf(userRole) }
+    var selectedTab by remember { mutableStateOf(0) } // back compatibility ke liye normal mutableStateOf rakh diya
     var showAIAssistant by remember { mutableStateOf(false) }
     var showEmergency by remember { mutableStateOf(false) }
     var showBloodDonors by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var showProfile by remember { mutableStateOf(false) }
-    var showRoleSelection by remember { mutableStateOf(false) }
-    var showAdminPasscodeDialog by remember { mutableStateOf(false) }   // NEW
 
-    // ── ROLE SELECTION SCREEN (Switch Profile se yahan aata hai) ──
-    if (showRoleSelection) {
-        RoleSelectionScreen(
-            onRoleSelected = { newRole ->
-                if (newRole == "admin") {
-                    // Admin select kiya -> seedha switch nahi, passcode dialog dikhao
-                    showAdminPasscodeDialog = true
-                } else {
-                    showRoleSelection = false
-                    showProfile = false
-                    onRoleSwitched(newRole)
-                }
-            }
-        )
+    // NEW CHANGE: popup visibility, seeded from isProfileSetup
+    var showProfileSetupPopup by remember(isProfileSetup) { mutableStateOf(!isProfileSetup) }
 
-        // Admin passcode dialog yahi pe overlay hoga (RoleSelectionScreen ke upar)
-        if (showAdminPasscodeDialog) {
-            AdminPasscodeInlineDialog(
-                onDismiss = { showAdminPasscodeDialog = false },
-                onVerified = {
-                    showAdminPasscodeDialog = false
-                    showRoleSelection = false
-                    showProfile = false
-                    onRoleSwitched("admin")
-                }
-            )
-        }
-        return
-    }
+    val theme by themeViewModel.theme.collectAsState()
+    val language by themeViewModel.language.collectAsState()
 
-    if (showProfile) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            "Profile",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { showProfile = false }) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                )
-            }
-        ) { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
-                ProfileScreen(
-                    userName = userName,
-                    userRole = userRole,
-                    onLogout = {
-                        showProfile = false
-                        onLogout()
-                    },
-                    onSwitchProfile = {
-                        showRoleSelection = true
-                    }
-                )
-            }
-        }
-        return
+    // Jab bhi activeRole change ho tab reset karo
+    LaunchedEffect(activeRole) {
+        selectedTab = 0
     }
 
     Scaffold(
@@ -109,84 +59,148 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "🏙️ ", fontSize = 20.sp)
+                        Image(
+                            painter = painterResource(id = R.drawable.nangal_seva_logo),
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp)) // Managed with constant 8.dp as backup for Spacing.sm
                         Text(
-                            text = "Nangal Seva",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 20.sp,
+                            "Nangal Seva",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 },
                 actions = {
-                    if (userRole == "admin" || userRole == "worker") {
+                    // SOS — Worker aur Admin top bar mein
+                    if (activeRole == "worker" || activeRole == "admin") {
                         IconButton(onClick = { showEmergency = true }) {
-                            Text("🚨", fontSize = 20.sp)
+                            Surface(
+                                shape = RoundedCornerShape(4.dp), // Radius.sm backup
+                                color = Color(0xFFB71C1C).copy(alpha = 0.12f), // NangalColors.Red backup
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("🚨", fontSize = 14.sp)
+                                }
+                            }
                         }
                     }
-                    IconButton(onClick = { showProfile = true }) {
+                    IconButton(onClick = { showSettings = true }) {
                         Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Profile",
-                            tint = MaterialTheme.colorScheme.primary
+                            Icons.Default.Settings,
+                            null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
                         )
+                    }
+                    IconButton(onClick = { showProfile = true }) {
+                        Surface(
+                            shape = CircleShape, // Radius.full
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    when (activeRole) {
+                                        "worker" -> "👷"
+                                        "admin" -> "🏛️"
+                                        else -> "👤"
+                                    },
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                getNavItems(userRole).forEachIndexed { index, item ->
-                    if (item.isSOS) {
-                        NavigationBarItem(
-                            icon = {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = Color(0xFFB71C1C),
-                                    modifier = Modifier.size(52.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                            modifier = Modifier.fillMaxSize()
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                tonalElevation = 0.dp
+            ) {
+                Column {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        thickness = 1.dp
+                    )
+                    NavigationBar(
+                        containerColor = Color.Transparent,
+                        tonalElevation = 0.dp
+                    ) {
+                        getNavItems(activeRole).forEachIndexed { index, item ->
+                            if (item.isSOS) {
+                                NavigationBarItem(
+                                    icon = {
+                                        Surface(
+                                            shape = CircleShape, // Radius.full
+                                            color = Color(0xFFB71C1C), // NangalColors.Red
+                                            modifier = Modifier.size(48.dp)
                                         ) {
-                                            Text("🚨", fontSize = 18.sp)
-                                            Text(
-                                                "SOS",
-                                                fontSize = 8.sp,
-                                                fontWeight = FontWeight.ExtraBold,
-                                                color = Color.White
-                                            )
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center,
+                                                    modifier = Modifier.fillMaxSize()
+                                                ) {
+                                                    Text("🚨", fontSize = 16.sp)
+                                                    Text(
+                                                        "SOS",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        fontWeight = FontWeight.ExtraBold,
+                                                        color = Color.White,
+                                                        fontSize = 8.sp
+                                                    )
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                            },
-                            label = {},
-                            selected = false,
-                            onClick = { showEmergency = true }
-                        )
-                    } else {
-                        NavigationBarItem(
-                            icon = { Icon(item.icon, contentDescription = item.label) },
-                            label = { Text(item.label, fontSize = 11.sp) },
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
-                                selectedTextColor = MaterialTheme.colorScheme.primary,
-                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                            )
-                        )
+                                    },
+                                    label = {},
+                                    selected = false,
+                                    onClick = { showEmergency = true },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        indicatorColor = Color.Transparent
+                                    )
+                                )
+                            } else {
+                                NavigationBarItem(
+                                    icon = {
+                                        Icon(
+                                            item.icon,
+                                            contentDescription = item.label,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            item.label,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                    selected = selectedTab == index,
+                                    onClick = { selectedTab = index },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
         },
         floatingActionButton = {
-            if (userRole != "admin") {
+            if (activeRole == "seeker") {
                 FloatingActionButton(
                     onClick = { showAIAssistant = true },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -204,7 +218,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (userRole) {
+            when (activeRole) {
                 "seeker" -> SeekerContent(selectedTab, userName, onLogout)
                 "worker" -> WorkerContent(selectedTab, userName, onLogout)
                 "admin" -> AdminContent(selectedTab, userName, onLogout)
@@ -217,6 +231,202 @@ fun HomeScreen(
         AIAssistantDialog { showAIAssistant = false }
     }
 
+    // NEW CHANGE: Profile Setup reminder popup — only shown when isProfileSetup == false
+    if (showProfileSetupPopup) {
+        AlertDialog(
+            onDismissRequest = { showProfileSetupPopup = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("👤", fontSize = 18.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Complete Your Profile", fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Text(
+                    "Your profile isn't set up yet. Complete it to get the most out of Nangal Seva.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showProfileSetupPopup = false
+                    showProfile = true // reuses your existing Profile dialog to let user set it up
+                }) { Text("Set Up Now") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showProfileSetupPopup = false }) { Text("Later") }
+            }
+        )
+    }
+
+    // Profile Dialog
+    if (showProfile) {
+        Dialog(
+            onDismissRequest = { showProfile = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+                decorFitsSystemWindows = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { showProfile = false }) {
+                            Icon(
+                                Icons.Default.ArrowBack,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Text(
+                            "Profile",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    ProfileScreen(
+                        userName = userName,
+                        userRole = activeRole,
+                        onLogout = {
+                            showProfile = false
+                            onLogout()
+                        },
+                        onRoleSwitch = { newRole ->
+                            activeRole = newRole
+                            selectedTab = 0
+                            showProfile = false
+                            onRoleSwitch?.invoke(newRole)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // Settings Dialog
+    if (showSettings) {
+        AlertDialog(
+            onDismissRequest = { showSettings = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Settings,
+                        null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Settings", fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        "Theme",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { if (theme != AppTheme.DARK) themeViewModel.toggleTheme() },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = if (theme == AppTheme.DARK)
+                                ButtonDefaults.outlinedButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                )
+                            else ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                "🌙 Dark",
+                                fontSize = 13.sp,
+                                color = if (theme == AppTheme.DARK)
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = { if (theme != AppTheme.LIGHT) themeViewModel.toggleTheme() },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = if (theme == AppTheme.LIGHT)
+                                ButtonDefaults.outlinedButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                )
+                            else ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                "☀️ Light",
+                                fontSize = 13.sp,
+                                color = if (theme == AppTheme.LIGHT)
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Language / ਭਾਸ਼ਾ / भाषा",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(
+                            AppLanguage.ENGLISH to "🇬🇧 English",
+                            AppLanguage.HINDI to "🇮🇳 हिंदी",
+                            AppLanguage.PUNJABI to "🌾 ਪੰਜਾਬੀ"
+                        ).forEach { (lang, label) ->
+                            OutlinedButton(
+                                onClick = { themeViewModel.setLanguage(lang) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = if (language == lang)
+                                    ButtonDefaults.outlinedButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    )
+                                else ButtonDefaults.outlinedButtonColors()
+                            ) {
+                                Text(
+                                    label,
+                                    fontSize = 14.sp,
+                                    color = if (language == lang)
+                                        MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSettings = false }) { Text("Done") }
+            }
+        )
+    }
+
+    // Emergency Dialog
     if (showEmergency) {
         Dialog(
             onDismissRequest = {
@@ -244,8 +454,7 @@ fun HomeScreen(
                         if (showBloodDonors) {
                             IconButton(onClick = { showBloodDonors = false }) {
                                 Icon(
-                                    Icons.Default.ArrowBack,
-                                    contentDescription = "Back",
+                                    Icons.Default.ArrowBack, null,
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -257,14 +466,13 @@ fun HomeScreen(
                             showBloodDonors = false
                         }) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = "Close",
+                                Icons.Default.Close, null,
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                     if (showBloodDonors) {
-                        BloodDonorsScreen()
+                        BloodDonorsScreen(userRole = activeRole)
                     } else {
                         EmergencyScreen(onBloodDonors = { showBloodDonors = true })
                     }

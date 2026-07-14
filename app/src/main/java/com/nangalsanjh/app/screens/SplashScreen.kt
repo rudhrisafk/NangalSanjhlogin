@@ -1,8 +1,6 @@
 package com.nangalsanjh.app.screens
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -16,26 +14,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
 import com.nangalsanjh.app.R
+import com.nangalsanjh.app.theme.Spacing
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onSplashComplete: () -> Unit) {
     var startAnimation by remember { mutableStateOf(false) }
-    val alphaAnim = animateFloatAsState(
+
+    val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 1200),
+        animationSpec = tween(durationMillis = 900, easing = EaseOut),
         label = "alpha"
     )
-    val scaleAnim = animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0.8f,
-        animationSpec = tween(durationMillis = 1200),
-        label = "scale"
+    val translateY by animateFloatAsState(
+        targetValue = if (startAnimation) 0f else 24f,
+        animationSpec = tween(durationMillis = 900, easing = EaseOut),
+        label = "translateY"
     )
 
     LaunchedEffect(Unit) {
         startAnimation = true
-        delay(2500)
+        delay(2400)
         onSplashComplete()
     }
 
@@ -48,51 +49,54 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .alpha(alphaAnim.value)
-                .scale(scaleAnim.value)
+                .alpha(alpha)
+                .offset(y = translateY.dp)
         ) {
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.nangal_seva_logo),
-                contentDescription = "Nangal Seva Logo",
-                modifier = Modifier.size(180.dp)
+                contentDescription = "Nangal Seva",
+                modifier = Modifier.size(96.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Spacing.xxl))
 
             Text(
                 text = "Nangal Seva",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onBackground,
+                letterSpacing = (-0.5).sp
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.xs))
 
             Text(
                 text = "ਨੰਗਲ ਸੇਵਾ",
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Apna Shehar, Apni Zimmedari",
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
-        // Version at bottom
-        Text(
-            text = "v1.0",
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+        // Bottom tagline
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp)
-                .alpha(alphaAnim.value)
-        )
+                .padding(bottom = 40.dp)
+                .alpha(alpha),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Apna Shehar, Apni Zimmedari",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            Text(
+                text = "v1.0",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+            )
+        }
     }
 }

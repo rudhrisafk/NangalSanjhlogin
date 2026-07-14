@@ -1,56 +1,35 @@
 package com.nangalsanjh.app.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nangalsanjh.app.data.OpenRouterService
+import com.nangalsanjh.app.theme.*
 import kotlinx.coroutines.launch
 
 data class ChatMessage(
     val text: String,
-    val isUser: Boolean,
+    val isUser: Boolean
 )
 
 @Composable
 fun AIAssistantDialog(onDismiss: () -> Unit) {
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
     var inputText by remember { mutableStateOf("") }
@@ -60,7 +39,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
             listOf(
                 ChatMessage(
                     text = "Sat Sri Akaal! 🙏 Main Nangal Seva ka AI Assistant hoon!\n\nMain help kar sakta hoon:\n• Civic complaints file karne mein\n• Local workers dhundhne mein\n• App use karne mein\n\nKya chahiye aapko?",
-                    isUser = false,
+                    isUser = false
                 )
             )
         )
@@ -68,21 +47,6 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val chatHistory = remember { mutableListOf<Pair<String, String>>() }
     val suggestions = listOf("Plumber chahiye", "Light nahi hai", "App help")
 
-    // Keyboard detection
-    val imeInsets = WindowInsets.ime
-    val density = LocalDensity.current
-    val isImeVisible by remember {
-        derivedStateOf { imeInsets.getBottom(density) > 0 }
-    }
-
-    // Auto-scroll when keyboard opens
-    LaunchedEffect(isImeVisible) {
-        if (isImeVisible && messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.size - 1)
-        }
-    }
-
-    // Auto-scroll when new message arrives
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
@@ -91,29 +55,15 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 
     fun sendMessage(text: String) {
         if (text.isBlank() || isLoading) return
-
-        val userMsg = ChatMessage(text = text, isUser = true)
-        messages = messages + userMsg
+        messages = messages + ChatMessage(text = text, isUser = true)
         chatHistory.add(Pair("user", text))
         inputText = ""
         isLoading = true
-
-        coroutineScope.launch {
-            try {
-                val response = OpenRouterService.sendMessage(
-                    userMessage = text,
-                    chatHistory = chatHistory.dropLast(1)
-                )
-                chatHistory.add(Pair("model", response))
-                messages = messages + ChatMessage(text = response, isUser = false)
-            } catch (e: Exception) {
-                messages = messages + ChatMessage(
-                    text = "❌ Error: ${e.localizedMessage ?: "Something went wrong. Please try again."}",
-                    isUser = false
-                )
-            } finally {
-                isLoading = false
-            }
+        scope.launch {
+            val response = OpenRouterService.sendMessage(text, chatHistory.dropLast(1))
+            chatHistory.add(Pair("model", response))
+            messages = messages + ChatMessage(text = response, isUser = false)
+            isLoading = false
         }
     }
 
@@ -121,6 +71,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
             decorFitsSystemWindows = false
         )
     ) {
@@ -132,107 +83,157 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .imePadding()
             ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("🤖", fontSize = 26.sp)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                "Nangal AI Assistant",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                "Powered by AI",
-                                fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
 
-                // Suggestions
-                if (messages.size == 1) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        suggestions.forEach { suggestion ->
-                            OutlinedButton(
-                                onClick = { sendMessage(suggestion) },
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp
-                                )
+                // ── Header ───────────────────────────────────────
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 0.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = Spacing.lg,
+                                    vertical = Spacing.md
+                                ),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Surface(
+                                    shape = Radius.md,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                    modifier = Modifier.size(38.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text("🤖", fontSize = 18.sp)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(Spacing.md))
+                                Column {
+                                    Text(
+                                        "Nangal AI",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        "Powered by AI",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier.size(36.dp)
                             ) {
-                                Text(suggestion, fontSize = 12.sp)
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Close",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
+                        NSDivider()
                     }
                 }
 
-                // Messages List
+                // ── Messages ─────────────────────────────────────
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .height(300.dp)
+                        .weight(1f)
                         .fillMaxWidth(),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        top = 16.dp,
-                        end = 16.dp,
-                        bottom = 12.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    contentPadding = PaddingValues(Spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
+                    if (messages.size == 1) {
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+                            ) {
+                                Text(
+                                    "Quick suggestions",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                suggestions.forEach { suggestion ->
+                                    Surface(
+                                        shape = Radius.md,
+                                        color = MaterialTheme.colorScheme.surface,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = { sendMessage(suggestion) }
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(
+                                                horizontal = Spacing.lg,
+                                                vertical = Spacing.md
+                                            ),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                suggestion,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Icon(
+                                                Icons.Default.ArrowUpward,
+                                                null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(Spacing.sm))
+                            }
+                        }
+                    }
+
                     items(messages) { message ->
                         ChatBubble(message = message)
                     }
+
                     if (isLoading) {
                         item {
-                            Row(horizontalArrangement = Arrangement.Start) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .padding(12.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(
+                                        topStart = 4.dp,
+                                        topEnd = 16.dp,
+                                        bottomStart = 16.dp,
+                                        bottomEnd = 16.dp
+                                    ),
+                                    color = MaterialTheme.colorScheme.surface
                                 ) {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                        modifier = Modifier.padding(
+                                            horizontal = Spacing.lg,
+                                            vertical = Spacing.md
+                                        ),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
                                     ) {
-                                        Text("🤖", fontSize = 14.sp)
-                                        Text(
-                                            "Soch raha hoon...",
-                                            fontSize = 13.sp,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(
-                                                alpha = 0.6f
-                                            )
-                                        )
+                                        Text("🤖", fontSize = 13.sp)
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(14.dp),
-                                            strokeWidth = 2.dp,
+                                            strokeWidth = 1.5.dp,
                                             color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            "Thinking...",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
@@ -241,63 +242,79 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                     }
                 }
 
-                // Input Box
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .navigationBarsPadding()
-                        .imePadding()  // ✅ Keyboard pushes this up
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                // ── Input Bar ─────────────────────────────────────
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    OutlinedTextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        placeholder = { Text("Kuch bhi poocho...", fontSize = 14.sp) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(24.dp),
-                        maxLines = 4,
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Send
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSend = {
-                                if (inputText.isNotBlank() && !isLoading) {
-                                    sendMessage(inputText.trim())
-                                }
-                            }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(
-                                alpha = 0.3f
+                    Column {
+                        NSDivider()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = Spacing.lg,
+                                    vertical = Spacing.md
+                                ),
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                        ) {
+                            OutlinedTextField(
+                                value = inputText,
+                                onValueChange = { inputText = it },
+                                placeholder = {
+                                    Text(
+                                        "Ask anything...",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(24.dp),
+                                maxLines = 5,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.background
+                                ),
+                                textStyle = MaterialTheme.typography.bodyMedium
                             )
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(50.dp))
-                            .background(
-                                if (inputText.isNotBlank() && !isLoading)
+
+                            val canSend = inputText.isNotBlank() && !isLoading
+                            Surface(
+                                shape = Radius.full,
+                                color = if (canSend)
                                     MaterialTheme.colorScheme.primary
                                 else
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(
-                            onClick = { sendMessage(inputText.trim()) },
-                            enabled = inputText.isNotBlank() && !isLoading,
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Send,
-                                contentDescription = "Send",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(20.dp),
-                            )
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .align(Alignment.Bottom),
+                                onClick = {
+                                    if (canSend) sendMessage(inputText.trim())
+                                }
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    if (isLoading) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.ArrowUpward,
+                                            contentDescription = "Send",
+                                            tint = if (canSend)
+                                                MaterialTheme.colorScheme.onPrimary
+                                            else
+                                                MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -310,44 +327,64 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 fun ChatBubble(message: ChatMessage) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.isUser)
-            Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
     ) {
         if (!message.isUser) {
-            Text(
-                "🤖",
-                fontSize = 20.sp,
-                modifier = Modifier.padding(end = 8.dp, top = 4.dp)
-            )
+            Surface(
+                shape = Radius.md,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                modifier = Modifier
+                    .size(28.dp)
+                    .align(Alignment.Bottom)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("🤖", fontSize = 13.sp)
+                }
+            }
+            Spacer(modifier = Modifier.width(Spacing.sm))
         }
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = if (message.isUser) 16.dp else 4.dp,
-                        topEnd = if (message.isUser) 4.dp else 16.dp,
-                        bottomStart = 16.dp,
-                        bottomEnd = 16.dp
-                    )
-                )
-                .background(
-                    if (message.isUser)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surface
-                )
-                .padding(12.dp)
+
+        Surface(
+            shape = RoundedCornerShape(
+                topStart = if (message.isUser) 16.dp else 4.dp,
+                topEnd = if (message.isUser) 4.dp else 16.dp,
+                bottomStart = 16.dp,
+                bottomEnd = 16.dp
+            ),
+            color = if (message.isUser)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.surface,
+            modifier = Modifier.widthIn(max = 280.dp)
         ) {
             Text(
                 text = message.text,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = if (message.isUser)
                     MaterialTheme.colorScheme.onPrimary
                 else
                     MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(
+                    horizontal = Spacing.lg,
+                    vertical = Spacing.md
+                ),
                 lineHeight = 20.sp
             )
+        }
+
+        if (message.isUser) {
+            Spacer(modifier = Modifier.width(Spacing.sm))
+            Surface(
+                shape = Radius.md,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                modifier = Modifier
+                    .size(28.dp)
+                    .align(Alignment.Bottom)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("👤", fontSize = 13.sp)
+                }
+            }
         }
     }
 }

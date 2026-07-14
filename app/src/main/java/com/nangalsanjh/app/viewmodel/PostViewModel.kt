@@ -14,8 +14,11 @@ data class Post(
     val userRole: String = "",
     val category: String = "",
     val description: String = "",
+    val price: String = "",
+    val availability: String = "",
     val timeStamp: Long = 0L,
-    val replies: Int = 0
+    val replies: Int = 0,
+    val uid: String = ""
 )
 
 class PostViewModel : ViewModel() {
@@ -55,15 +58,24 @@ class PostViewModel : ViewModel() {
                         userRole = doc.getString("userRole") ?: "",
                         category = doc.getString("category") ?: "",
                         description = doc.getString("description") ?: "",
+                        price = doc.getString("price") ?: "",
+                        availability = doc.getString("availability") ?: "",
                         timeStamp = doc.getLong("timeStamp") ?: 0L,
-                        replies = (doc.getLong("replies") ?: 0L).toInt()
+                        replies = (doc.getLong("replies") ?: 0L).toInt(),
+                        uid = doc.getString("uid") ?: ""
                     )
                 } ?: emptyList()
                 _posts.value = postList
             }
     }
 
-    fun createPost(userName: String, category: String, description: String) {
+    fun createWorkerPost(
+        userName: String,
+        category: String,
+        description: String,
+        price: String,
+        availability: String
+    ) {
         val uid = auth.currentUser?.uid ?: return
         val phone = auth.currentUser?.phoneNumber ?: ""
 
@@ -73,9 +85,11 @@ class PostViewModel : ViewModel() {
         val post = hashMapOf(
             "userName" to userName,
             "userPhone" to phone,
-            "userRole" to "seeker",
+            "userRole" to "worker",
             "category" to category,
             "description" to description,
+            "price" to price,
+            "availability" to availability,
             "timeStamp" to System.currentTimeMillis(),
             "replies" to 0,
             "uid" to uid

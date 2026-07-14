@@ -1,13 +1,14 @@
 package com.nangalsanjh.app.screens
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,14 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 
 data class EmergencyContact(
     val name: String,
     val number: String,
     val emoji: String,
     val color: Color,
-    val description: String,
+    val description: String
 )
 
 val emergencyContacts = listOf(
@@ -44,9 +44,7 @@ val emergencyContacts = listOf(
 )
 
 @Composable
-fun EmergencyScreen(
-    onBloodDonors: () -> Unit = {}
-) {
+fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
     val context = LocalContext.current
 
     Column(
@@ -54,7 +52,6 @@ fun EmergencyScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,18 +77,14 @@ fun EmergencyScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
-            // SOS Button
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFB71C1C)
-                    ),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFB71C1C)),
                     onClick = {
                         val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = "tel:112".toUri()
+                            data = Uri.parse("tel:112")
                         }
                         context.startActivity(intent)
                     }
@@ -122,14 +115,11 @@ fun EmergencyScreen(
                 }
             }
 
-            // Blood Donors Button
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF880E4F)
-                    ),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF880E4F)),
                     onClick = onBloodDonors
                 ) {
                     Row(
@@ -153,16 +143,11 @@ fun EmergencyScreen(
                                 color = Color.White.copy(alpha = 0.8f)
                             )
                         }
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.ArrowForward, null, tint = Color.White)
                     }
                 }
             }
 
-            // Section Title
             item {
                 Text(
                     "Emergency Numbers",
@@ -173,32 +158,27 @@ fun EmergencyScreen(
                 )
             }
 
-            // Emergency Contacts List
             items(emergencyContacts) { contact ->
                 EmergencyContactCard(
                     contact = contact,
-                ) {
-                    val intent = Intent(Intent.ACTION_DIAL).apply {
-                        data = "tel:${contact.number}".toUri()
+                    onCallClick = {
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${contact.number}")
+                        }
+                        context.startActivity(intent)
                     }
-                    context.startActivity(intent)
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-fun EmergencyContactCard(
-    contact: EmergencyContact,
-    onCallClick: () -> Unit
-) {
+fun EmergencyContactCard(contact: EmergencyContact, onCallClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -215,9 +195,7 @@ fun EmergencyContactCard(
                     Text(contact.emoji, fontSize = 24.sp)
                 }
             }
-
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     contact.name,
@@ -238,24 +216,13 @@ fun EmergencyContactCard(
                     color = contact.color
                 )
             }
-
             Button(
                 onClick = onCallClick,
                 shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = contact.color
-                ),
-                contentPadding = PaddingValues(
-                    horizontal = 12.dp,
-                    vertical = 8.dp
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = contact.color),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                Icon(
-                    Icons.Default.Call,
-                    contentDescription = "Call",
-                    modifier = Modifier.size(18.dp),
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Call, null, modifier = Modifier.size(18.dp), tint = Color.White)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Call", fontSize = 13.sp, color = Color.White)
             }

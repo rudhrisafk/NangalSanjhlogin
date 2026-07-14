@@ -31,13 +31,20 @@ fun ServicesScreen() {
     var searchQuery by remember { mutableStateOf("") }
 
     val filters = listOf(
-        "All", "🔧 Plumber", "⚡ Electrician",
-        "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour"
+        "All",
+        "🔧 Plumber",
+        "⚡ Electrician",
+        "🎨 Painter",
+        "🪚 Carpenter",
+        "🧹 Cleaner",
+        "👷 Labour",
+        "🚗 Automobile",
+        "🩺 Medical Tests",
+        "🚕 Taxi Service",
+        "🐾 Veterinary"
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
-
-        // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -67,7 +74,6 @@ fun ServicesScreen() {
             )
         )
 
-        // Available Only Toggle
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,7 +105,6 @@ fun ServicesScreen() {
             }
         }
 
-        // Category Filter
         ScrollableTabRow(
             selectedTabIndex = filters.indexOf(selectedFilter).coerceAtLeast(0),
             containerColor = MaterialTheme.colorScheme.surface,
@@ -130,7 +135,16 @@ fun ServicesScreen() {
                                 worker.category.contains(searchQuery, ignoreCase = true)
                     } else true
                 }
-                .filter { if (selectedFilter == "All") true else it.category.contains(selectedFilter.drop(2).trim()) }
+                .filter { worker ->
+                    if (selectedFilter == "All") true
+                    else {
+                        val filterKeyword = selectedFilter
+                            .replace(Regex("[^a-zA-Z ]"), "")
+                            .trim()
+                            .lowercase()
+                        worker.category.lowercase().contains(filterKeyword)
+                    }
+                }
                 .filter { if (showAvailableOnly) it.isAvailable else true }
 
             if (filtered.isEmpty()) {
@@ -142,8 +156,10 @@ fun ServicesScreen() {
                         Text("👷", fontSize = 48.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            if (searchQuery.isNotEmpty()) "No workers found for \"$searchQuery\""
-                            else "No workers registered yet",
+                            if (searchQuery.isNotEmpty())
+                                "No workers found for \"$searchQuery\""
+                            else
+                                "No workers in this category yet",
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
                     }
@@ -168,15 +184,14 @@ fun RealWorkerCard(worker: WorkerModel) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = RoundedCornerShape(50.dp),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
@@ -226,43 +241,50 @@ fun RealWorkerCard(worker: WorkerModel) {
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    Text(
-                        "📍 ${worker.address}",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
+                    if (worker.address.isNotEmpty()) {
+                        Text(
+                            "📍 ${worker.address}",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                    }
                 }
             }
 
-            // Worker Details
             if (worker.about.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     worker.about,
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    lineHeight = 18.sp
                 )
             }
 
             if (worker.price.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                 ) {
-                    Text(
-                        "💰 ${worker.price}",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("💰", fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            worker.price,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Call Button
             Button(
                 onClick = {
                     val intent = Intent(Intent.ACTION_DIAL).apply {
@@ -271,7 +293,7 @@ fun RealWorkerCard(worker: WorkerModel) {
                     context.startActivity(intent)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Icon(
                     Icons.Default.Call,
