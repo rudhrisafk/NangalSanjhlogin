@@ -21,6 +21,13 @@ import androidx.compose.ui.window.DialogProperties
 import com.nangalsanjh.app.data.OpenRouterService
 import com.nangalsanjh.app.theme.*
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.height
+
+// ─── NEW IMPORTS FOR KEYBOARD CONTROL ───
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.activity.compose.BackHandler
 
 data class ChatMessage(
     val text: String,
@@ -47,6 +54,16 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val chatHistory = remember { mutableListOf<Pair<String, String>>() }
     val suggestions = listOf("Plumber chahiye", "Light nahi hai", "App help")
 
+    // ─── NEW: Focus & Keyboard controllers ───
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Auto‑focus & pop up keyboard when dialog appears
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
@@ -71,10 +88,16 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
+            dismissOnBackPress = false,  // we handle back manually now
             decorFitsSystemWindows = false
         )
     ) {
+        // ─── NEW: Back handler – hide keyboard, then dismiss ───
+        BackHandler {
+            keyboardController?.hide()
+            onDismiss()
+        }
+
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -148,7 +171,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .weight(1f)
+                        .height(300.dp)
                         .fillMaxWidth(),
                     contentPadding = PaddingValues(Spacing.lg),
                     verticalArrangement = Arrangement.spacedBy(Spacing.md)
@@ -269,7 +292,9 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusRequester(focusRequester),  // ─── ADDED ───
                                 shape = RoundedCornerShape(24.dp),
                                 maxLines = 5,
                                 colors = OutlinedTextFieldDefaults.colors(

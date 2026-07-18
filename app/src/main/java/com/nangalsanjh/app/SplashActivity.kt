@@ -1,28 +1,77 @@
 package com.nangalsanjh.app
 
-import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.enableEdgeToEdge
-import com.nangalsanjh.app.screens.SplashScreen
-import com.nangalsanjh.app.theme.NangalSevaTheme
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 
-@SuppressLint("CustomSplashScreen")
-class SplashActivity : ComponentActivity() {
+class SplashActivity : AppCompatActivity() {
+
+    private var isNavigated = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            NangalSevaTheme {
-                SplashScreen(
-                    onSplashComplete = {
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                )
-            }
+        setContentView(R.layout.activity_splash)
+
+        val motionLayout = findViewById<MotionLayout>(R.id.motionLayout)
+
+        // Start the animation sequence
+        motionLayout.post {
+            motionLayout.transitionToEnd()
         }
+
+        motionLayout.setTransitionListener(
+            object : MotionLayout.TransitionListener {
+                override fun onTransitionStarted(motionLayout: MotionLayout?, startId: Int, endId: Int) {}
+                override fun onTransitionChange(motionLayout: MotionLayout?, startId: Int, endId: Int, progress: Float) {}
+                override fun onTransitionTrigger(motionLayout: MotionLayout?, triggerId: Int, positive: Boolean, progress: Float) {}
+
+                override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
+                    if (currentId == R.id.end) {
+                        // Hold for 500ms before navigating (Phase 5)
+                        Handler(Looper.getMainLooper()).postDelayed(
+                            {
+                                navigateToMain()
+                            },
+                            500,
+                        )
+                    }
+                }
+            },
+        )
+
+        // Safety fallback: Navigate to MainActivity after 4 seconds if animation fails
+        Handler(Looper.getMainLooper()).postDelayed(
+            {
+                navigateToMain()
+            },
+            4000,
+        )
+    }
+
+    private fun navigateToMain() {
+        if (isNavigated || isFinishing || isDestroyed) return
+        isNavigated = true
+
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        
+        // Smooth fade transition
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out,
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        }
+        finish()
     }
 }
