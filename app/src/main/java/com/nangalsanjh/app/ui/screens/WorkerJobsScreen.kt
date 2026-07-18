@@ -1,4 +1,4 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.layout.*
@@ -19,6 +19,7 @@ import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PostViewModel
 import java.util.Calendar
 
@@ -206,7 +207,7 @@ fun WorkerJobsScreen() {
 
 @Composable
 fun JobRequestCard(
-    post: com.nangalsanjh.app.viewmodel.Post,
+    post: Post,
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {

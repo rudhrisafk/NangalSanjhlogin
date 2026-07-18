@@ -11,7 +11,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.nangalsanjh.app.screens.*
+import com.nangalsanjh.app.ui.screens.AdminPasscodeScreen
+import com.nangalsanjh.app.ui.screens.HomeScreen
+import com.nangalsanjh.app.ui.screens.LoginScreen
+import com.nangalsanjh.app.ui.screens.OTPScreen
+import com.nangalsanjh.app.ui.screens.ProfileSetupScreen
+import com.nangalsanjh.app.ui.screens.RoleSelectionScreen
+import com.nangalsanjh.app.ui.screens.SplashScreen
+import com.nangalsanjh.app.ui.screens.WorkerCategoryScreen
 import com.nangalsanjh.app.viewmodel.AuthViewModel
 import com.nangalsanjh.app.viewmodel.ThemeViewModel
 

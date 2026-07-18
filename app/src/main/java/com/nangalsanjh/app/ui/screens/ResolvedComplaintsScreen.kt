@@ -1,4 +1,4 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nangalsanjh.app.viewmodel.ComplaintModel
 import com.nangalsanjh.app.viewmodel.ComplaintViewModel
 
 @Composable
@@ -50,7 +51,7 @@ fun ResolvedComplaintsScreen() {
 
 @Composable
 fun ResolvedComplaintCard(
-    complaint: com.nangalsanjh.app.viewmodel.ComplaintModel,
+    complaint: ComplaintModel,
     onStatusUpdate: (String, String, String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }

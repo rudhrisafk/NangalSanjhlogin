@@ -1,4 +1,4 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -16,9 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -339,7 +339,7 @@ fun RealComplaintCard(
                         }
                     }
 
-                    NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = "Custom Points", placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number))
+                    NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = "Custom Points", placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                     NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = "Reason", placeholder = "Why giving points?", modifier = Modifier.fillMaxWidth())
 
                     // Levels

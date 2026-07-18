@@ -1,4 +1,4 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri

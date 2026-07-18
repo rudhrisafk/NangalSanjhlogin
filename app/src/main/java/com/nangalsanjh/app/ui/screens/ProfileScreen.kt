@@ -1,5 +1,6 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -589,7 +591,7 @@ fun SwitchProfileDialog(
                                 MaterialTheme.colorScheme.surface
                         ),
                         border = if (isSelected)
-                            androidx.compose.foundation.BorderStroke(
+                            BorderStroke(
                                 2.dp, MaterialTheme.colorScheme.primary
                             )
                         else null,
@@ -854,7 +856,7 @@ fun StatCard(count: String, label: String, emoji: String) {
 
 @Composable
 fun ProfileMenuItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     subtitle: String = "",
     onClick: () -> Unit,

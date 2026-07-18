@@ -1,4 +1,4 @@
-package com.nangalsanjh.app.screens
+package com.nangalsanjh.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nangalsanjh.app.viewmodel.ComplaintModel
 import com.nangalsanjh.app.viewmodel.ComplaintViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -31,7 +32,7 @@ fun MapScreen() {
     val context = LocalContext.current
 
     var selectedComplaint by remember {
-        mutableStateOf<com.nangalsanjh.app.viewmodel.ComplaintModel?>(null)
+        mutableStateOf<ComplaintModel?>(null)
     }
 
     val pendingCount = complaints.count { it.status == "Pending" }
