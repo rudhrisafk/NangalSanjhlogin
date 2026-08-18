@@ -135,7 +135,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         category: String = "",
         price: String = "",
         about: String = "",
-        aadhar: String = ""
+        aadhar: String = "",
+        experience: String = ""
     ) {
         _isLoading.value = true
         _savedName.value = name
@@ -161,6 +162,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             "price" to price,
             "about" to about,
             "aadhar" to aadhar,
+            "experience" to experience,
             "bloodGroup" to _bloodGroup.value,
             "age" to _age.value,
             "isDonor" to (_donorConsent.value && _bloodGroup.value.isNotEmpty()),

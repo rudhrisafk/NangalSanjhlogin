@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nangalsanjh.app.viewmodel.ComplaintViewModel
+import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PointsViewModel
 import com.nangalsanjh.app.viewmodel.PostViewModel
 import com.nangalsanjh.app.viewmodel.ProfileViewModel
@@ -51,10 +53,12 @@ fun ProfileScreen(
     var showEditDialog by remember { mutableStateOf(value = false) }
     var showCategoryDialog by remember { mutableStateOf(value = false) }
     var showBloodGroupDialog by remember { mutableStateOf(value = false) }
-    var showMyPosts by remember { mutableStateOf(value = false) }
+    var showMyWork by remember { mutableStateOf(value = false) }
+    var showMyJobRequests by remember { mutableStateOf(value = false) }
     var showMyComplaints by remember { mutableStateOf(value = false) }
     var showAbout by remember { mutableStateOf(value = false) }
     var showSwitchProfile by remember { mutableStateOf(value = false) }
+    var showMyJobs by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(updateSuccess) {
         if (updateSuccess) {
@@ -73,8 +77,18 @@ fun ProfileScreen(
         else -> "👤"
     }
 
-    if (showMyPosts) {
-        MyPostsScreen { showMyPosts = false }
+    if (showMyWork) {
+        MyWorkScreen { showMyWork = false }
+        return
+    }
+
+    if (showMyJobs) {
+        MyJobsWorkerScreen { showMyJobs = false }
+        return
+    }
+
+    if (showMyJobRequests) {
+        MyJobRequestsScreen { showMyJobRequests = false }
         return
     }
 
@@ -94,7 +108,7 @@ fun ProfileScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -351,9 +365,16 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.AutoMirrored.Filled.Article,
-                title = "My Posts",
-                subtitle = "${profile.postsCount} posts",
-                onClick = { showMyPosts = true }
+                title = "My Work",
+                subtitle = "${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} active posts",
+                onClick = { showMyWork = true }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.Default.Work,
+                title = "My Jobs",
+                subtitle = "Jobs you've accepted",
+                onClick = { showMyJobs = true }
             )
         }
 
@@ -364,6 +385,13 @@ fun ProfileScreen(
                 title = "My Complaints",
                 subtitle = "${profile.complaintsCount} complaints",
                 onClick = { showMyComplaints = true }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.Default.Assignment,
+                title = "My Job Requests",
+                subtitle = "Auto-deletes after 48 hrs",
+                onClick = { showMyJobRequests = true }
             )
         }
 
@@ -401,8 +429,7 @@ fun ProfileScreen(
             currentAddress = profile.address,
             isLoading = isLoading,
             onDismiss = { showEditDialog = false },
-            onSave = { name, address -> profileViewModel.updateProfile(name, address) }
-        )
+        ) { name, address -> profileViewModel.updateProfile(name, address) }
     }
 
     if (showCategoryDialog) {
@@ -454,7 +481,7 @@ fun SwitchProfileDialog(
     onSwitch: (String) -> Unit
 ) {
     var selectedRole by remember { mutableStateOf(currentRole) }
-    var showAdminPasscode by remember { mutableStateOf(false) }
+    var showAdminPasscode by remember { mutableStateOf(value = false) }
     var passcode by remember { mutableStateOf("") }
     var passcodeError by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
@@ -666,55 +693,369 @@ fun SwitchProfileDialog(
     )
 }
 
-// ── My Posts Screen ──────────────────────────────────────────
+// ── My Work Screen (worker) — edit / delete / 5-post limit ───
+// ProfileScreen.kt — CHANGES ONLY (MyWorkScreen gets an "Add New Work" FAB + confirm-delete already present, kept as-is)
+
 @Composable
-fun MyPostsScreen(onBack: () -> Unit) {
+fun MyWorkScreen(onBack: () -> Unit) {
+    val postViewModel: PostViewModel = viewModel()
+    val allPosts by postViewModel.posts.collectAsState()
+    val isLoading by postViewModel.isLoading.collectAsState()
+    val postSuccess by postViewModel.postSuccess.collectAsState()
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val myPosts = allPosts.filter { it.uid == currentUid && it.userRole == "worker" }
+
+    var editingPost by remember { mutableStateOf<Post?>(null) }
+    var deletingPostId by remember { mutableStateOf<String?>(null) }
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(postSuccess) {
+        if (postSuccess) {
+            showAddDialog = false
+            postViewModel.resetPostSuccess()
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
+                }
+                Column {
+                    Text("My Work", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        "${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} active posts",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            } else if (myPosts.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("📭", fontSize = 56.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("No work posted yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                        Text("Tap + to post your services", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                    }
+                }
+            } else {
+                if (myPosts.size >= PostViewModel.MAX_WORKER_POSTS) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                    ) {
+                        Text(
+                            "⚠️ Limit reached (${PostViewModel.MAX_WORKER_POSTS} max). Edit an existing post instead of adding a new one.",
+                            modifier = Modifier.padding(10.dp),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(myPosts) { post ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                    Row {
+                                        IconButton(onClick = { editingPost = post }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                        }
+                                        IconButton(onClick = { deletingPostId = post.id }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                                if (post.price.isNotEmpty() || post.availability.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        if (post.price.isNotEmpty()) {
+                                            Text("💰 ${post.price}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                        }
+                                        if (post.availability.isNotEmpty()) {
+                                            Text("🕐 ${post.availability}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                val hoursLeft = ((PostViewModel.WORKER_POST_EXPIRY_MS - (System.currentTimeMillis() - post.timeStamp)) / (60 * 60 * 1000)).toInt().coerceAtLeast(0)
+                                Text(
+                                    "Expires in ${hoursLeft}h — repost after expiry",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { showAddDialog = true },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Post New Work", tint = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
+
+    if (showAddDialog) {
+        WorkerPostDialog(
+            onDismiss = { showAddDialog = false },
+            onPost = { cat, desc, price, avail ->
+                postViewModel.createWorkerPost("You", cat, desc, price, avail)
+            },
+            isLoading = isLoading
+        )
+    }
+
+    editingPost?.let { post ->
+        EditWorkerPostDialog(
+            post = post,
+            onDismiss = { editingPost = null },
+            onSave = { cat, desc, price, avail ->
+                postViewModel.editWorkerPost(post.id, cat, desc, price, avail)
+                editingPost = null
+            }
+        )
+    }
+
+    deletingPostId?.let { postId ->
+        AlertDialog(
+            onDismissRequest = { deletingPostId = null },
+            title = { Text("Delete this post?", fontWeight = FontWeight.Bold) },
+            text = { Text("This can't be undone.", fontSize = 13.sp) },
+            confirmButton = {
+                Button(
+                    onClick = { postViewModel.deletePost(postId); deletingPostId = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = { TextButton(onClick = { deletingPostId = null }) { Text("Cancel") } }
+        )
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditWorkerPostDialog(
+    post: Post,
+    onDismiss: () -> Unit,
+    onSave: (String, String, String, String) -> Unit
+) {
+    var description by remember { mutableStateOf(post.description) }
+    var price by remember { mutableStateOf(post.price) }
+    var availability by remember { mutableStateOf(post.availability) }
+    var selectedCategory by remember { mutableStateOf(post.category) }
+    var showAvailabilityMenu by remember { mutableStateOf(false) }
+
+    val categories = listOf("🔧 Plumber", "⚡ Electrician", "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour", "🚗 Automobile", "🩺 Medical Tests", "🚕 Taxi Service", "🐾 Veterinary", "❓ Other")
+    val availabilityOptions = listOf("9 AM - 7 PM", "Morning only", "Evening only", "Weekdays only", "Weekends only", "Anytime")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Work Post", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Category", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(categories) { cat ->
+                        FilterChip(
+                            selected = selectedCategory == cat,
+                            onClick = { selectedCategory = cat },
+                            label = { Text(cat, fontSize = 11.sp) }
+                        )
+                    }
+                }
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Rate") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+
+                ExposedDropdownMenuBox(expanded = showAvailabilityMenu, onExpandedChange = { showAvailabilityMenu = it }) {
+                    OutlinedTextField(
+                        value = availability,
+                        onValueChange = { availability = it },
+                        label = { Text("Availability") },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        singleLine = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showAvailabilityMenu) }
+                    )
+                    ExposedDropdownMenu(expanded = showAvailabilityMenu, onDismissRequest = { showAvailabilityMenu = false }) {
+                        availabilityOptions.forEach { option ->
+                            DropdownMenuItem(text = { Text(option) }, onClick = { availability = option; showAvailabilityMenu = false })
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(selectedCategory, description, price, availability) },
+                enabled = description.isNotBlank()
+            ) { Text("Save Changes") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+// ── My Job Requests Screen (seeker) — auto-expires after 48hrs ──
+@Composable
+fun MyJobRequestsScreen(onBack: () -> Unit) {
     val postViewModel: PostViewModel = viewModel()
     val allPosts by postViewModel.posts.collectAsState()
     val isLoading by postViewModel.isLoading.collectAsState()
     val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-    val myPosts = allPosts.filter { it.uid == currentUid }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    LaunchedEffect(currentUid) {
+        postViewModel.cleanupExpiredJobRequests(currentUid)
+    }
+
+    val now = System.currentTimeMillis()
+    val myRequests = allPosts.filter {
+        it.uid == currentUid && it.userRole == "seeker" &&
+                (now - it.timeStamp) < PostViewModel.JOB_REQUEST_EXPIRY_MS
+    }
+
+    var deletingId by remember { mutableStateOf<String?>(null) }
+    var feedbackPost by remember { mutableStateOf<Post?>(null) }
+
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
             }
-            Text(
-                "My Posts", fontWeight = FontWeight.Bold, fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Text("My Job Requests", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
-        } else if (myPosts.isEmpty()) {
+        } else if (myRequests.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📭", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("No posts yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                    Text("Post your services to get started", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                    Text("No active job requests", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text("Requests auto-delete after 48 hours", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
                 }
             }
         } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(myPosts) { post ->
-                    RealPostCard(post = post, userRole = "worker", onContactClick = {})
+            LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(myRequests) { post ->
+                    val hoursLeft = ((PostViewModel.JOB_REQUEST_EXPIRY_MS - (now - post.timeStamp)) / (60 * 60 * 1000)).toInt()
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                IconButton(onClick = { deletingId = post.id }, modifier = Modifier.size(28.dp)) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                            if (post.address.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("📍 ${post.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(20.dp),
+                                color = when {
+                                    post.status == "assigned" -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    post.status == "completed" -> Color(0xFF2E7D32).copy(alpha = 0.15f)
+                                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                                }
+                            ) {
+                                Text(
+                                    when (post.status) {
+                                        "assigned" -> "👷 ${post.assignedWorkerName} accepted"
+                                        "completed" -> "✅ Completed"
+                                        else -> "⏳ Waiting for a worker"
+                                    },
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    fontSize = 11.sp,
+                                    color = when (post.status) {
+                                        "assigned" -> MaterialTheme.colorScheme.primary
+                                        "completed" -> Color(0xFF2E7D32)
+                                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    }
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                "Auto-deletes in ${hoursLeft}h",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                            )
+                            if (post.status == "completed" && !post.rated) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = { feedbackPost = post },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Send Feedback")
+                                }
+                            } else if (post.rated) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("You rated ${post.feedbackRating}/5", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    deletingId?.let { postId ->
+        AlertDialog(
+            onDismissRequest = { deletingId = null },
+            title = { Text("Delete this request?", fontWeight = FontWeight.Bold) },
+            confirmButton = {
+                Button(
+                    onClick = { postViewModel.deletePost(postId); deletingId = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = { TextButton(onClick = { deletingId = null }) { Text("Cancel") } }
+        )
+    }
+
+    feedbackPost?.let { post ->
+        FeedbackDialog(
+            workerName = post.assignedWorkerName,
+            onDismiss = { feedbackPost = null },
+            onSubmit = { rating, comment ->
+                postViewModel.submitFeedback(post.id, post.assignedWorkerUid, rating, comment)
+                feedbackPost = null
+            }
+        )
     }
 }
 
@@ -995,5 +1336,137 @@ fun ChangeBloodGroupDialog(
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+// ── My Jobs Screen (worker) — jobs accepted/completed ────────
+@Composable
+fun MyJobsWorkerScreen(onBack: () -> Unit) {
+    val postViewModel: PostViewModel = viewModel()
+    val allPosts by postViewModel.posts.collectAsState()
+    val isLoading by postViewModel.isLoading.collectAsState()
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val myJobs = allPosts.filter { it.assignedWorkerUid == currentUid }
+        .sortedWith(compareBy { if (it.status == "assigned") 0 else 1 })
+
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
+            }
+            Text("My Jobs", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+        }
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (myJobs.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("🧰", fontSize = 56.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No jobs accepted yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                }
+            }
+        } else {
+            LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(myJobs) { post ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                Surface(
+                                    shape = RoundedCornerShape(20.dp),
+                                    color = if (post.status == "completed") Color(0xFF2E7D32).copy(alpha = 0.15f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        if (post.status == "completed") "✅ Completed" else "🔧 In Progress",
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                                        fontSize = 11.sp,
+                                        color = if (post.status == "completed") Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text("👤 ${post.userName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                            if (post.address.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("📍 ${post.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                            }
+                            if (post.status == "assigned") {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Button(
+                                    onClick = { postViewModel.completeJob(post.id) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp)
+                                ) { Text("Mark Complete") }
+                            } else if (post.rated) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Rated ${post.feedbackRating}/5 by seeker", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Feedback Dialog (seeker rates worker) ─────────────────────
+// NOTE: non-dismissable by tapping outside — seeker must rate or explicitly tap "Skip"
+@Composable
+fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, String) -> Unit) {
+    var rating by remember { mutableIntStateOf(0) }
+    var comment by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = { /* not dismissable by tapping outside — must rate or skip */ },
+        title = { Text("How was $workerName's service?", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text("Rate your experience", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Spacer(modifier = Modifier.height(10.dp))
+                Row {
+                    (1..5).forEach { star ->
+                        IconButton(onClick = { rating = star }) {
+                            Icon(
+                                if (star <= rating) Icons.Default.Star else Icons.Default.StarBorder,
+                                contentDescription = null,
+                                tint = Color(0xFFFFA000),
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text("Tell us more (optional)") },
+                    placeholder = { Text("Eg. Arrived at 5 PM, fixed the leak quickly, very polite") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSubmit(rating.toFloat(), comment.trim()) },
+                enabled = rating > 0,
+                shape = RoundedCornerShape(8.dp)
+            ) { Text("Submit Feedback") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Skip") } }
     )
 }

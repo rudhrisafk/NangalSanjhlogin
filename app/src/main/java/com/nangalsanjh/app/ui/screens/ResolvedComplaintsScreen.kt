@@ -56,7 +56,7 @@ fun ResolvedComplaintCard(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var updateText by remember { mutableStateOf("") }
-    val timeAgo = remember(complaint.timeStamp) { getTimeAgo(complaint.timeStamp) }
+    val timeAgo: String = remember(complaint.timeStamp) { getTimeAgo(complaint.timeStamp) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),

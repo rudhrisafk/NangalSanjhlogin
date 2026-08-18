@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,13 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.nangalsanjh.app.R // Make sure to use your correct R package
+import com.nangalsanjh.app.R
 import com.nangalsanjh.app.viewmodel.AppLanguage
 import com.nangalsanjh.app.viewmodel.AppTheme
 import com.nangalsanjh.app.viewmodel.ThemeViewModel
 
-// Note: Agar Spacing, Radius, ya NangalColors aapki app mein define nahi hain,
-// toh niche humne defaults backup handles lagaye hain taaki crash na ho.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -33,24 +32,21 @@ fun HomeScreen(
     themeViewModel: ThemeViewModel,
     onLogout: () -> Unit = {},
     onRoleSwitch: ((String) -> Unit)? = null,
-    isProfileSetup: Boolean = true, // NEW CHANGE: drives the profile-setup popup
+    isProfileSetup: Boolean = true
 ) {
-    // activeRole state jo switch hone pe update hoga
     var activeRole by remember { mutableStateOf(userRole) }
-    var selectedTab by remember { mutableStateOf(0) } // back compatibility ke liye normal mutableStateOf rakh diya
+    var selectedTab by remember { mutableIntStateOf(0) }
     var showAIAssistant by remember { mutableStateOf(false) }
     var showEmergency by remember { mutableStateOf(false) }
     var showBloodDonors by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showProfile by remember { mutableStateOf(false) }
 
-    // NEW CHANGE: popup visibility, seeded from isProfileSetup
     var showProfileSetupPopup by remember(isProfileSetup) { mutableStateOf(!isProfileSetup) }
 
     val theme by themeViewModel.theme.collectAsState()
     val language by themeViewModel.language.collectAsState()
 
-    // Jab bhi activeRole change ho tab reset karo
     LaunchedEffect(activeRole) {
         selectedTab = 0
     }
@@ -65,7 +61,7 @@ fun HomeScreen(
                             contentDescription = null,
                             modifier = Modifier.size(28.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp)) // Managed with constant 8.dp as backup for Spacing.sm
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             "Nangal Seva",
                             style = MaterialTheme.typography.titleMedium,
@@ -75,12 +71,11 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // SOS — Worker aur Admin top bar mein
                     if (activeRole == "worker" || activeRole == "admin") {
                         IconButton(onClick = { showEmergency = true }) {
                             Surface(
-                                shape = RoundedCornerShape(4.dp), // Radius.sm backup
-                                color = Color(0xFFB71C1C).copy(alpha = 0.12f), // NangalColors.Red backup
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFFB71C1C).copy(alpha = 0.12f),
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
@@ -99,7 +94,7 @@ fun HomeScreen(
                     }
                     IconButton(onClick = { showProfile = true }) {
                         Surface(
-                            shape = CircleShape, // Radius.full
+                            shape = CircleShape,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                             modifier = Modifier.size(32.dp)
                         ) {
@@ -140,8 +135,8 @@ fun HomeScreen(
                                 NavigationBarItem(
                                     icon = {
                                         Surface(
-                                            shape = CircleShape, // Radius.full
-                                            color = Color(0xFFB71C1C), // NangalColors.Red
+                                            shape = CircleShape,
+                                            color = Color(0xFFB71C1C),
                                             modifier = Modifier.size(48.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
@@ -232,7 +227,6 @@ fun HomeScreen(
         AIAssistantDialog { showAIAssistant = false }
     }
 
-    // NEW CHANGE: Profile Setup reminder popup — only shown when isProfileSetup == false
     if (showProfileSetupPopup) {
         AlertDialog(
             onDismissRequest = { showProfileSetupPopup = false },
@@ -252,7 +246,7 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showProfileSetupPopup = false
-                    showProfile = true // reuses your existing Profile dialog to let user set it up
+                    showProfile = true
                 }) { Text("Set Up Now") }
             },
             dismissButton = {
@@ -261,7 +255,6 @@ fun HomeScreen(
         )
     }
 
-    // Profile Dialog
     if (showProfile) {
         Dialog(
             onDismissRequest = { showProfile = false },
@@ -284,7 +277,7 @@ fun HomeScreen(
                     ) {
                         IconButton(onClick = { showProfile = false }) {
                             Icon(
-                                Icons.Default.ArrowBack,
+                                Icons.AutoMirrored.Filled.ArrowBack,
                                 null,
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
@@ -315,7 +308,6 @@ fun HomeScreen(
         }
     }
 
-    // Settings Dialog
     if (showSettings) {
         AlertDialog(
             onDismissRequest = { showSettings = false },
@@ -427,7 +419,6 @@ fun HomeScreen(
         )
     }
 
-    // Emergency Dialog
     if (showEmergency) {
         Dialog(
             onDismissRequest = {
@@ -455,7 +446,7 @@ fun HomeScreen(
                         if (showBloodDonors) {
                             IconButton(onClick = { showBloodDonors = false }) {
                                 Icon(
-                                    Icons.Default.ArrowBack, null,
+                                    Icons.AutoMirrored.Filled.ArrowBack, null,
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -492,12 +483,12 @@ data class NavItem(
 fun getNavItems(role: String): List<NavItem> = when (role) {
     "worker" -> listOf(
         NavItem("Feed", Icons.Default.Home),
-        NavItem("My Jobs", Icons.Default.Work),
         NavItem("Map", Icons.Default.Map)
     )
     "admin" -> listOf(
         NavItem("Complaints", Icons.Default.Report),
         NavItem("Resolved", Icons.Default.CheckCircle),
+        NavItem("Announcements", Icons.Default.Campaign),
         NavItem("Map", Icons.Default.Map)
     )
     else -> listOf(
@@ -510,32 +501,32 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
 }
 
 @Composable
-fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit) {
+fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
     when (tab) {
         0 -> CommunityFeedScreen(userName = userName, userRole = "seeker")
         1 -> ServicesScreen()
         3 -> ComplaintsScreen(userRole = "seeker", userName = userName)
-        4 -> MapScreen()
+        4 -> MapScreen(userRole = "seeker")
         else -> CommunityFeedScreen(userName = userName, userRole = "seeker")
     }
 }
 
 @Composable
-fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit) {
+fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
     when (tab) {
         0 -> CommunityFeedScreen(userName = userName, userRole = "worker")
-        1 -> WorkerJobsScreen()
-        2 -> MapScreen()
+        1 -> MapScreen(userRole = "worker")
         else -> CommunityFeedScreen(userName = userName, userRole = "worker")
     }
 }
 
 @Composable
-fun AdminContent(tab: Int, userName: String, onLogout: () -> Unit) {
+fun AdminContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
     when (tab) {
         0 -> ComplaintsScreen(userRole = "admin", userName = userName)
         1 -> ResolvedComplaintsScreen()
-        2 -> MapScreen()
+        2 -> AdminAnnouncementsScreen()
+        3 -> MapScreen(userRole = "admin")
         else -> ComplaintsScreen(userRole = "admin", userName = userName)
     }
 }

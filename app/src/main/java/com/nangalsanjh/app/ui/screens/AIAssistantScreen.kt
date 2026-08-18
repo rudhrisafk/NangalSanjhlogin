@@ -29,7 +29,7 @@ import androidx.activity.compose.BackHandler
 
 data class ChatMessage(
     val text: String,
-    val isUser: Boolean
+    val isUser: Boolean,
 )
 
 @Composable
@@ -38,13 +38,13 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
 
     var inputText by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(value = false) }
     var messages by remember {
         mutableStateOf(
             listOf(
                 ChatMessage(
                     text = "Sat Sri Akaal! 🙏 Main Nangal Seva ka AI Assistant hoon!\n\nMain help kar sakta hoon:\n• Civic complaints file karne mein\n• Local workers dhundhne mein\n• App use karne mein\n\nKya chahiye aapko?",
-                    isUser = false
+                    isUser = false,
                 )
             )
         )
@@ -70,14 +70,14 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 
     fun sendMessage(text: String) {
         if (text.isBlank() || isLoading) return
-        messages = messages + ChatMessage(text = text, isUser = true)
+        messages += ChatMessage(text = text, isUser = true)
         chatHistory.add(Pair("user", text))
         inputText = ""
         isLoading = true
         scope.launch {
             val response = OpenRouterService.sendMessage(text, chatHistory.dropLast(1))
             chatHistory.add(Pair("model", response))
-            messages = messages + ChatMessage(text = response, isUser = false)
+            messages += ChatMessage(text = response, isUser = false)
             isLoading = false
         }
     }

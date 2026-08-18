@@ -1,3 +1,5 @@
+// WorkerCategoryScreen.kt — FULL FILE (adds Years of Experience field)
+
 package com.nangalsanjh.app.ui.screens
 
 import androidx.compose.foundation.BorderStroke
@@ -32,13 +34,13 @@ val workerCategories = listOf(
     "🩺 Medical Tests",
     "🚕 Taxi Service",
     "🐾 Veterinary",
-    "❓ Other"
+    "❓ Other",
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkerCategoryScreen(
-    onCategorySelected: (String, String, String, String) -> Unit,
+    onCategorySelected: (String, String, String, String, String) -> Unit,
     isLoading: Boolean = false
 ) {
     var selectedCategory by remember { mutableStateOf("") }
@@ -46,6 +48,7 @@ fun WorkerCategoryScreen(
     var price by remember { mutableStateOf("") }
     var about by remember { mutableStateOf("") }
     var aadhar by remember { mutableStateOf("") }
+    var experience by remember { mutableStateOf("") }
     val isOther = selectedCategory == "❓ Other"
 
     Column(
@@ -144,6 +147,22 @@ fun WorkerCategoryScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
+            value = experience,
+            onValueChange = { if (it.length <= 2) experience = it.filter { c -> c.isDigit() } },
+            label = { Text("Years of Experience") },
+            placeholder = { Text("Eg. 5") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
             value = price,
             onValueChange = { price = it },
             label = { Text("Your Charges / Price") },
@@ -199,7 +218,7 @@ fun WorkerCategoryScreen(
         Button(
             onClick = {
                 val finalCategory = if (isOther) customCategory.trim() else selectedCategory
-                onCategorySelected(finalCategory, price, about, aadhar)
+                onCategorySelected(finalCategory, price, about, aadhar, experience)
             },
             modifier = Modifier
                 .fillMaxWidth()

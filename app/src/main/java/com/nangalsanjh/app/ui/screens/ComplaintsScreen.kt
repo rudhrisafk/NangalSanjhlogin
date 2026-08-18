@@ -1,3 +1,5 @@
+// ComplaintsScreen.kt — FULL FILE (adds 24hr cooldown per user)
+
 package com.nangalsanjh.app.ui.screens
 
 import android.Manifest
@@ -24,10 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.nangalsanjh.app.theme.*
 import com.nangalsanjh.app.viewmodel.ComplaintModel
 import com.nangalsanjh.app.viewmodel.ComplaintViewModel
 import com.nangalsanjh.app.viewmodel.PointsViewModel
+
+const val COMPLAINT_COOLDOWN_MS = 24L * 60 * 60 * 1000
 
 @Composable
 fun ComplaintsScreen(userRole: String, userName: String = "") {
@@ -36,7 +41,9 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
     val complaints by complaintViewModel.complaints.collectAsState()
     val isLoading by complaintViewModel.isLoading.collectAsState()
     val submitSuccess by complaintViewModel.submitSuccess.collectAsState()
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     var showComplaintDialog by remember { mutableStateOf(false) }
+    var showCooldownDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(submitSuccess) {
         if (submitSuccess) {
@@ -44,6 +51,19 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
             complaintViewModel.resetSubmitSuccess()
             pointsViewModel.addPoints("complaint")
         }
+    }
+
+    val lastOwnComplaintTime = remember(complaints, currentUid) {
+        complaints.filter { it.uid == currentUid }.maxOfOrNull { it.timeStamp } ?: 0L
+    }
+    val cooldownRemainingMs = remember(lastOwnComplaintTime) {
+        (COMPLAINT_COOLDOWN_MS - (System.currentTimeMillis() - lastOwnComplaintTime)).coerceAtLeast(0)
+    }
+    val isOnCooldown = cooldownRemainingMs > 0 && lastOwnComplaintTime > 0
+
+    fun handleReportClick() {
+        if (isOnCooldown) showCooldownDialog = true
+        else showComplaintDialog = true
     }
 
     Box(
@@ -66,41 +86,61 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                     title = "No complaints yet",
                     subtitle = "Be the first to report a civic issue",
                     actionText = if (userRole == "seeker") "Report Issue" else "",
-                    onAction = if (userRole == "seeker") ({ showComplaintDialog = true }) else null
+                    onAction = if (userRole == "seeker") ({ handleReportClick() }) else null
                 )
             }
         } else {
-            LazyColumn(
-                contentPadding = PaddingValues(Spacing.lg),
-                verticalArrangement = Arrangement.spacedBy(Spacing.md)
-            ) {
-                items(complaints) { complaint ->
-                    RealComplaintCard(
-                        complaint = complaint,
-                        userRole = userRole,
-                        onStatusUpdate = { id, status, update ->
-                            complaintViewModel.updateComplaintStatus(id, status, update)
-                        },
-                        onDelete = { id -> complaintViewModel.deleteComplaint(id) },
-                        onAddPoints = { uid, pts, reason ->
-                            pointsViewModel.addPointsToUser(uid, pts, reason)
-                        }
-                    )
+            Column(modifier = Modifier.fillMaxSize()) {
+                if (userRole == "seeker" && isOnCooldown) {
+                    val hoursLeft = (cooldownRemainingMs / (60 * 60 * 1000)) + 1
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                        shape = Radius.sm,
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
+                    ) {
+                        Text(
+                            "⏳ You can file your next complaint in ${hoursLeft}h",
+                            modifier = Modifier.padding(Spacing.md),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                LazyColumn(
+                    contentPadding = PaddingValues(Spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    items(complaints) { complaint ->
+                        RealComplaintCard(
+                            complaint = complaint,
+                            userRole = userRole,
+                            onStatusUpdate = { id, status, update ->
+                                complaintViewModel.updateComplaintStatus(id, status, update)
+                            },
+                            onDelete = { id -> complaintViewModel.deleteComplaint(id) },
+                            onAddPoints = { uid, pts, reason ->
+                                pointsViewModel.addPointsToUser(uid, pts, reason)
+                            }
+                        )
+                    }
                 }
             }
         }
 
         if (userRole == "seeker" || userRole.isEmpty()) {
             FloatingActionButton(
-                onClick = { showComplaintDialog = true },
+                onClick = { handleReportClick() },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(Spacing.lg),
                 shape = Radius.md,
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = if (isOnCooldown) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp)
             ) {
-                Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(
+                    Icons.Default.Add, null,
+                    tint = if (isOnCooldown) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }
@@ -112,6 +152,26 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                 complaintViewModel.submitComplaint(userName, category, description, location, lat, lng)
             },
             isLoading = isLoading
+        )
+    }
+
+    if (showCooldownDialog) {
+        val hoursLeft = (cooldownRemainingMs / (60 * 60 * 1000)) + 1
+        AlertDialog(
+            onDismissRequest = { showCooldownDialog = false },
+            shape = Radius.xl,
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("⏳ Please wait", style = MaterialTheme.typography.titleMedium) },
+            text = {
+                Text(
+                    "You already filed a complaint recently. You can file your next one in about ${hoursLeft} hour(s), to prevent spam.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                NSButton(text = "Okay", onClick = { showCooldownDialog = false }, modifier = Modifier.fillMaxWidth())
+            }
         )
     }
 }
@@ -132,7 +192,7 @@ fun RealComplaintCard(
     var updateText by remember { mutableStateOf("") }
     var pointsToAdd by remember { mutableStateOf("") }
     var pointsReason by remember { mutableStateOf("") }
-    val timeAgo = remember(complaint.timeStamp) { getTimeAgo(complaint.timeStamp) }
+    val timeAgo: String = remember(complaint.timeStamp) { getTimeAgo(complaint.timeStamp) }
 
     val statusColor = when (complaint.status) {
         "Resolved" -> NangalColors.Green
@@ -149,7 +209,6 @@ fun RealComplaintCard(
     NSCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(Spacing.lg)) {
 
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -229,7 +288,6 @@ fun RealComplaintCard(
 
             Spacer(modifier = Modifier.height(Spacing.md))
 
-            // Reporter
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(4.dp))
@@ -279,7 +337,6 @@ fun RealComplaintCard(
         }
     }
 
-    // Update Dialog
     if (showUpdateDialog) {
         AlertDialog(
             onDismissRequest = { showUpdateDialog = false },
@@ -306,7 +363,6 @@ fun RealComplaintCard(
         )
     }
 
-    // Points Dialog
     if (showPointsDialog) {
         AlertDialog(
             onDismissRequest = { showPointsDialog = false },
@@ -323,7 +379,6 @@ fun RealComplaintCard(
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                     Text("Reporter: ${complaint.reporter}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
-                    // Quick select
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                         listOf("10", "25", "50", "100").forEach { pts ->
                             FilterChip(
@@ -342,7 +397,6 @@ fun RealComplaintCard(
                     NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = "Custom Points", placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                     NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = "Reason", placeholder = "Why giving points?", modifier = Modifier.fillMaxWidth())
 
-                    // Levels
                     NSCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(Spacing.md)) {
                             Text("Points Levels", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -375,7 +429,6 @@ fun RealComplaintCard(
         )
     }
 
-    // Delete Dialog
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -451,7 +504,6 @@ fun NewComplaintDialog(
                 NSTextField(value = description, onValueChange = { description = it }, label = "Describe the Issue", singleLine = false, minLines = 3, modifier = Modifier.fillMaxWidth())
                 NSTextField(value = location, onValueChange = { location = it }, label = "Location / Area", leadingIcon = Icons.Default.LocationOn, modifier = Modifier.fillMaxWidth())
 
-                // GPS Button
                 Surface(
                     shape = Radius.md,
                     color = if (locationFetched) NangalColors.Green.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surfaceVariant,

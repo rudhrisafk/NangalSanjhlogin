@@ -17,17 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PostViewModel
-import java.util.Calendar
-
-fun isWithinWorkingHours(): Boolean {
-    val calendar = Calendar.getInstance()
-    val hour = calendar.get(Calendar.HOUR_OF_DAY)
-    return hour in 9..18
-}
 
 @Composable
 fun WorkerJobsScreen() {
@@ -40,7 +34,10 @@ fun WorkerJobsScreen() {
 
     var isAvailable by remember { mutableStateOf(value = false) }
     var workerCategory by remember { mutableStateOf("") }
-    val withinHours = remember { isWithinWorkingHours() }
+    val withinHours: Boolean = remember { isWithinWorkingHours() }
+
+    // NEW: track which job IDs this worker has declined
+    var declinedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     LaunchedEffect(uid) {
         if (uid.isNotEmpty()) {
@@ -49,6 +46,12 @@ fun WorkerJobsScreen() {
                     val dbAvailable = doc?.getBoolean("isAvailable") ?: false
                     workerCategory = doc?.getString("category") ?: ""
                     isAvailable = dbAvailable && withinHours
+
+                    // NEW: read declined job ids from the worker's document
+                    @Suppress("UNCHECKED_CAST")
+                    val declinedList = (doc?.get("declinedJobs") as? List<String>) ?: emptyList()
+                    declinedIds = declinedList.toSet()
+
                     if (!withinHours && dbAvailable) {
                         db.collection("users").document(uid)
                             .update("isAvailable", false)
@@ -57,15 +60,17 @@ fun WorkerJobsScreen() {
         }
     }
 
-    // Filter posts by worker category
-    val relevantPosts = remember(posts, workerCategory) {
-        if (workerCategory.isEmpty()) posts
+    // Filter posts by worker category AND remove declined ones
+    val relevantPosts = remember(posts, workerCategory, declinedIds) {
+        val categoryFiltered = if (workerCategory.isEmpty()) posts
         else posts.filter { post ->
             post.category.contains(
                 workerCategory.replace(Regex("[^a-zA-Z ]"), "").trim(),
                 ignoreCase = true,
             )
         }
+        // NEW: exclude posts this worker already declined
+        categoryFiltered.filter { post -> post.id !in declinedIds }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -77,7 +82,7 @@ fun WorkerJobsScreen() {
                 .padding(16.dp),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.surface,
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -195,9 +200,12 @@ fun WorkerJobsScreen() {
                                 data = "tel:${post.userPhone}".toUri()
                             }
                             context.startActivity(intent)
-                        },
-                    ) {
-                        // Ignore silently
+                        }) {
+                        // NEW: actually save the decline so it disappears from the list
+                        if (uid.isNotEmpty()) {
+                            db.collection("users").document(uid)
+                                .update("declinedJobs", FieldValue.arrayUnion(post.id))
+                        }
                     }
                 }
             }

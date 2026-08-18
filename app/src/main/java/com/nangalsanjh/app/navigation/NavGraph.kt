@@ -219,9 +219,9 @@ fun NangalSevaNavHost(themeViewModel: ThemeViewModel) {
 
         composable(Screen.WorkerCategory.route) {
             WorkerCategoryScreen(
-                onCategorySelected = { category, price, about, aadhar ->
+                onCategorySelected = { category, price, about, aadhar, experience ->
                     authViewModel.saveUserProfile(
-                        tempName, tempAddress, tempRole, category, price, about, aadhar
+                        tempName, tempAddress, tempRole, category, price, about, aadhar, experience
                     )
                 },
                 isLoading = isLoading

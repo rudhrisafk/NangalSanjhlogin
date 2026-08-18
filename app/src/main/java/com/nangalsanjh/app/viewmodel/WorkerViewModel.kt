@@ -1,3 +1,5 @@
+// WorkerViewModel.kt — FULL FILE (adds experience field)
+
 package com.nangalsanjh.app.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -17,7 +19,9 @@ data class WorkerModel(
     val jobsDone: Int = 0,
     val price: String = "",
     val about: String = "",
-    val aadhar: String = ""
+    val aadhar: String = "",
+    val reviewCount: Int = 0,
+    val experience: String = ""
 )
 
 class WorkerViewModel : ViewModel() {
@@ -58,7 +62,9 @@ class WorkerViewModel : ViewModel() {
                         jobsDone = (doc.getLong("jobsDone") ?: 0L).toInt(),
                         price = doc.getString("price") ?: "",
                         about = doc.getString("about") ?: "",
-                        aadhar = doc.getString("aadhar") ?: ""
+                        aadhar = doc.getString("aadhar") ?: "",
+                        reviewCount = (doc.getLong("reviewCount") ?: 0L).toInt(),
+                        experience = doc.getString("experience") ?: ""
                     )
                 } ?: emptyList()
                 _workers.value = list
