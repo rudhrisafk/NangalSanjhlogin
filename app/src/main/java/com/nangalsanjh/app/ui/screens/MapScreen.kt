@@ -1,4 +1,4 @@
-// MapScreen.kt — FULL FILE (admin: all complaints. seeker: only own complaints + own active job. worker: ONLY active job's seeker location, nothing else)
+// MapScreen.kt — FULL FILE (worker "Mark Complete" now opens before/after photo dialog)
 
 package com.nangalsanjh.app.ui.screens
 
@@ -49,18 +49,16 @@ fun MapScreen(userRole: String = "seeker") {
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     var selectedComplaint by remember { mutableStateOf<ComplaintModel?>(null) }
+    var showCompleteDialog by remember { mutableStateOf(false) }
 
-    // NEW: role-scoped complaint visibility
-    // admin -> everything. seeker -> only their own. worker -> none, ever.
     val visibleComplaints = remember(allComplaints, userRole, uid) {
         when (userRole) {
             "admin" -> allComplaints
             "seeker" -> allComplaints.filter { it.uid == uid }
-            else -> emptyList() // worker sees no complaints on map
+            else -> emptyList()
         }
     }
 
-    // Active assigned job: worker sees the job they accepted, seeker sees their own accepted request
     val activeJob = remember(posts, userRole, uid) {
         posts.firstOrNull {
             it.status == "assigned" &&
@@ -96,9 +94,6 @@ fun MapScreen(userRole: String = "seeker") {
     val reviewCount = visibleComplaints.count { it.status == "In Review" }
     val resolvedCount = visibleComplaints.count { it.status == "Resolved" }
 
-    // Worker with no active job: nothing to show at all — just a blank town map
-    val showBlankWorkerMap = userRole == "worker" && activeJob == null
-
     Box(modifier = Modifier.fillMaxSize()) {
 
         AndroidView(
@@ -128,7 +123,6 @@ fun MapScreen(userRole: String = "seeker") {
                 mapView.overlays.add(centerMarker)
 
                 if (userRole == "worker") {
-                    // Worker map: ONLY the active job's seeker location. Nothing else, ever.
                     if (activeJob != null) {
                         val jobPoint = GeoPoint(activeJob.latitude, activeJob.longitude)
                         val jobMarker = Marker(mapView).apply {
@@ -161,9 +155,7 @@ fun MapScreen(userRole: String = "seeker") {
                             mapView.controller.setZoom(16.0)
                         }
                     }
-                    // else: blank map, no markers at all besides town center
                 } else if (activeJob != null) {
-                    // Seeker with an active accepted job: show that tracking view
                     val jobPoint = GeoPoint(activeJob.latitude, activeJob.longitude)
                     val jobMarker = Marker(mapView).apply {
                         position = jobPoint
@@ -174,7 +166,6 @@ fun MapScreen(userRole: String = "seeker") {
                     mapView.controller.setCenter(jobPoint)
                     mapView.controller.setZoom(16.0)
                 } else {
-                    // Seeker (no active job) or Admin: show scoped complaints
                     visibleComplaints.forEach { complaint ->
                         if (complaint.latitude != 0.0 && complaint.longitude != 0.0) {
                             val marker = Marker(mapView).apply {
@@ -195,7 +186,6 @@ fun MapScreen(userRole: String = "seeker") {
 
         if (userRole == "worker") {
             if (activeJob != null) {
-                // Active job info card — bottom
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -226,7 +216,7 @@ fun MapScreen(userRole: String = "seeker") {
                                 Text("Call", fontSize = 13.sp)
                             }
                             OutlinedButton(
-                                onClick = { postViewModel.completeJob(activeJob.id) },
+                                onClick = { showCompleteDialog = true },
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(10.dp)
                             ) { Text("Mark Complete", fontSize = 13.sp) }
@@ -234,7 +224,6 @@ fun MapScreen(userRole: String = "seeker") {
                     }
                 }
             } else {
-                // Blank state for worker — no active job
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -258,7 +247,6 @@ fun MapScreen(userRole: String = "seeker") {
                 }
             }
         } else if (activeJob != null) {
-            // Seeker with active job — tracking card
             Card(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -286,7 +274,6 @@ fun MapScreen(userRole: String = "seeker") {
                 }
             }
         } else {
-            // Admin or seeker (no active job): scoped complaint legend + empty state
             Card(
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
                 shape = RoundedCornerShape(12.dp),
@@ -394,6 +381,54 @@ fun MapScreen(userRole: String = "seeker") {
             }
         }
     }
+
+    if (showCompleteDialog && activeJob != null) {
+        CompleteJobDialog(
+            onDismiss = { showCompleteDialog = false },
+            onSubmit = { beforeUrl, afterUrl ->
+                postViewModel.completeJob(activeJob.id, beforeUrl, afterUrl)
+                showCompleteDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun CompleteJobDialog(onDismiss: () -> Unit, onSubmit: (String, String) -> Unit) {
+    var beforeUrl by remember { mutableStateOf("") }
+    var afterUrl by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Mark Job Complete", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text("Add before/after photos as proof of work (optional)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = beforeUrl,
+                    onValueChange = { beforeUrl = it },
+                    label = { Text("Before Photo URL") },
+                    placeholder = { Text("https://...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = afterUrl,
+                    onValueChange = { afterUrl = it },
+                    label = { Text("After Photo URL") },
+                    placeholder = { Text("https://...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSubmit(beforeUrl.trim(), afterUrl.trim()) }) { Text("Mark Complete") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
 
 @Composable

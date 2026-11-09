@@ -59,6 +59,7 @@ fun ProfileScreen(
     var showAbout by remember { mutableStateOf(value = false) }
     var showSwitchProfile by remember { mutableStateOf(value = false) }
     var showMyJobs by remember { mutableStateOf(value = false) }
+    var showMyEarnings by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(updateSuccess) {
         if (updateSuccess) {
@@ -99,6 +100,11 @@ fun ProfileScreen(
 
     if (showAbout) {
         AboutScreen { showAbout = false }
+        return
+    }
+
+    if (showMyEarnings) {
+        MyEarningsScreen { showMyEarnings = false }
         return
     }
 
@@ -375,6 +381,16 @@ fun ProfileScreen(
                 title = "My Jobs",
                 subtitle = "Jobs you've accepted",
                 onClick = { showMyJobs = true }
+            )
+        }
+
+        if (currentRole == "worker") {
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileMenuItem(
+                icon = Icons.Default.AccountBalanceWallet,
+                title = "My Earnings",
+                subtitle = "Track your income & history",
+                onClick = { showMyEarnings = true }
             )
         }
 
@@ -694,8 +710,6 @@ fun SwitchProfileDialog(
 }
 
 // ── My Work Screen (worker) — edit / delete / 5-post limit ───
-// ProfileScreen.kt — CHANGES ONLY (MyWorkScreen gets an "Add New Work" FAB + confirm-delete already present, kept as-is)
-
 @Composable
 fun MyWorkScreen(onBack: () -> Unit) {
     val postViewModel: PostViewModel = viewModel()
@@ -853,6 +867,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
         )
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkerPostDialog(
@@ -1186,16 +1201,6 @@ fun AboutCard(emoji: String, title: String, description: String) {
 }
 
 @Composable
-fun StatCard(count: String, label: String, emoji: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(emoji, fontSize = 20.sp)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(count, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-    }
-}
-
-@Composable
 fun ProfileMenuItem(
     icon: ImageVector,
     title: String,
@@ -1423,7 +1428,6 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
 }
 
 // ── Feedback Dialog (seeker rates worker) ─────────────────────
-// NOTE: non-dismissable by tapping outside — seeker must rate or explicitly tap "Skip"
 @Composable
 fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, String) -> Unit) {
     var rating by remember { mutableIntStateOf(0) }

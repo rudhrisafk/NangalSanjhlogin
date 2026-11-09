@@ -1,7 +1,3 @@
-// CommunityFeedScreen.kt — FULL FILE (worker: job-post FAB restored. seeker: news shown as cards too)
-// Ad/news grid uses fixed repeating pattern sections (FourGrid → Wide → TwoCol) via AdSection/buildAdSections.
-// Images render at natural width-fit height (ContentScale.FillWidth) — no admin-controlled banner height.
-
 package com.nangalsanjh.app.ui.screens
 
 import android.content.Intent
@@ -36,6 +32,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
@@ -46,11 +43,13 @@ import com.nangalsanjh.app.viewmodel.AnnouncementViewModel
 import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PostViewModel
 import kotlinx.coroutines.delay
-import java.util.Calendar
 import kotlin.math.roundToInt
 
 @Composable
-fun CommunityFeedScreen(userName: String, userRole: String = "seeker") {
+fun CommunityFeedScreen(
+    userName: String,
+    userRole: String = "seeker"
+) {
     if (userRole == "worker") {
         WorkerFeedContent(userName = userName)
     } else {
@@ -58,44 +57,89 @@ fun CommunityFeedScreen(userName: String, userRole: String = "seeker") {
     }
 }
 
-// ── SEEKER FEED ────────────────────────────────────────────────
+// ============================================================
+// SEEKER FEED
+// ============================================================
 
 @Composable
 fun SeekerFeedContent() {
+
     val announcementViewModel: AnnouncementViewModel = viewModel()
     val announcements by announcementViewModel.announcements.collectAsState()
     val isLoading by announcementViewModel.isLoading.collectAsState()
 
-    val activeAnnouncements = remember(announcements) { announcements.filter { it.isActive } }
-    val emergencies = remember(activeAnnouncements) { activeAnnouncements.filter { it.type == "emergency" } }
-    val newsItems = remember(activeAnnouncements) { activeAnnouncements.filter { it.type == "news" } }
-    val ads = remember(activeAnnouncements) { activeAnnouncements.filter { it.type == "ad" } }
+    val activeAnnouncements = remember(announcements) {
+        announcements.filter { it.isActive }
+    }
 
-    var selectedAnnouncement by remember { mutableStateOf<Announcement?>(null) }
+    val emergencies = remember(activeAnnouncements) {
+        activeAnnouncements.filter { it.type == "emergency" }
+    }
 
-    val feedItems = remember(newsItems, ads) { newsItems + ads }
-    val sections = remember(feedItems) { buildAdSections(feedItems) }
+    val newsItems = remember(activeAnnouncements) {
+        activeAnnouncements.filter { it.type == "news" }
+    }
 
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    val ads = remember(activeAnnouncements) {
+        activeAnnouncements.filter { it.type == "ad" }
+    }
+
+    var selectedAnnouncement by remember {
+        mutableStateOf<Announcement?>(null)
+    }
+
+    val feedItems = remember(newsItems, ads) {
+        newsItems + ads
+    }
+
+    val sections = remember(feedItems) {
+        buildAdSections(feedItems)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+
         HeadlineTicker(newsItems = newsItems)
 
         if (isLoading && activeAnnouncements.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp, modifier = Modifier.size(32.dp))
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(32.dp)
+                )
             }
+
         } else {
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(Spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
+
                 items(emergencies) { announcement ->
-                    EmergencyAnnouncementCard(announcement) { selectedAnnouncement = announcement }
+                    EmergencyAnnouncementCard(announcement) {
+                        selectedAnnouncement = announcement
+                    }
                 }
 
                 if (feedItems.isEmpty() && emergencies.isEmpty()) {
+
                     item {
-                        Box(modifier = Modifier.fillMaxWidth().padding(top = 60.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 60.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             NSEmptyState(
                                 emoji = "📰",
                                 title = "Nothing to show right now",
@@ -103,12 +147,24 @@ fun SeekerFeedContent() {
                             )
                         }
                     }
+
                 } else {
+
                     items(sections) { section ->
+
                         when (section) {
-                            is AdSection.FourGrid -> FourGridAdRow(section.items) { selectedAnnouncement = it }
-                            is AdSection.Wide -> WideAdCard(section.item) { selectedAnnouncement = it }
-                            is AdSection.TwoCol -> TwoColAdRow(section.items) { selectedAnnouncement = it }
+                            is AdSection.FourGrid ->
+                                FourGridAdRow(section.items) {
+                                    selectedAnnouncement = it
+                                }
+                            is AdSection.Wide ->
+                                WideAdCard(section.item) {
+                                    selectedAnnouncement = it
+                                }
+                            is AdSection.TwoCol ->
+                                TwoColAdRow(section.items) {
+                                    selectedAnnouncement = it
+                                }
                         }
                     }
                 }
@@ -117,115 +173,264 @@ fun SeekerFeedContent() {
     }
 
     selectedAnnouncement?.let { announcement ->
-        AnnouncementDetailDialog(announcement = announcement, onDismiss = { selectedAnnouncement = null })
+
+        AnnouncementDetailDialog(
+            announcement = announcement,
+            onDismiss = { selectedAnnouncement = null }
+        )
     }
 }
 
-// ── AD SECTIONS (fixed repeating pattern: FourGrid → Wide → TwoCol) ──
+// ============================================================
+// AD SECTIONS
+// ============================================================
 
 sealed class AdSection {
-    data class FourGrid(val items: List<Announcement>) : AdSection()
-    data class Wide(val item: Announcement) : AdSection()
-    data class TwoCol(val items: List<Announcement>) : AdSection()
+
+    data class FourGrid(
+        val items: List<Announcement>
+    ) : AdSection()
+
+    data class Wide(
+        val item: Announcement
+    ) : AdSection()
+
+    data class TwoCol(
+        val items: List<Announcement>
+    ) : AdSection()
 }
 
 fun buildAdSections(items: List<Announcement>): List<AdSection> {
+
     val sections = mutableListOf<AdSection>()
+
     var i = 0
     var patternIndex = 0
+
     while (i < items.size) {
+
         when (patternIndex % 3) {
             0 -> {
-                val chunk = items.subList(i, minOf(i + 4, items.size))
+                val chunk = items.subList(
+                    i,
+                    minOf(i + 4, items.size)
+                )
+
                 sections.add(AdSection.FourGrid(chunk))
                 i += chunk.size
             }
+
             1 -> {
                 sections.add(AdSection.Wide(items[i]))
-                i += 1
+                i++
             }
+
             else -> {
-                val chunk = items.subList(i, minOf(i + 2, items.size))
+                val chunk = items.subList(
+                    i,
+                    minOf(i + 2, items.size)
+                )
+
                 sections.add(AdSection.TwoCol(chunk))
                 i += chunk.size
             }
         }
+
         patternIndex++
     }
+
     return sections
 }
 
+// ============================================================
+// FOUR GRID ADS
+// ============================================================
+
 @Composable
-fun FourGridAdRow(items: List<Announcement>, onClick: (Announcement) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+fun FourGridAdRow(
+    items: List<Announcement>,
+    onClick: (Announcement) -> Unit
+) {
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+    ) {
+
         items.chunked(2).forEach { rowItems ->
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            ) {
+
                 rowItems.forEach { item ->
+
                     Card(
-                        modifier = Modifier.weight(1f).clickable { onClick(item) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onClick(item) },
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
-                        Column(modifier = Modifier.padding(10.dp)) {
-                            AdImageArea(item.imageUrl, modifier = Modifier.fillMaxWidth())
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(item.title, fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
+
+                        Column(
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+
+                            AdImageArea(
+                                item.imageUrl,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(Modifier.height(6.dp))
+
+                            Text(
+                                item.title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
                             Text(
                                 if (item.type == "news") "News" else "Sponsored",
                                 fontSize = 9.sp,
-                                color = if (item.type == "news") MaterialTheme.colorScheme.primary else Color(0xFF2E7D32)
+                                color = if (item.type == "news")
+                                    MaterialTheme.colorScheme.primary
+                                else Color(0xFF2E7D32)
                             )
                         }
                     }
                 }
-                if (rowItems.size == 1) Spacer(modifier = Modifier.weight(1f))
-            }
-        }
-    }
-}
 
-@Composable
-fun WideAdCard(item: Announcement, onClick: (Announcement) -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick(item) },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            AdImageArea(item.imageUrl, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-            NSStatusBadge(
-                text = if (item.type == "news") "News" else "Sponsored",
-                color = if (item.type == "news") MaterialTheme.colorScheme.primary else NangalColors.Green
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(item.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 2)
-        }
-    }
-}
-
-@Composable
-fun TwoColAdRow(items: List<Announcement>, onClick: (Announcement) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-        items.forEach { item ->
-            Card(
-                modifier = Modifier.weight(1f).clickable { onClick(item) },
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    AdImageArea(item.imageUrl, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(item.title, fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
-                    Text(item.description, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 2)
+                if (rowItems.size == 1) {
+                    Spacer(Modifier.weight(1f))
                 }
             }
         }
-        if (items.size == 1) Spacer(modifier = Modifier.weight(1f))
     }
 }
+
+// ============================================================
+// WIDE AD
+// ============================================================
+
+@Composable
+fun WideAdCard(
+    item: Announcement,
+    onClick: (Announcement) -> Unit
+) {
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(item) },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+
+        Column(Modifier.padding(12.dp)) {
+
+            AdImageArea(
+                item.imageUrl,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            NSStatusBadge(
+                text = if (item.type == "news") "News" else "Sponsored",
+                color = if (item.type == "news")
+                    MaterialTheme.colorScheme.primary
+                else NangalColors.Green
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                item.title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(Modifier.height(2.dp))
+
+            Text(
+                item.description,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                maxLines = 2
+            )
+        }
+    }
+}
+
+// ============================================================
+// TWO COLUMN ADS
+// ============================================================
+
+@Composable
+fun TwoColAdRow(
+    items: List<Announcement>,
+    onClick: (Announcement) -> Unit
+) {
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+    ) {
+
+        items.forEach { item ->
+
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onClick(item) },
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+
+                Column(Modifier.padding(10.dp)) {
+
+                    AdImageArea(
+                        item.imageUrl,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        item.title,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        item.description,
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        maxLines = 2
+                    )
+                }
+            }
+        }
+
+        if (items.size == 1) {
+            Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
+// ============================================================
+// HEADLINE TICKER (reversed: left → right)
+// ============================================================
 
 @Composable
 fun HeadlineTicker(newsItems: List<Announcement>) {
@@ -233,21 +438,21 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
         if (newsItems.isEmpty()) "🗞️ NANGAL TIMES — Stay tuned for local updates"
         else newsItems.joinToString("      •      ") { it.title }
     }
-
     var containerWidth by remember { mutableStateOf(0f) }
     var textWidth by remember { mutableStateOf(0f) }
-
     val infiniteTransition = rememberInfiniteTransition(label = "ticker")
     val offset by infiniteTransition.animateFloat(
         initialValue = -textWidth,
         targetValue = containerWidth,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = (12000 + (textWidth / 2).toInt()), easing = LinearEasing),
+            animation = tween(
+                durationMillis = (12000 + (textWidth / 2).toInt()),
+                easing = LinearEasing
+            ),
             repeatMode = RepeatMode.Restart
         ),
         label = "tickerOffset"
     )
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -265,43 +470,115 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
             maxLines = 1,
             modifier = Modifier
                 .onGloballyPositioned { textWidth = it.size.width.toFloat() }
-                .offset { androidx.compose.ui.unit.IntOffset(offset.roundToInt(), 0) }
+                .offset { IntOffset(-offset.roundToInt(), 0) }
         )
     }
 }
 
+// ============================================================
+// EMERGENCY ANNOUNCEMENT
+// ============================================================
+
 @Composable
-fun EmergencyAnnouncementCard(announcement: Announcement, onClick: () -> Unit) {
+fun EmergencyAnnouncementCard(
+    announcement: Announcement,
+    onClick: () -> Unit
+) {
+
     val context = LocalContext.current
-    NSCard(modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+
+    NSCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
+
+        Column(Modifier.padding(Spacing.lg)) {
+
             Row(verticalAlignment = Alignment.CenterVertically) {
+
                 Text("🚨", fontSize = 22.sp)
-                Spacer(modifier = Modifier.width(Spacing.sm))
-                Text("Emergency Need", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.error)
+
+                Spacer(Modifier.width(Spacing.sm))
+
+                Text(
+                    "Emergency Need",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.error
+                )
+
                 if (announcement.bloodType.isNotEmpty()) {
-                    Spacer(modifier = Modifier.width(Spacing.sm))
-                    Surface(shape = Radius.md, color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f)) {
-                        Text("🩸 ${announcement.bloodType}", modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+
+                    Spacer(Modifier.width(Spacing.sm))
+
+                    Surface(
+                        shape = Radius.md,
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                    ) {
+
+                        Text(
+                            "🩸 ${announcement.bloodType}",
+                            modifier = Modifier.padding(
+                                horizontal = 10.dp,
+                                vertical = 3.dp
+                            ),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(Spacing.sm))
-            AdImageArea(announcement.imageUrl, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(Spacing.sm))
-            Text(announcement.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(announcement.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), lineHeight = 19.sp, maxLines = 2)
+
+            Spacer(Modifier.height(Spacing.sm))
+
+            AdImageArea(
+                announcement.imageUrl,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(Spacing.sm))
+
+            Text(
+                announcement.title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                announcement.description,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                lineHeight = 19.sp,
+                maxLines = 2
+            )
+
             if (announcement.location.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text("📍 ${announcement.location}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    "📍 ${announcement.location}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
             }
+
             if (announcement.contact.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(10.dp))
+
+                Spacer(Modifier.height(10.dp))
+
                 NSButton(
                     text = "Call ${announcement.contact}",
                     onClick = {
-                        val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${announcement.contact}") }
+                        val intent = Intent(
+                            Intent.ACTION_DIAL,
+                            Uri.parse("tel:${announcement.contact}")
+                        )
                         context.startActivity(intent)
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -312,23 +589,39 @@ fun EmergencyAnnouncementCard(announcement: Announcement, onClick: () -> Unit) {
     }
 }
 
+// ============================================================
+// IMAGE AREA
+// ============================================================
+
 @Composable
-fun AdImageArea(imageUrl: String, modifier: Modifier = Modifier) {
+fun AdImageArea(
+    imageUrl: String,
+    modifier: Modifier = Modifier
+) {
+
     if (imageUrl.isNotEmpty()) {
+
         AsyncImage(
             model = imageUrl,
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
             modifier = modifier.clip(RoundedCornerShape(12.dp))
         )
+
     } else {
+
         val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+
         val shimmerOffset by infiniteTransition.animateFloat(
             initialValue = -1f,
             targetValue = 2f,
-            animationSpec = infiniteRepeatable(animation = tween(1400, easing = LinearEasing), repeatMode = RepeatMode.Restart),
+            animationSpec = infiniteRepeatable(
+                animation = tween(1400, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
             label = "shimmerOffset"
         )
+
         Box(
             modifier = modifier
                 .height(110.dp)
@@ -346,24 +639,51 @@ fun AdImageArea(imageUrl: String, modifier: Modifier = Modifier) {
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Image, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), modifier = Modifier.size(28.dp))
+
+            Icon(
+                Icons.Default.Image,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(28.dp)
+            )
         }
     }
 }
 
+// ============================================================
+// ANNOUNCEMENT DETAIL DIALOG
+// ============================================================
+
 @Composable
-fun AnnouncementDetailDialog(announcement: Announcement, onDismiss: () -> Unit) {
+fun AnnouncementDetailDialog(
+    announcement: Announcement,
+    onDismiss: () -> Unit
+) {
+
     val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(20.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         title = null,
+
         text = {
+
             Column {
-                AdImageArea(announcement.imageUrl, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(14.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+                AdImageArea(
+                    announcement.imageUrl,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
                     Surface(
                         shape = RoundedCornerShape(20.dp),
                         color = when (announcement.type) {
@@ -372,9 +692,13 @@ fun AnnouncementDetailDialog(announcement: Announcement, onDismiss: () -> Unit) 
                             else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                         }
                     ) {
+
                         Text(
                             announcement.type.replaceFirstChar { it.uppercase() },
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            modifier = Modifier.padding(
+                                horizontal = 10.dp,
+                                vertical = 3.dp
+                            ),
                             fontSize = 11.sp,
                             color = when (announcement.type) {
                                 "emergency" -> MaterialTheme.colorScheme.error
@@ -383,216 +707,505 @@ fun AnnouncementDetailDialog(announcement: Announcement, onDismiss: () -> Unit) 
                             }
                         )
                     }
-                    Text(getTimeAgo(announcement.timeStamp), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+
+                    Text(
+                        getTimeAgo(announcement.timeStamp),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(announcement.title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(announcement.description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), lineHeight = 20.sp)
+
+                Spacer(Modifier.height(10.dp))
+
+                Text(
+                    announcement.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    announcement.description,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    lineHeight = 20.sp
+                )
+
                 if (announcement.bloodType.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text("🩸 Blood needed: ${announcement.bloodType}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error)
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Text(
+                        "🩸 Blood needed: ${announcement.bloodType}",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
+
                 if (announcement.location.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text("📍 ${announcement.location}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        "📍 ${announcement.location}",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
                 }
             }
         },
+
         confirmButton = {
+
             if (announcement.contact.isNotEmpty()) {
+
                 Button(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${announcement.contact}") }
+                        val intent = Intent(
+                            Intent.ACTION_DIAL,
+                            Uri.parse("tel:${announcement.contact}")
+                        )
                         context.startActivity(intent)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Icon(
+                        Icons.Default.Call,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Spacer(Modifier.width(8.dp))
+
                     Text("Call ${announcement.contact}")
                 }
             }
         },
+
         dismissButton = {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) { Text("Close") }
+
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text("Close")
+            }
         }
     )
 }
 
-// ── WORKER FEED (FAB to post service restored) ──
+// ============================================================
+// WORKER FEED — 24/7 AVAILABILITY + OpenToAll support
+// ============================================================
+
 @Composable
 fun WorkerFeedContent(userName: String) {
+
     val postViewModel: PostViewModel = viewModel()
+
+    val reportViewModel: com.nangalsanjh.app.viewmodel.ReportViewModel = viewModel()
+
+    val blockedUids by reportViewModel.blockedUids.collectAsState()
+
     val posts by postViewModel.posts.collectAsState()
+
     val isLoadingPosts by postViewModel.isLoading.collectAsState()
+
     val postSuccess by postViewModel.postSuccess.collectAsState()
+
     val context = LocalContext.current
+
     val db = FirebaseFirestore.getInstance()
+
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    var isAvailable by remember { mutableStateOf(false) }
-    var workerCategory by remember { mutableStateOf("") }
-    val withinHours = remember { isWithinWorkingHours() }
-    var nowTick by remember { mutableStateOf(System.currentTimeMillis()) }
-    var showPostDialog by remember { mutableStateOf(false) }
+    var isAvailable by remember {
+        mutableStateOf(false)
+    }
 
+    var workerCategory by remember {
+        mutableStateOf("")
+    }
+
+    var nowTick by remember {
+        mutableStateOf(System.currentTimeMillis())
+    }
+
+    var showPostDialog by remember {
+        mutableStateOf(false)
+    }
+
+    // Subscribe every worker to the broadcast topic
+    LaunchedEffect(uid) {
+        if (uid.isNotEmpty()) {
+            com.google.firebase.messaging.FirebaseMessaging
+                .getInstance()
+                .subscribeToTopic("all_workers")
+        }
+    }
+
+    // Subscribe worker to their category topic
+    LaunchedEffect(workerCategory) {
+
+        if (workerCategory.isNotEmpty()) {
+
+            val topic = "category_" +
+                    workerCategory.replace(Regex("[^a-zA-Z]"), "")
+
+            com.google.firebase.messaging.FirebaseMessaging
+                .getInstance()
+                .subscribeToTopic(topic)
+        }
+    }
+
+    // Close post dialog after successful posting
     LaunchedEffect(postSuccess) {
+
         if (postSuccess) {
             showPostDialog = false
             postViewModel.resetPostSuccess()
         }
     }
 
+    // Update timer every second
     LaunchedEffect(Unit) {
+
         while (true) {
             delay(1000)
             nowTick = System.currentTimeMillis()
         }
     }
 
+    // Cleanup expired jobs
     LaunchedEffect(uid) {
+
         while (true) {
             postViewModel.cleanupExpiredAcceptWindow()
             delay(30_000)
         }
     }
 
-    LaunchedEffect(uid) {
-        if (uid.isNotEmpty()) {
+    // Firebase user listener
+    DisposableEffect(uid) {
+
+        if (uid.isEmpty()) {
+            onDispose { }
+        } else {
+
             postViewModel.cleanupExpiredWorkerPosts(uid)
-            db.collection("users").document(uid)
+
+            val listener = db.collection("users")
+                .document(uid)
                 .addSnapshotListener { doc, _ ->
-                    val dbAvailable = doc?.getBoolean("isAvailable") ?: false
+
+                    isAvailable = doc?.getBoolean("isAvailable") ?: false
+
                     workerCategory = doc?.getString("category") ?: ""
-                    isAvailable = dbAvailable && withinHours
-                    if (!withinHours && dbAvailable) {
-                        db.collection("users").document(uid).update("isAvailable", false)
-                    }
                 }
+
+            onDispose {
+                listener.remove()
+            }
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            // AVAILABILITY CARD
             Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = Spacing.lg,
+                        vertical = Spacing.sm
+                    ),
                 shape = Radius.md,
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
+
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(Spacing.md),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Spacing.md),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Column {
-                        Text("Availability Status", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+
                         Text(
-                            if (withinHours) "Working hours: 9AM - 7PM" else "Outside working hours",
+                            "Availability Status",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            if (isAvailable)
+                                "You're online — jobs will find you"
+                            else
+                                "You're offline",
+
                             fontSize = 11.sp,
-                            color = if (withinHours) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
+
+                            color = if (isAvailable)
+                                NangalColors.Green
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+
                     Switch(
                         checked = isAvailable,
+
                         onCheckedChange = { newValue ->
-                            if (withinHours) {
+
+                            if (uid.isNotEmpty()) {
+
                                 isAvailable = newValue
-                                db.collection("users").document(uid).update("isAvailable", newValue)
+
+                                db.collection("users")
+                                    .document(uid)
+                                    .update("isAvailable", newValue)
+                                    .addOnFailureListener {
+                                        isAvailable = !newValue
+                                    }
                             }
-                        },
-                        enabled = withinHours
+                        }
                     )
                 }
             }
 
             NSDivider()
 
+            // FILTER JOBS — category match OR open-to-all
             val roleFiltered = posts.filter {
-                it.userRole == "seeker" && it.status == "open" && !it.declinedBy.contains(uid) &&
+                it.userRole == "seeker" &&
+                        it.status == "open" &&
+                        uid !in it.declinedBy &&
+                        it.uid !in blockedUids &&
                         (nowTick - it.timeStamp) < PostViewModel.JOB_ACCEPT_WINDOW_MS
             }
-            val filtered = if (workerCategory.isNotEmpty()) {
-                roleFiltered.filter { it.category.contains(workerCategory.replace(Regex("[^a-zA-Z ]"), "").trim(), ignoreCase = true) }
-            } else roleFiltered
 
+            val filtered = roleFiltered.filter { post ->
+                post.isOpenToAll ||
+                        workerCategory.isEmpty() ||
+                        post.category.contains(
+                            workerCategory
+                                .replace(Regex("[^a-zA-Z ]"), "")
+                                .trim(),
+                            ignoreCase = true
+                        )
+            }
+
+            // EMPTY STATE
             if (filtered.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+
                     NSEmptyState(
                         emoji = "📭",
                         title = "No jobs in demand",
-                        subtitle = "Seeker requests matching your category will show here"
+                        subtitle = "Seeker requests matching your category (or open to all) will show here"
                     )
                 }
+
             } else {
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(Spacing.lg),
                     verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
+
                     items(filtered) { post ->
+
                         JobDemandCard(
                             post = post,
                             nowTick = nowTick,
+
                             onAccept = {
-                                postViewModel.acceptPost(post.id, uid, userName)
-                                val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${post.userPhone}") }
+
+                                postViewModel.acceptPost(
+                                    post.id,
+                                    uid,
+                                    userName
+                                )
+
+                                val intent = Intent(
+                                    Intent.ACTION_DIAL,
+                                    Uri.parse("tel:${post.userPhone}")
+                                )
+
                                 context.startActivity(intent)
                             },
-                            onDecline = { postViewModel.declinePost(post.id, uid) }
+
+                            onDecline = {
+                                postViewModel.declinePost(
+                                    post.id,
+                                    uid
+                                )
+                            }
                         )
                     }
                 }
             }
         }
 
+        // POST SERVICE BUTTON
         FloatingActionButton(
-            onClick = { showPostDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(Spacing.lg),
+            onClick = {
+                showPostDialog = true
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(Spacing.lg),
             shape = Radius.md,
             containerColor = MaterialTheme.colorScheme.primary,
             elevation = FloatingActionButtonDefaults.elevation(0.dp)
         ) {
-            Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.onPrimary)
+
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Post Service",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 
+    // POST SERVICE DIALOG
     if (showPostDialog) {
+
         WorkerPostDialog(
-            onDismiss = { showPostDialog = false },
-            onPost = { cat, desc, price, avail -> postViewModel.createWorkerPost(userName, cat, desc, price, avail) },
+            onDismiss = {
+                showPostDialog = false
+            },
+
+            onPost = { cat, desc, price, avail ->
+
+                postViewModel.createWorkerPost(
+                    userName,
+                    cat,
+                    desc,
+                    price,
+                    avail
+                )
+            },
+
             isLoading = isLoadingPosts
         )
     }
 }
 
+// ============================================================
+// WORKER POST DIALOG
+// ============================================================
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerPostDialog(onDismiss: () -> Unit, onPost: (String, String, String, String) -> Unit, isLoading: Boolean) {
-    var description by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var availability by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("🔧 Plumber") }
-    var showAvailabilityMenu by remember { mutableStateOf(false) }
+fun WorkerPostDialog(
+    onDismiss: () -> Unit,
+    onPost: (String, String, String, String) -> Unit,
+    isLoading: Boolean
+) {
 
-    val categories = listOf("🔧 Plumber", "⚡ Electrician", "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour", "🚗 Automobile", "🩺 Medical Tests", "🚕 Taxi Service", "🐾 Veterinary", "❓ Other")
-    val availabilityOptions = listOf("9 AM - 7 PM", "Morning only", "Evening only", "Weekdays only", "Weekends only", "Anytime")
+    var description by remember { mutableStateOf("") }
+
+    var price by remember { mutableStateOf("") }
+
+    var availability by remember { mutableStateOf("") }
+
+    var selectedCategory by remember {
+        mutableStateOf("🔧 Plumber")
+    }
+
+    var showAvailabilityMenu by remember {
+        mutableStateOf(false)
+    }
+
+    val categories = listOf(
+        "🔧 Plumber",
+        "⚡ Electrician",
+        "🎨 Painter",
+        "🪚 Carpenter",
+        "🧹 Cleaner",
+        "👷 Labour",
+        "🚗 Automobile",
+        "🩺 Medical Tests",
+        "🚕 Taxi Service",
+        "🐾 Veterinary",
+        "❓ Other"
+    )
+
+    val availabilityOptions = listOf(
+        "9 AM - 7 PM",
+        "Morning only",
+        "Evening only",
+        "Weekdays only",
+        "Weekends only",
+        "Anytime"
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = Radius.xl,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("Post Service", style = MaterialTheme.typography.titleMedium) },
+
+        title = {
+            Text(
+                "Post Service",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                Text("Category", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Spacing.md)
+            ) {
+
+                Text(
+                    "Category",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                ) {
+
                     items(categories) { cat ->
+
                         FilterChip(
                             selected = selectedCategory == cat,
-                            onClick = { selectedCategory = cat },
-                            label = { Text(cat, style = MaterialTheme.typography.labelSmall) },
+                            onClick = {
+                                selectedCategory = cat
+                            },
+                            label = {
+                                Text(
+                                    cat,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
                                 selectedLabelColor = MaterialTheme.colorScheme.onPrimary
@@ -601,35 +1214,122 @@ fun WorkerPostDialog(onDismiss: () -> Unit, onPost: (String, String, String, Str
                     }
                 }
 
-                NSTextField(value = description, onValueChange = { description = it }, label = "Describe your service", placeholder = "Skills, experience...", singleLine = false, minLines = 2, modifier = Modifier.fillMaxWidth())
-                NSTextField(value = price, onValueChange = { price = it }, label = "Your Rate", placeholder = "₹500/day", modifier = Modifier.fillMaxWidth())
+                NSTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = "Describe your service",
+                    placeholder = "Skills, experience...",
+                    singleLine = false,
+                    minLines = 2,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                ExposedDropdownMenuBox(expanded = showAvailabilityMenu, onExpandedChange = { showAvailabilityMenu = it }) {
+                NSTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = "Your Rate",
+                    placeholder = "₹500/day",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = showAvailabilityMenu,
+                    onExpandedChange = {
+                        showAvailabilityMenu = it
+                    }
+                ) {
+
                     OutlinedTextField(
                         value = availability,
-                        onValueChange = { availability = it },
-                        label = { Text("Availability") },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        onValueChange = {
+                            availability = it
+                        },
+                        label = {
+                            Text("Availability")
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
                         singleLine = true,
                         shape = Radius.md,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showAvailabilityMenu) },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = showAvailabilityMenu
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
                     )
-                    ExposedDropdownMenu(expanded = showAvailabilityMenu, onDismissRequest = { showAvailabilityMenu = false }) {
+
+                    ExposedDropdownMenu(
+                        expanded = showAvailabilityMenu,
+                        onDismissRequest = {
+                            showAvailabilityMenu = false
+                        }
+                    ) {
+
                         availabilityOptions.forEach { option ->
-                            DropdownMenuItem(text = { Text(option, style = MaterialTheme.typography.bodyMedium) }, onClick = { availability = option; showAvailabilityMenu = false })
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        option,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
+                                onClick = {
+                                    availability = option
+                                    showAvailabilityMenu = false
+                                }
+                            )
                         }
                     }
                 }
             }
         },
-        confirmButton = { NSButton(text = "Post Service", onClick = { onPost(selectedCategory, description, price, availability) }, enabled = description.isNotBlank(), isLoading = isLoading, modifier = Modifier.fillMaxWidth()) },
-        dismissButton = { NSOutlinedButton(text = "Cancel", onClick = onDismiss, modifier = Modifier.fillMaxWidth()) }
+
+        confirmButton = {
+
+            NSButton(
+                text = "Post Service",
+                onClick = {
+                    onPost(
+                        selectedCategory,
+                        description,
+                        price,
+                        availability
+                    )
+                },
+                enabled = description.isNotBlank(),
+                isLoading = isLoading,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+
+        dismissButton = {
+
+            NSOutlinedButton(
+                text = "Cancel",
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     )
 }
 
+// ============================================================
+// JOB DEMAND CARD (with Broadcast badge)
+// ============================================================
+
 @Composable
-fun JobDemandCard(post: Post, nowTick: Long, onAccept: () -> Unit, onDecline: () -> Unit) {
+fun JobDemandCard(
+    post: Post,
+    nowTick: Long,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
     val timeAgo = remember(post.timeStamp) { getTimeAgo(post.timeStamp) }
     val remainingMs = (post.timeStamp + PostViewModel.JOB_ACCEPT_WINDOW_MS - nowTick).coerceAtLeast(0)
     val minutes = (remainingMs / 1000) / 60
@@ -638,35 +1338,101 @@ fun JobDemandCard(post: Post, nowTick: Long, onAccept: () -> Unit, onDecline: ()
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(Spacing.lg)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
-                Text(timeAgo, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        post.category,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (post.isOpenToAll) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            shape = Radius.full,
+                            color = Color(0xFF4DA3FF).copy(alpha = 0.15f)
+                        ) {
+                            Text(
+                                "🌐 Broadcast",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 10.sp,
+                                color = Color(0xFF4DA3FF),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+                Text(
+                    timeAgo,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+
             Spacer(modifier = Modifier.height(6.dp))
-            Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+
+            Text(
+                post.description,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
             Spacer(modifier = Modifier.height(4.dp))
-            Text("👤 ${post.userName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            Text(
+                "👤 ${post.userName}",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
             if (post.address.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("📍 ${post.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "📍 ${post.address}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Surface(
                 shape = Radius.md,
-                color = if (isUrgent) MaterialTheme.colorScheme.error.copy(alpha = 0.12f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                color = if (isUrgent)
+                    MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                else
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             ) {
                 Text(
                     "⏱️ Respond in ${minutes}:${seconds.toString().padStart(2, '0')}",
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    color = if (isUrgent)
+                        MaterialTheme.colorScheme.error
+                    else
+                        MaterialTheme.colorScheme.primary
                 )
             }
+
             Spacer(modifier = Modifier.height(10.dp))
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NSOutlinedButton(text = "Decline", onClick = onDecline, modifier = Modifier.weight(1f))
-                NSButton(text = "Accept & Call", onClick = onAccept, modifier = Modifier.weight(1f), leadingIcon = Icons.Default.Call)
+                NSOutlinedButton(
+                    text = "Decline",
+                    onClick = onDecline,
+                    modifier = Modifier.weight(1f)
+                )
+                NSButton(
+                    text = "Accept & Call",
+                    onClick = onAccept,
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = Icons.Default.Call
+                )
             }
         }
     }

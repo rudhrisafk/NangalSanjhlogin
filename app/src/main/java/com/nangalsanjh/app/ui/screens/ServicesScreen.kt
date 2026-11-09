@@ -1,5 +1,3 @@
-// ServicesScreen.kt — FULL FILE (single filterable list of job posts only, no worker directory, no tabs — seeker's post-request FAB moved here)
-
 package com.nangalsanjh.app.ui.screens
 
 import android.Manifest
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nangalsanjh.app.viewmodel.FavoriteViewModel
 import com.nangalsanjh.app.viewmodel.Post
 import com.nangalsanjh.app.viewmodel.PostViewModel
 import com.nangalsanjh.app.viewmodel.WorkerModel
@@ -43,6 +42,20 @@ enum class JobSort(val label: String) {
 
 @Composable
 fun ServicesScreen() {
+    var selectedTab by remember { mutableStateOf(0) } // 0 = Job Posts, 1 = My Favorites
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TabRow(selectedTabIndex = selectedTab) {
+            Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Job Posts", fontSize = 12.sp) })
+            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("My Favorites", fontSize = 12.sp) })
+        }
+
+        if (selectedTab == 0) JobPostsTab() else FavoritesTab()
+    }
+}
+
+@Composable
+fun JobPostsTab() {
     val workerViewModel: WorkerViewModel = viewModel()
     val workers by workerViewModel.workers.collectAsState()
     val postViewModel: PostViewModel = viewModel()
@@ -191,7 +204,9 @@ fun ServicesScreen() {
     if (showJobRequestDialog) {
         SeekerJobRequestDialog(
             onDismiss = { showJobRequestDialog = false },
-            onPost = { cat, desc, lat, lng, addr -> postViewModel.createJobRequest("You", cat, desc, lat, lng, addr) },
+            onPost = { cat, desc, lat, lng, addr, openToAll ->
+                postViewModel.createJobRequest("You", cat, desc, lat, lng, addr, openToAll)
+            },
             isLoading = isLoading
         )
     }
@@ -211,7 +226,54 @@ fun ServicesScreen() {
 }
 
 @Composable
+fun FavoritesTab() {
+    val viewModel: FavoriteViewModel = viewModel()
+    val favorites by viewModel.favorites.collectAsState()
+    val context = LocalContext.current
+
+    if (favorites.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("💔", fontSize = 48.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("No saved workers yet", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                Text("Tap the heart icon on a job post to save it", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+            }
+        }
+    } else {
+        LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(favorites) { fav ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Column {
+                            Text(fav.workerName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(fav.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                        }
+                        Row {
+                            IconButton(onClick = {
+                                val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${fav.phone}") }
+                                context.startActivity(intent)
+                            }) { Icon(Icons.Default.Call, contentDescription = "Call") }
+                            TextButton(onClick = { viewModel.removeFavorite(fav.workerUid) }) { Text("Remove") }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClick: () -> Unit) {
+    val favoriteViewModel: FavoriteViewModel = viewModel()
+    val favorites by favoriteViewModel.favorites.collectAsState()
+    val isFavorite = favorites.any { it.workerUid == post.uid }
+    var showReportDialog by remember { mutableStateOf(false) }
+
     val hoursLeft = ((PostViewModel.WORKER_POST_EXPIRY_MS - (System.currentTimeMillis() - post.timeStamp)) / (60 * 60 * 1000)).toInt().coerceAtLeast(0)
 
     Card(
@@ -234,8 +296,21 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
                         }
                     }
                 }
-                IconButton(onClick = onMoreClick, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
+                Row {
+                    IconButton(onClick = {
+                        if (isFavorite) favoriteViewModel.removeFavorite(post.uid)
+                        else favoriteViewModel.addFavorite(post.uid, post.userName, post.category, post.userPhone)
+                    }, modifier = Modifier.size(28.dp)) {
+                        Icon(
+                            if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = if (isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    IconButton(onClick = onMoreClick, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(6.dp))
@@ -250,12 +325,26 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
             Spacer(modifier = Modifier.height(4.dp))
             Text("Expires in ${hoursLeft}h", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = onCall, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) {
-                Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Call ${post.userName}", fontSize = 14.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onCall, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp)) {
+                    Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Call", fontSize = 14.sp)
+                }
+                OutlinedButton(onClick = { showReportDialog = true }, shape = RoundedCornerShape(10.dp)) {
+                    Icon(Icons.Default.Flag, contentDescription = "Report", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
+    }
+
+    if (showReportDialog) {
+        ReportUserDialog(
+            reportedUid = post.uid,
+            reportedName = post.userName,
+            reporterName = "You",
+            onDismiss = { showReportDialog = false }
+        )
     }
 }
 
@@ -263,7 +352,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
 @Composable
 fun SeekerJobRequestDialog(
     onDismiss: () -> Unit,
-    onPost: (String, String, Double, Double, String) -> Unit,
+    onPost: (String, String, Double, Double, String, Boolean) -> Unit,
     isLoading: Boolean
 ) {
     val context = LocalContext.current
@@ -273,18 +362,28 @@ fun SeekerJobRequestDialog(
     var longitude by remember { mutableStateOf(0.0) }
     var address by remember { mutableStateOf("") }
     var locationFetching by remember { mutableStateOf(false) }
+    var isOpenToAll by remember { mutableStateOf(false) }
 
-    val categories = listOf("🔧 Plumber", "⚡ Electrician", "🎨 Painter", "🪚 Carpenter", "🧹 Cleaner", "👷 Labour", "🚗 Automobile", "🩺 Medical Tests", "🚕 Taxi Service", "🐾 Veterinary", "❓ Other")
+    val categories = listOf(
+        "🔧 Plumber", "⚡ Electrician", "🎨 Painter", "🪚 Carpenter",
+        "🧹 Cleaner", "👷 Labour", "🚗 Automobile", "🩺 Medical Tests",
+        "🚕 Taxi Service", "🐾 Veterinary", "❓ Other"
+    )
 
     fun fetchLocation() {
         locationFetching = true
         val lm = context.getSystemService(android.content.Context.LOCATION_SERVICE) as LocationManager
-        val hasPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
         if (hasPermission) {
             val loc = try {
                 lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                     ?: lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            } catch (ex: SecurityException) { null }
+            } catch (ex: SecurityException) {
+                null
+            }
             if (loc != null) {
                 latitude = loc.latitude
                 longitude = loc.longitude
@@ -292,14 +391,19 @@ fun SeekerJobRequestDialog(
                     @Suppress("DEPRECATION")
                     Geocoder(context, Locale.getDefault())
                         .getFromLocation(loc.latitude, loc.longitude, 1)
-                        ?.firstOrNull()?.getAddressLine(0) ?: "${loc.latitude}, ${loc.longitude}"
-                } catch (ex: Exception) { "${loc.latitude}, ${loc.longitude}" }
+                        ?.firstOrNull()?.getAddressLine(0)
+                        ?: "${loc.latitude}, ${loc.longitude}"
+                } catch (ex: Exception) {
+                    "${loc.latitude}, ${loc.longitude}"
+                }
             }
         }
         locationFetching = false
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
         if (granted) fetchLocation()
     }
 
@@ -310,44 +414,115 @@ fun SeekerJobRequestDialog(
         title = { Text("Post a Job Request") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Category", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(categories) { cat ->
-                        FilterChip(
-                            selected = selectedCategory == cat,
-                            onClick = { selectedCategory = cat },
-                            label = { Text(cat, fontSize = 11.sp) }
+
+                // "Not Sure / Any Worker" toggle
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isOpenToAll)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    else
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Not sure who to ask?",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                "Broadcast this to every worker, regardless of category",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                        Switch(
+                            checked = isOpenToAll,
+                            onCheckedChange = { isOpenToAll = it }
                         )
                     }
                 }
+
+                // Category chips (hidden when open to all)
+                if (!isOpenToAll) {
+                    Text(
+                        "Category",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(categories) { cat ->
+                            FilterChip(
+                                selected = selectedCategory == cat,
+                                onClick = { selectedCategory = cat },
+                                label = { Text(cat, fontSize = 11.sp) }
+                            )
+                        }
+                    }
+                }
+
                 OutlinedTextField(
-                    value = description, onValueChange = { description = it },
-                    label = { Text("Describe the problem") }, modifier = Modifier.fillMaxWidth(), minLines = 2
+                    value = description,
+                    onValueChange = { description = it },
+                    label = {
+                        Text(
+                            if (isOpenToAll) "What do you need? (e.g. DJ for event)"
+                            else "Describe the problem"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2
                 )
+
                 OutlinedButton(
                     onClick = {
-                        val hasPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
                         if (hasPermission) fetchLocation()
                         else permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(if (locationFetching) "Fetching..." else if (address.isNotEmpty()) "📍 $address" else "📍 Use Current Location")
+                    Text(
+                        if (locationFetching) "Fetching..."
+                        else if (address.isNotEmpty()) "📍 $address"
+                        else "📍 Use Current Location"
+                    )
                 }
             }
         },
         confirmButton = {
             Button(
-                onClick = { onPost(selectedCategory, description, latitude, longitude, address) },
+                onClick = {
+                    val finalCategory = if (isOpenToAll) "🌐 Any Worker" else selectedCategory
+                    onPost(finalCategory, description, latitude, longitude, address, isOpenToAll)
+                },
                 enabled = description.isNotBlank() && latitude != 0.0 && longitude != 0.0
-            ) { Text("Post Request") }
+            ) {
+                Text("Post Request")
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
     )
 }
 
 @Composable
-fun PostDetailDialog(post: Post, worker: WorkerModel?, onDismiss: () -> Unit, onCall: () -> Unit) {
+fun PostDetailDialog(
+    post: Post,
+    worker: WorkerModel?,
+    onDismiss: () -> Unit,
+    onCall: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(20.dp),
@@ -356,18 +531,42 @@ fun PostDetailDialog(post: Post, worker: WorkerModel?, onDismiss: () -> Unit, on
         text = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(50.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), modifier = Modifier.size(60.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Text(post.category.take(2), fontSize = 26.sp) }
+                    Surface(
+                        shape = RoundedCornerShape(50.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        modifier = Modifier.size(60.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(post.category.take(2), fontSize = 26.sp)
+                        }
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(post.userName, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = MaterialTheme.colorScheme.onSurface)
-                        Text(post.category, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            post.userName,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            post.category,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         if (worker != null && worker.rating > 0f) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(13.dp))
+                                Icon(
+                                    Icons.Default.Star,
+                                    null,
+                                    tint = Color(0xFFFFA000),
+                                    modifier = Modifier.size(13.dp)
+                                )
                                 Spacer(modifier = Modifier.width(2.dp))
-                                Text("${"%.1f".format(worker.rating)} · ${worker.reviewCount} reviews", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                Text(
+                                    "${"%.1f".format(worker.rating)} · ${worker.reviewCount} reviews",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
                             }
                         }
                     }
@@ -378,53 +577,107 @@ fun PostDetailDialog(post: Post, worker: WorkerModel?, onDismiss: () -> Unit, on
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (worker != null) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         StatCard(count = worker.jobsDone.toString(), label = "Jobs Done", emoji = "✅")
-                        StatCard(count = if (worker.isAvailable) "Yes" else "No", label = "Available", emoji = "🟢")
+                        StatCard(
+                            count = if (worker.isAvailable) "Yes" else "No",
+                            label = "Available",
+                            emoji = "🟢"
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                Text("Job Description", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(
+                    "Job Description",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, lineHeight = 19.sp)
+                Text(
+                    post.description,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 19.sp
+                )
 
                 if (worker?.experience?.isNotEmpty() == true) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("🛠️ ${worker.experience} years experience", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        "🛠️ ${worker.experience} years experience",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
 
                 if (!worker?.about.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Experience / About", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                    Text(
+                        "Experience / About",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(worker!!.about, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, lineHeight = 19.sp)
+                    Text(
+                        worker!!.about,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 19.sp
+                    )
                 }
 
                 if (post.price.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("💰 ${post.price}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        "💰 ${post.price}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
                 if (post.availability.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("🕐 ${post.availability}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                    Text(
+                        "🕐 ${post.availability}",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
                 }
                 if (worker?.address?.isNotEmpty() == true) {
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("📍 ${worker.address}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                    Text(
+                        "📍 ${worker.address}",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
                 }
             }
         },
         confirmButton = {
-            Button(onClick = onCall, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) {
+            Button(
+                onClick = onCall,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp)
+            ) {
                 Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Call Now")
             }
         },
-        dismissButton = { OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") } }
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Close")
+            }
+        }
     )
 }
-

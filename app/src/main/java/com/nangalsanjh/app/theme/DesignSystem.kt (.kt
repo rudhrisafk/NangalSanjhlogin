@@ -1,3 +1,5 @@
+// DesignSystem.kt — FULL FILE (gradient buttons, glow-edged cards, refined everything)
+
 package com.nangalsanjh.app.theme
 
 import androidx.compose.foundation.background
@@ -18,7 +20,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// ── Spacing System ────────────────────────────────────────────
 object Spacing {
     val xs = 4.dp
     val sm = 8.dp
@@ -30,61 +31,63 @@ object Spacing {
     val huge = 48.dp
 }
 
-// ── Radius System ─────────────────────────────────────────────
 object Radius {
-    val sm = RoundedCornerShape(8.dp)
-    val md = RoundedCornerShape(12.dp)
-    val lg = RoundedCornerShape(16.dp)
-    val xl = RoundedCornerShape(20.dp)
-    val xxl = RoundedCornerShape(24.dp)
+    val sm = RoundedCornerShape(10.dp)
+    val md = RoundedCornerShape(14.dp)
+    val lg = RoundedCornerShape(18.dp)
+    val xl = RoundedCornerShape(24.dp)
+    val xxl = RoundedCornerShape(28.dp)
     val full = RoundedCornerShape(50.dp)
 }
 
-// ── NS Card — Primary Card Component ─────────────────────────
+// ── NS Card — glow-edged, subtle gradient sheen ──────────────
 @Composable
 fun NSCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.background == NangalColors.Gray950
+    val sheen = if (isDark) NangalGradients.CardSheenDark else NangalGradients.CardSheenLight
+
+    val cardModifier = modifier
+        .shadow(
+            elevation = 10.dp,
+            shape = Radius.lg,
+            ambientColor = Color.Black.copy(alpha = 0.25f),
+            spotColor = Color.Black.copy(alpha = 0.35f)
+        )
+        .clip(Radius.lg)
+        .background(sheen)
+        .border(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+            shape = Radius.lg
+        )
+
     if (onClick != null) {
         Card(
             onClick = onClick,
-            modifier = modifier,
+            modifier = cardModifier,
             shape = Radius.lg,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp,
-                pressedElevation = 0.dp
-            ),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
         ) {
             Column(content = content)
         }
     } else {
         Card(
-            modifier = modifier,
+            modifier = cardModifier,
             shape = Radius.lg,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(content = content)
         }
     }
 }
 
-// ── NS Button — Primary ───────────────────────────────────────
+// ── NS Button — signature gradient fill with glow ────────────
 @Composable
 fun NSButton(
     text: String,
@@ -94,36 +97,46 @@ fun NSButton(
     isLoading: Boolean = false,
     leadingIcon: ImageVector? = null
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.height(52.dp),
-        enabled = enabled && !isLoading,
-        shape = Radius.md,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-        ),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp
-        )
+    val isActive = enabled && !isLoading
+    Box(
+        modifier = modifier
+            .height(54.dp)
+            .clip(Radius.md)
+            .then(
+                if (isActive) Modifier
+                    .shadow(elevation = 14.dp, shape = Radius.md, spotColor = BrandOrange.copy(alpha = 0.55f))
+                    .background(NangalGradients.BrandDiagonal)
+                else Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+            )
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(18.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
-                strokeWidth = 2.dp
+        androidx.compose.material3.TextButton(
+            onClick = onClick,
+            enabled = isActive,
+            modifier = Modifier.fillMaxSize(),
+            shape = Radius.md,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = Color.White,
+                disabledContentColor = Color.White.copy(alpha = 0.6f)
             )
-        } else {
-            if (leadingIcon != null) {
-                Icon(leadingIcon, null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(Spacing.sm))
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                if (leadingIcon != null) {
+                    Icon(leadingIcon, null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(Spacing.sm))
+                }
+                Text(
+                    text,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
-            Text(
-                text,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }
@@ -138,17 +151,18 @@ fun NSOutlinedButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(52.dp),
+        modifier = modifier.height(54.dp),
         enabled = enabled,
         shape = Radius.md,
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.primary
         ),
         border = androidx.compose.foundation.BorderStroke(
-            1.dp, MaterialTheme.colorScheme.outline
+            1.5.dp,
+            Brush.horizontalGradient(listOf(BrandOrange.copy(alpha = 0.7f), BrandAmber.copy(alpha = 0.7f)))
         )
     ) {
-        Text(text, style = MaterialTheme.typography.labelLarge)
+        Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -178,7 +192,7 @@ fun NSTextField(
             Text(
                 placeholder,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         },
         leadingIcon = if (leadingIcon != null) {
@@ -186,8 +200,7 @@ fun NSTextField(
                 Icon(
                     leadingIcon,
                     null,
-                    tint = if (isError) MaterialTheme.colorScheme.error
-                    else MaterialTheme.colorScheme.primary,
+                    tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -205,13 +218,15 @@ fun NSTextField(
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            errorBorderColor = MaterialTheme.colorScheme.error
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
         ),
         textStyle = MaterialTheme.typography.bodyMedium
     )
 }
 
-// ── NS Status Badge ───────────────────────────────────────────
+// ── NS Status Badge — gradient-tinted pill ────────────────────
 @Composable
 fun NSStatusBadge(
     text: String,
@@ -221,36 +236,35 @@ fun NSStatusBadge(
     Surface(
         modifier = modifier,
         shape = Radius.full,
-        color = color.copy(alpha = 0.12f)
+        color = color.copy(alpha = 0.16f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.4f))
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp),
             style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Bold,
             color = color
         )
     }
 }
 
-// ── NS Avatar ─────────────────────────────────────────────────
+// ── NS Avatar — gradient ring ──────────────────────────────────
 @Composable
 fun NSAvatar(
     emoji: String,
     size: Dp = 44.dp,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
-    Surface(
-        modifier = Modifier.size(size),
-        shape = Radius.md,
-        color = color.copy(alpha = 0.12f)
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(Radius.md)
+            .background(Brush.linearGradient(listOf(color.copy(alpha = 0.28f), color.copy(alpha = 0.08f))))
+            .border(1.dp, color.copy(alpha = 0.35f), Radius.md),
+        contentAlignment = Alignment.Center
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                emoji,
-                fontSize = (size.value * 0.45).sp
-            )
-        }
+        Text(emoji, fontSize = (size.value * 0.45).sp)
     }
 }
 
@@ -303,20 +317,28 @@ fun NSEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(emoji, fontSize = 52.sp)
+        Box(
+            modifier = Modifier
+                .size(84.dp)
+                .clip(Radius.full)
+                .background(Brush.radialGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), Color.Transparent))),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(emoji, fontSize = 44.sp)
+        }
         Spacer(modifier = Modifier.height(Spacing.lg))
         Text(
             title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.Bold
         )
         if (subtitle.isNotEmpty()) {
             Spacer(modifier = Modifier.height(Spacing.xs))
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f)
             )
         }
         if (actionText.isNotEmpty() && onAction != null) {

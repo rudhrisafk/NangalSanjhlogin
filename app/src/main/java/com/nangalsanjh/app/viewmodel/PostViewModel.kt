@@ -1,5 +1,3 @@
-// PostViewModel.kt — FULL FILE (adds 24hr worker-post expiry + feedback/rating system + 10-min accept/decline window)
-
 package com.nangalsanjh.app.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -31,7 +29,10 @@ data class Post(
     val assignedWorkerName: String = "",
     val rated: Boolean = false,
     val feedbackRating: Float = 0f,
-    val feedbackComment: String = ""
+    val feedbackComment: String = "",
+    val beforePhotoUrl: String = "",
+    val afterPhotoUrl: String = "",
+    val isOpenToAll: Boolean = false
 )
 
 class PostViewModel : ViewModel() {
@@ -40,7 +41,7 @@ class PostViewModel : ViewModel() {
         const val MAX_WORKER_POSTS = 5
         const val JOB_REQUEST_EXPIRY_MS = 48L * 60 * 60 * 1000
         const val WORKER_POST_EXPIRY_MS = 24L * 60 * 60 * 1000
-        const val JOB_ACCEPT_WINDOW_MS = 10L * 60 * 1000 // 10 minutes to accept/decline
+        const val JOB_ACCEPT_WINDOW_MS = 10L * 60 * 1000
     }
 
     private val db = FirebaseFirestore.getInstance()
@@ -97,7 +98,10 @@ class PostViewModel : ViewModel() {
                         assignedWorkerName = doc.getString("assignedWorkerName") ?: "",
                         rated = doc.getBoolean("rated") ?: false,
                         feedbackRating = (doc.getDouble("feedbackRating") ?: 0.0).toFloat(),
-                        feedbackComment = doc.getString("feedbackComment") ?: ""
+                        feedbackComment = doc.getString("feedbackComment") ?: "",
+                        beforePhotoUrl = doc.getString("beforePhotoUrl") ?: "",
+                        afterPhotoUrl = doc.getString("afterPhotoUrl") ?: "",
+                        isOpenToAll = doc.getBoolean("isOpenToAll") ?: false
                     )
                 } ?: emptyList()
                 _posts.value = postList
@@ -143,7 +147,10 @@ class PostViewModel : ViewModel() {
             "assignedWorkerName" to "",
             "rated" to false,
             "feedbackRating" to 0.0,
-            "feedbackComment" to ""
+            "feedbackComment" to "",
+            "beforePhotoUrl" to "",
+            "afterPhotoUrl" to "",
+            "isOpenToAll" to false
         )
 
         db.collection("posts")
@@ -195,7 +202,8 @@ class PostViewModel : ViewModel() {
         description: String,
         latitude: Double,
         longitude: Double,
-        address: String
+        address: String,
+        isOpenToAll: Boolean = false
     ) {
         val uid = auth.currentUser?.uid ?: return
         val phone = auth.currentUser?.phoneNumber ?: ""
@@ -223,7 +231,10 @@ class PostViewModel : ViewModel() {
             "assignedWorkerName" to "",
             "rated" to false,
             "feedbackRating" to 0.0,
-            "feedbackComment" to ""
+            "feedbackComment" to "",
+            "beforePhotoUrl" to "",
+            "afterPhotoUrl" to "",
+            "isOpenToAll" to isOpenToAll
         )
 
         db.collection("posts")
@@ -254,11 +265,13 @@ class PostViewModel : ViewModel() {
             )
     }
 
-    fun completeJob(postId: String) {
-        db.collection("posts").document(postId).update("status", "completed")
+    fun completeJob(postId: String, beforePhotoUrl: String = "", afterPhotoUrl: String = "") {
+        val updates = mutableMapOf<String, Any>("status" to "completed")
+        if (beforePhotoUrl.isNotEmpty()) updates["beforePhotoUrl"] = beforePhotoUrl
+        if (afterPhotoUrl.isNotEmpty()) updates["afterPhotoUrl"] = afterPhotoUrl
+        db.collection("posts").document(postId).update(updates)
     }
 
-    // seeker rates the worker after job completion — updates worker's average rating
     fun submitFeedback(postId: String, workerUid: String, rating: Float, comment: String) {
         val userRef = db.collection("users").document(workerUid)
         userRef.get().addOnSuccessListener { doc ->
@@ -301,7 +314,6 @@ class PostViewModel : ViewModel() {
             }
     }
 
-    // deletes this worker's service posts older than 24 hours
     fun cleanupExpiredWorkerPosts(uid: String) {
         if (uid.isEmpty()) return
         val cutoff = System.currentTimeMillis() - WORKER_POST_EXPIRY_MS
@@ -317,7 +329,6 @@ class PostViewModel : ViewModel() {
             }
     }
 
-    // marks open seeker job requests as "expired" if no worker accepted within the 10-min window
     fun cleanupExpiredAcceptWindow() {
         val cutoff = System.currentTimeMillis() - JOB_ACCEPT_WINDOW_MS
         db.collection("posts")
@@ -327,9 +338,7 @@ class PostViewModel : ViewModel() {
             .addOnSuccessListener { snapshot ->
                 snapshot.documents.forEach { doc ->
                     val ts = doc.getLong("timeStamp") ?: 0L
-                    if (ts < cutoff) {
-                        doc.reference.update("status", "expired")
-                    }
+                    if (ts < cutoff) doc.reference.update("status", "expired")
                 }
             }
     }

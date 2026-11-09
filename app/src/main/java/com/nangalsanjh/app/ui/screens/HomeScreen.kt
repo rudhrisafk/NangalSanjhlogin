@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,10 +31,10 @@ fun HomeScreen(
     themeViewModel: ThemeViewModel,
     onLogout: () -> Unit = {},
     onRoleSwitch: ((String) -> Unit)? = null,
-    isProfileSetup: Boolean = true
+    isProfileSetup: Boolean = true,
 ) {
     var activeRole by remember { mutableStateOf(userRole) }
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableStateOf(0) }
     var showAIAssistant by remember { mutableStateOf(false) }
     var showEmergency by remember { mutableStateOf(false) }
     var showBloodDonors by remember { mutableStateOf(false) }
@@ -277,7 +276,7 @@ fun HomeScreen(
                     ) {
                         IconButton(onClick = { showProfile = false }) {
                             Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
+                                Icons.Default.ArrowBack,
                                 null,
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
@@ -446,7 +445,7 @@ fun HomeScreen(
                         if (showBloodDonors) {
                             IconButton(onClick = { showBloodDonors = false }) {
                                 Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack, null,
+                                    Icons.Default.ArrowBack, null,
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -486,8 +485,10 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
         NavItem("Map", Icons.Default.Map)
     )
     "admin" -> listOf(
+        NavItem("Dashboard", Icons.Default.Dashboard),
         NavItem("Complaints", Icons.Default.Report),
         NavItem("Resolved", Icons.Default.CheckCircle),
+        NavItem("Reports", Icons.Default.Flag),
         NavItem("Announcements", Icons.Default.Campaign),
         NavItem("Map", Icons.Default.Map)
     )
@@ -501,7 +502,7 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
 }
 
 @Composable
-fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
+fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
         0 -> CommunityFeedScreen(userName = userName, userRole = "seeker")
         1 -> ServicesScreen()
@@ -512,7 +513,7 @@ fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
 }
 
 @Composable
-fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
+fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
         0 -> CommunityFeedScreen(userName = userName, userRole = "worker")
         1 -> MapScreen(userRole = "worker")
@@ -521,12 +522,14 @@ fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
 }
 
 @Composable
-fun AdminContent(tab: Int, userName: String, onLogout: () -> Unit = {}) {
+fun AdminContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
-        0 -> ComplaintsScreen(userRole = "admin", userName = userName)
-        1 -> ResolvedComplaintsScreen()
-        2 -> AdminAnnouncementsScreen()
-        3 -> MapScreen(userRole = "admin")
-        else -> ComplaintsScreen(userRole = "admin", userName = userName)
+        0 -> AdminDashboardScreen()
+        1 -> ComplaintsScreen(userRole = "admin", userName = userName)
+        2 -> ResolvedComplaintsScreen()
+        3 -> AdminReportsScreen()
+        4 -> AdminAnnouncementsScreen()
+        5 -> MapScreen(userRole = "admin")
+        else -> AdminDashboardScreen()
     }
 }

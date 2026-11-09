@@ -1,4 +1,4 @@
-// WorkerViewModel.kt — FULL FILE (adds experience field)
+// WorkerViewModel.kt — FULL FILE (adds isBlocked filter)
 
 package com.nangalsanjh.app.viewmodel
 
@@ -21,7 +21,8 @@ data class WorkerModel(
     val about: String = "",
     val aadhar: String = "",
     val reviewCount: Int = 0,
-    val experience: String = ""
+    val experience: String = "",
+    val isBlocked: Boolean = false
 )
 
 class WorkerViewModel : ViewModel() {
@@ -64,9 +65,10 @@ class WorkerViewModel : ViewModel() {
                         about = doc.getString("about") ?: "",
                         aadhar = doc.getString("aadhar") ?: "",
                         reviewCount = (doc.getLong("reviewCount") ?: 0L).toInt(),
-                        experience = doc.getString("experience") ?: ""
+                        experience = doc.getString("experience") ?: "",
+                        isBlocked = doc.getBoolean("isBlocked") ?: false
                     )
-                } ?: emptyList()
+                }?.filter { !it.isBlocked } ?: emptyList()
                 _workers.value = list
             }
     }
