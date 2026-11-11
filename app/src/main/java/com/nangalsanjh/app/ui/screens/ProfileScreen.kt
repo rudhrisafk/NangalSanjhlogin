@@ -135,7 +135,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoading && profile.name.isEmpty()) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
         } else {
             Text(
                 profile.name.ifEmpty { userName },
@@ -157,13 +157,13 @@ fun ProfileScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
                         currentRole.replaceFirstChar { it.uppercase() },
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -209,7 +209,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -223,7 +223,7 @@ fun ProfileScreen(
                                 userPoints.level,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 "${userPoints.points} Seva Points",
@@ -233,7 +233,7 @@ fun ProfileScreen(
                         }
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurface
                         ) {
                             Text(
                                 userPoints.points.toString(),
@@ -253,8 +253,8 @@ fun ProfileScreen(
                     LinearProgressIndicator(
                         progress = { progress },
                         modifier = Modifier.fillMaxWidth().height(6.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        trackColor = MaterialTheme.colorScheme.secondaryContainer
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -269,14 +269,14 @@ fun ProfileScreen(
 
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
+                        color = MaterialTheme.colorScheme.secondaryContainer
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
                                 "🏆 Seva Points Levels",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             listOf(
@@ -517,7 +517,7 @@ fun SwitchProfileDialog(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Lock, null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -604,7 +604,7 @@ fun SwitchProfileDialog(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Default.SwitchAccount, null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -633,7 +633,7 @@ fun SwitchProfileDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = if (isSelected)
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                MaterialTheme.colorScheme.secondaryContainer
                             else
                                 MaterialTheme.colorScheme.surface
                         ),
@@ -677,7 +677,7 @@ fun SwitchProfileDialog(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(
                                     Icons.Default.CheckCircle, null,
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -752,7 +752,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 }
             } else if (myPosts.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -788,7 +788,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                    Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                                     Row {
                                         IconButton(onClick = { editingPost = post }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
@@ -963,7 +963,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             }
         } else if (myRequests.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -985,7 +985,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                                 IconButton(onClick = { deletingId = post.id }, modifier = Modifier.size(28.dp)) {
                                     Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
                                 }
@@ -1000,7 +1000,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
                                 color = when {
-                                    post.status == "assigned" -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    post.status == "assigned" -> MaterialTheme.colorScheme.secondaryContainer
                                     post.status == "completed" -> Color(0xFF138A4B).copy(alpha = 0.15f)
                                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                 }
@@ -1106,7 +1106,7 @@ fun MyComplaintsScreen(onBack: () -> Unit) {
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             }
         } else if (myComplaints.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1165,7 +1165,7 @@ fun AboutScreen(onBack: () -> Unit) {
         ) {
             Text("🏙️", fontSize = 64.sp)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Nangal Seva", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            Text("Nangal Seva", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Text("ਨੰਗਲ ਸੇਵਾ", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(8.dp))
             Text("Apna Shehar, Apni Zimmedari", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
@@ -1222,7 +1222,7 @@ fun ProfileMenuItem(
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
-                else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                else MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -1367,7 +1367,7 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             }
         } else if (myJobs.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1387,10 +1387,10 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                                Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                                 Surface(
                                     shape = RoundedCornerShape(20.dp),
-                                    color = if (post.status == "completed") Color(0xFF138A4B).copy(alpha = 0.15f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    color = if (post.status == "completed") Color(0xFF138A4B).copy(alpha = 0.15f) else MaterialTheme.colorScheme.secondaryContainer
                                 ) {
                                     Text(
                                         if (post.status == "completed") "✅ Completed" else "🔧 In Progress",

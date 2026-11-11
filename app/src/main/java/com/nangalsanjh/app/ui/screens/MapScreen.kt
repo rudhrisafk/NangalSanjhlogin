@@ -159,7 +159,7 @@ fun MapScreen(userRole: String = "seeker") {
                     val jobPoint = GeoPoint(activeJob.latitude, activeJob.longitude)
                     val jobMarker = Marker(mapView).apply {
                         position = jobPoint
-                        title = "🎯 Your Requested Location"
+                        title = "Your requested location"
                         snippet = activeJob.address
                     }
                     mapView.overlays.add(jobMarker)
@@ -188,16 +188,18 @@ fun MapScreen(userRole: String = "seeker") {
             if (activeJob != null) {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("On the way to customer", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
+                        Text("On the way to customer", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text("👤 ${activeJob.userName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text("Customer: ${activeJob.userName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                         if (activeJob.address.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("📍 ${activeJob.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Text("${activeJob.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                         }
                         Spacer(modifier = Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -209,7 +211,7 @@ fun MapScreen(userRole: String = "seeker") {
                                     context.startActivity(intent)
                                 },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(10.dp)
+                                shape = RoundedCornerShape(14.dp)
                             ) {
                                 Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -218,7 +220,7 @@ fun MapScreen(userRole: String = "seeker") {
                             OutlinedButton(
                                 onClick = { showCompleteDialog = true },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(10.dp)
+                                shape = RoundedCornerShape(14.dp)
                             ) { Text("Mark Complete", fontSize = 13.sp) }
                         }
                     }
@@ -226,11 +228,13 @@ fun MapScreen(userRole: String = "seeker") {
             } else {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("🗺️", fontSize = 32.sp)
+                        Icon(Icons.Default.Map, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             "No active job right now",
@@ -249,13 +253,15 @@ fun MapScreen(userRole: String = "seeker") {
         } else if (activeJob != null) {
             Card(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Worker on the way", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
+                    Text("Worker on the way", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("👷 ${activeJob.assignedWorkerName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text("Worker: ${activeJob.assignedWorkerName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
@@ -265,7 +271,7 @@ fun MapScreen(userRole: String = "seeker") {
                             context.startActivity(intent)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(14.dp)
                     ) {
                         Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
@@ -276,16 +282,17 @@ fun MapScreen(userRole: String = "seeker") {
         } else {
             Card(
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.97f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        if (userRole == "admin") "🗺️ Nangal" else "🗺️ Your Complaints",
+                        if (userRole == "admin") "Nangal complaints" else "Your complaints",
                         fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    LegendRow(color = Color.Red, label = "Pending ($pendingCount)")
+                    LegendRow(color = Color(0xFFD92D3A), label = "Pending ($pendingCount)")
                     LegendRow(color = Color(0xFFF59F00), label = "In Review ($reviewCount)")
                     LegendRow(color = Color(0xFF138A4B), label = "Resolved ($resolvedCount)")
                 }
@@ -295,11 +302,11 @@ fun MapScreen(userRole: String = "seeker") {
                 Card(
                     modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onBackground)
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(visibleComplaints.size.toString(), fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color.White)
-                        Text("Total", fontSize = 10.sp, color = Color.White.copy(alpha = 0.8f))
+                        Text(visibleComplaints.size.toString(), fontWeight = FontWeight.Bold, fontSize = 22.sp, color = MaterialTheme.colorScheme.background)
+                        Text("Total", fontSize = 10.sp, color = MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
                     }
                 }
             }
@@ -307,11 +314,13 @@ fun MapScreen(userRole: String = "seeker") {
             if (visibleComplaints.filter { it.latitude != 0.0 }.isEmpty()) {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("📍", fontSize = 32.sp)
+                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             if (userRole == "admin") "No complaints on map yet" else "You haven't filed any complaints yet",
@@ -334,8 +343,10 @@ fun MapScreen(userRole: String = "seeker") {
         selectedComplaint?.let { complaint ->
             Card(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
@@ -365,11 +376,11 @@ fun MapScreen(userRole: String = "seeker") {
                     Text("📍 ${complaint.location}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     if (complaint.departmentUpdate.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(6.dp))
-                        Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)) {
+                        Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                             Text(
                                 "🏛️ ${complaint.departmentUpdate}",
                                 modifier = Modifier.padding(8.dp),
-                                fontSize = 12.sp, color = MaterialTheme.colorScheme.primary
+                                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

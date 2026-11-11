@@ -69,7 +69,7 @@ fun ProfileSetupScreen(
                     Icon(
                         Icons.Default.Person,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 singleLine = true,
@@ -92,7 +92,7 @@ fun ProfileSetupScreen(
                     Icon(
                         Icons.Default.Home,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 singleLine = true,

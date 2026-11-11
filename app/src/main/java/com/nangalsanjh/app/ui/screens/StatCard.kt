@@ -21,7 +21,7 @@ fun StatCard(count: String, label: String, emoji: String) {
             count,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             label,

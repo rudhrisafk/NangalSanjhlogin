@@ -120,7 +120,7 @@ fun WorkerJobsScreen() {
                         enabled = withinHours,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            checkedTrackColor = MaterialTheme.colorScheme.secondaryContainer
                         )
                     )
                 }
@@ -158,13 +158,13 @@ fun WorkerJobsScreen() {
             if (workerCategory.isNotEmpty()) {
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
                         workerCategory,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -235,7 +235,7 @@ fun JobRequestCard(
                     post.category,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     getTimeAgo(post.timeStamp),

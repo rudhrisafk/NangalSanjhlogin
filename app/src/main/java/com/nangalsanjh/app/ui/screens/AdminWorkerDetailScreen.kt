@@ -88,7 +88,7 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
         val p = profile
         if (p == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
             }
         } else {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -101,7 +101,7 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column {
                                 Text(p.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                Text(p.category, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                Text(p.category, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                             }
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
@@ -161,7 +161,7 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(job.category, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                    Text(job.category, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                                     Text(getTimeAgo(job.timeStamp), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -219,7 +219,7 @@ private fun AdminDetailStatCard(count: String, label: String, emoji: String) {
             count,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             label,

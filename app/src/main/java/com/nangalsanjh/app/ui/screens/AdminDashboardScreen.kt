@@ -129,14 +129,14 @@ fun AdminDashboardScreen() {
                         Column(modifier = Modifier.padding(vertical = 6.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(category, fontSize = 13.sp)
-                                Text(count.toString(), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Text(count.toString(), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             LinearProgressIndicator(
                                 progress = { count.toFloat() / maxCount.toFloat() },
                                 modifier = Modifier.fillMaxWidth().height(8.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                color = MaterialTheme.colorScheme.onSurface,
+                                trackColor = MaterialTheme.colorScheme.secondaryContainer
                             )
                         }
                     }
@@ -164,7 +164,7 @@ fun AdminDashboardScreen() {
                     ) {
                         Column {
                             Text(worker.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text(worker.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                            Text(worker.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Surface(
                             shape = RoundedCornerShape(20.dp),
@@ -202,10 +202,10 @@ fun DashboardStatCard(label: String, count: String, icon: ImageVector, modifier:
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
         }
         Spacer(modifier = Modifier.height(12.dp))
         Text(count, style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)

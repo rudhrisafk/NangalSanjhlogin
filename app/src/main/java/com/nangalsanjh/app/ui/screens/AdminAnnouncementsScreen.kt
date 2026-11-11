@@ -75,7 +75,7 @@ fun AdminAnnouncementsScreen() {
                                     color = when (announcement.type) {
                                         "emergency" -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
                                         "ad" -> Color(0xFF138A4B).copy(alpha = 0.15f)
-                                        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                        else -> MaterialTheme.colorScheme.secondaryContainer
                                     }
                                 ) {
                                     Text(
@@ -92,6 +92,14 @@ fun AdminAnnouncementsScreen() {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = { editingAnnouncement = announcement }, modifier = Modifier.size(32.dp)) {
                                         Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
+                                    }
+                                    if (announcement.type == "headline") {
+                                        Text(
+                                            if (announcement.isActive) "Ticker ON" else "Ticker OFF",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(end = 6.dp)
+                                        )
                                     }
                                     Switch(
                                         checked = announcement.isActive,

@@ -106,7 +106,7 @@ fun JobPostsTab() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = { Text("Search by name or category") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) { Icon(Icons.Default.Close, contentDescription = null) }
@@ -157,7 +157,7 @@ fun JobPostsTab() {
 
             if (isLoading && jobPosts.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 }
             } else {
                 fun priceValue(price: String): Double = price.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: Double.MAX_VALUE
@@ -467,7 +467,7 @@ fun SeekerJobRequestDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Column {
-                Text("NEW REQUEST  ·  ਨਵੀਂ ਮੰਗ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.2.sp)
+                Text("NEW REQUEST  ·  ਨਵੀਂ ਮੰਗ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, letterSpacing = 1.2.sp)
                 Text("Post a job request", style = MaterialTheme.typography.titleLarge)
             }
         },
@@ -598,7 +598,7 @@ fun PostDetailDialog(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         shape = RoundedCornerShape(50.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        color = MaterialTheme.colorScheme.secondaryContainer,
                         modifier = Modifier.size(60.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -616,7 +616,7 @@ fun PostDetailDialog(
                         Text(
                             post.category,
                             fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         if (worker != null && worker.rating > 0f) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -704,7 +704,7 @@ fun PostDetailDialog(
                         "💰 ${post.price}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 if (post.availability.isNotEmpty()) {

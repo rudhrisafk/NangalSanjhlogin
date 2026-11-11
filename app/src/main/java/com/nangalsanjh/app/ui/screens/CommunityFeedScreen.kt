@@ -87,7 +87,7 @@ fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
     }
 
     val tickerItems = remember(activeAnnouncements) {
-        activeAnnouncements.filter { it.type == "news" || it.type == "headline" }
+        activeAnnouncements.filter { it.type == "headline" }
     }
 
     var selectedAnnouncement by remember {
@@ -108,7 +108,9 @@ fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
             .background(MaterialTheme.colorScheme.background)
     ) {
 
-        HeadlineTicker(newsItems = tickerItems)
+        if (tickerItems.isNotEmpty()) {
+            HeadlineTicker(newsItems = tickerItems)
+        }
 
         if (isLoading && activeAnnouncements.isEmpty()) {
 
@@ -117,7 +119,7 @@ fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     strokeWidth = 2.dp,
                     modifier = Modifier.size(32.dp)
                 )
@@ -741,7 +743,7 @@ fun AnnouncementDetailDialog(
                         color = when (announcement.type) {
                             "emergency" -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
                             "ad" -> Color(0xFF138A4B).copy(alpha = 0.15f)
-                            else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                            else -> MaterialTheme.colorScheme.secondaryContainer
                         }
                     ) {
 
@@ -1278,8 +1280,8 @@ fun WorkerPostDialog(
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                selectedContainerColor = MaterialTheme.colorScheme.onBackground,
+                                selectedLabelColor = MaterialTheme.colorScheme.background
                             )
                         )
                     }
@@ -1419,7 +1421,7 @@ fun JobDemandCard(
                         post.category,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     if (post.isOpenToAll) {
                         Spacer(modifier = Modifier.width(6.dp))
@@ -1476,7 +1478,7 @@ fun JobDemandCard(
                 color = if (isUrgent)
                     MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
                 else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    MaterialTheme.colorScheme.secondaryContainer
             ) {
                 Text(
                     "⏱️ Respond in ${minutes}:${seconds.toString().padStart(2, '0')}",

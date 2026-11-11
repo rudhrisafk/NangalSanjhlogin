@@ -39,14 +39,14 @@ fun AdminPasscodeScreen(
     ) {
         Surface(
             shape = RoundedCornerShape(50.dp),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+            color = MaterialTheme.colorScheme.secondaryContainer,
             modifier = Modifier.size(80.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Default.Lock,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(36.dp)
                 )
             }

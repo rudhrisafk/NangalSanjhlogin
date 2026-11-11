@@ -71,7 +71,7 @@ fun HomeScreen(
                             Text(
                                 "ਨੰਗਲ ਸੇਵਾ",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -101,18 +101,18 @@ fun HomeScreen(
                     IconButton(onClick = { showProfile = true }) {
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            modifier = Modifier.size(32.dp)
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(36.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     when (activeRole) {
                                         "worker" -> Icons.Default.Build
                                         "admin" -> Icons.Default.AdminPanelSettings
-                                        else -> Icons.Default.Person
+                                        else -> Icons.Default.AccountCircle
                                     },
                                     contentDescription = "Profile",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -325,7 +325,7 @@ fun HomeScreen(
                     Icon(
                         Icons.Default.Settings,
                         null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -351,7 +351,7 @@ fun HomeScreen(
                             shape = RoundedCornerShape(10.dp),
                             colors = if (theme == AppTheme.DARK)
                                 ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                                 )
                             else ButtonDefaults.outlinedButtonColors()
                         ) {
@@ -369,7 +369,7 @@ fun HomeScreen(
                             shape = RoundedCornerShape(10.dp),
                             colors = if (theme == AppTheme.LIGHT)
                                 ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                                 )
                             else ButtonDefaults.outlinedButtonColors()
                         ) {
@@ -406,7 +406,7 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = if (language == lang)
                                     ButtonDefaults.outlinedButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer
                                     )
                                 else ButtonDefaults.outlinedButtonColors()
                             ) {

@@ -74,7 +74,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
         if (isLoading && complaints.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     strokeWidth = 2.dp,
                     modifier = Modifier.size(32.dp)
                 )
@@ -275,7 +275,7 @@ fun RealComplaintCard(
                                     onClick = { selectedStatus = "Resolved"; showMenu = false; showUpdateDialog = true }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Add Points", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary) },
+                                    text = { Text("Add Points", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
                                     leadingIcon = { Text("🏅", fontSize = 14.sp) },
                                     onClick = { showMenu = false; showPointsDialog = true }
                                 )
@@ -311,7 +311,7 @@ fun RealComplaintCard(
             Spacer(modifier = Modifier.height(Spacing.sm))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(13.dp))
+                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(complaint.location, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -322,18 +322,18 @@ fun RealComplaintCard(
                 Spacer(modifier = Modifier.height(Spacing.md))
                 Surface(
                     shape = Radius.sm,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
+                    color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Row(
                         modifier = Modifier.padding(Spacing.md),
                         verticalAlignment = Alignment.Top
                     ) {
-                        Icon(Icons.Default.AccountBalance, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp).padding(top = 2.dp))
+                        Icon(Icons.Default.AccountBalance, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp).padding(top = 2.dp))
                         Spacer(modifier = Modifier.width(Spacing.sm))
                         Text(
                             complaint.departmentUpdate,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             lineHeight = 18.sp
                         )
                     }
@@ -392,8 +392,8 @@ fun RealComplaintCard(
                                 label = { Text("+$pts", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold) },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                    selectedContainerColor = MaterialTheme.colorScheme.onBackground,
+                                    selectedLabelColor = MaterialTheme.colorScheme.background
                                 )
                             )
                         }
@@ -495,8 +495,8 @@ fun NewComplaintDialog(
                             onClick = { selectedCategory = cat },
                             label = { Text(cat, style = MaterialTheme.typography.labelSmall) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                selectedContainerColor = MaterialTheme.colorScheme.onBackground,
+                                selectedLabelColor = MaterialTheme.colorScheme.background
                             )
                         )
                     }

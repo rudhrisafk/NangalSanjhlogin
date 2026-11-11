@@ -106,7 +106,7 @@ fun WorkerCategoryScreen(
                     ),
                     colors = CardDefaults.cardColors(
                         containerColor = if (isSelected)
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            MaterialTheme.colorScheme.secondaryContainer
                         else
                             MaterialTheme.colorScheme.surface
                     )

@@ -49,7 +49,7 @@ fun MyFavoritesScreen(onBack: () -> Unit) {
                         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Column {
                                 Text(fav.workerName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Text(fav.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                                Text(fav.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                             }
                             Row {
                                 IconButton(onClick = {

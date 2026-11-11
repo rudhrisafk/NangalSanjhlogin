@@ -81,13 +81,13 @@ fun ResolvedComplaintCard(
                 )
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
                         "✅ Resolved",
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -124,13 +124,13 @@ fun ResolvedComplaintCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                    color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
                         "🏛️ ${complaint.departmentUpdate}",
                         modifier = Modifier.padding(8.dp),
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
