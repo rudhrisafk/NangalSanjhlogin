@@ -49,12 +49,13 @@ import kotlin.math.roundToInt
 @Composable
 fun CommunityFeedScreen(
     userName: String,
-    userRole: String = "seeker"
+    userRole: String = "seeker",
+    onNavigate: (Int) -> Unit = {}
 ) {
     if (userRole == "worker") {
         WorkerFeedContent(userName = userName)
     } else {
-        SeekerFeedContent()
+        SeekerFeedContent(userName = userName, onNavigate = onNavigate)
     }
 }
 
@@ -63,7 +64,7 @@ fun CommunityFeedScreen(
 // ============================================================
 
 @Composable
-fun SeekerFeedContent() {
+fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
 
     val announcementViewModel: AnnouncementViewModel = viewModel()
     val announcements by announcementViewModel.announcements.collectAsState()
@@ -129,6 +130,10 @@ fun SeekerFeedContent() {
                 contentPadding = PaddingValues(Spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
+
+                item {
+                    SeekerHome(userName = userName, onNavigate = onNavigate)
+                }
 
                 items(emergencies) { announcement ->
                     EmergencyAnnouncementCard(announcement) {
@@ -939,17 +944,36 @@ fun WorkerFeedContent(userName: String) {
             modifier = Modifier.fillMaxSize()
         ) {
 
+            // WORKER HEADER
+            Column(modifier = Modifier.padding(start = Spacing.lg, end = Spacing.lg, top = Spacing.lg)) {
+                Text(
+                    "WORKER  ·  ਕਾਮਾ",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.2.sp
+                )
+                Text(
+                    "Hi ${userName.trim().substringBefore(" ").ifEmpty { "there" }}, ready for work?",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
             // AVAILABILITY CARD
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
                         horizontal = Spacing.lg,
-                        vertical = Spacing.sm
+                        vertical = Spacing.md
                     ),
-                shape = Radius.md,
+                shape = Radius.lg,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = if (isAvailable) NangalColors.Green.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (isAvailable) NangalColors.Green.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline
                 )
             ) {
 
@@ -966,7 +990,7 @@ fun WorkerFeedContent(userName: String) {
                         Text(
                             "Availability Status",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface
                         )
 

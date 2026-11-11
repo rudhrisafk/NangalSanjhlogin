@@ -223,10 +223,10 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
             when (activeRole) {
-                "seeker" -> SeekerContent(selectedTab, userName, onLogout)
+                "seeker" -> SeekerContent(selectedTab, userName, onLogout, onNavigate = { if (it == 2) showEmergency = true else selectedTab = it })
                 "worker" -> WorkerContent(selectedTab, userName, onLogout)
                 "admin" -> AdminContent(selectedTab, userName, onLogout)
-                else -> SeekerContent(selectedTab, userName, onLogout)
+                else -> SeekerContent(selectedTab, userName, onLogout, onNavigate = { if (it == 2) showEmergency = true else selectedTab = it })
             }
         }
     }
@@ -511,13 +511,13 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
 }
 
 @Composable
-fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit) {
+fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit, onNavigate: (Int) -> Unit = {}) {
     when (tab) {
-        0 -> CommunityFeedScreen(userName = userName, userRole = "seeker")
+        0 -> CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate)
         1 -> ServicesScreen()
         3 -> ComplaintsScreen(userRole = "seeker", userName = userName)
         4 -> MapScreen(userRole = "seeker")
-        else -> CommunityFeedScreen(userName = userName, userRole = "seeker")
+        else -> CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate)
     }
 }
 

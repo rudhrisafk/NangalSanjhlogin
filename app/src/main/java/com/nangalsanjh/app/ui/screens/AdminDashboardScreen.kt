@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,16 +87,29 @@ fun AdminDashboardScreen() {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Text("Dashboard", fontWeight = FontWeight.Bold, fontSize = 22.sp, modifier = Modifier.padding(bottom = 12.dp))
+        Text(
+            "ADMIN  ·  ਪ੍ਰਸ਼ਾਸਕ",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            letterSpacing = 1.2.sp
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text("City overview", style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground)
+        Text(
+            "Live workers, complaints and jobs across Nangal.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-            DashboardStatCard("Workers", allWorkers.size.toString(), "👷", Modifier.weight(1f))
-            DashboardStatCard("Active Now", activeWorkers.toString(), "🟢", Modifier.weight(1f))
+            DashboardStatCard("Workers", allWorkers.size.toString(), Icons.Default.Groups, Modifier.weight(1f))
+            DashboardStatCard("Active Now", activeWorkers.toString(), Icons.Default.Sensors, Modifier.weight(1f))
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-            DashboardStatCard("Pending Complaints", pendingComplaints.toString(), "📋", Modifier.weight(1f))
-            DashboardStatCard("Jobs Posted Today", todayJobs.toString(), "📝", Modifier.weight(1f))
+            DashboardStatCard("Pending Complaints", pendingComplaints.toString(), Icons.Default.Report, Modifier.weight(1f))
+            DashboardStatCard("Jobs Posted Today", todayJobs.toString(), Icons.Default.EditNote, Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -100,7 +118,8 @@ fun AdminDashboardScreen() {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 if (categoryWiseCount.isEmpty()) {
@@ -134,8 +153,9 @@ fun AdminDashboardScreen() {
             allWorkers.forEach { worker ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable { selectedWorkerUid = worker.uid },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -170,17 +190,25 @@ fun AdminDashboardScreen() {
 }
 
 @Composable
-fun DashboardStatCard(label: String, count: String, emoji: String, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+fun DashboardStatCard(label: String, count: String, icon: ImageVector, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp))
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(emoji, fontSize = 22.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(count, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
-            Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(count, style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
