@@ -94,19 +94,12 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         }
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = false,  // we handle back manually now
-            decorFitsSystemWindows = false
-        )
-    ) {
-        // ─── NEW: Back handler – hide keyboard, then dismiss ───
-        BackHandler {
-            keyboardController?.hide()
-            onDismiss()
-        }
+    // Rendered as an in-app full-screen overlay (not a Dialog window) so that status bar,
+    // navigation bar and keyboard insets are handled reliably and the input stays visible.
+    BackHandler {
+        keyboardController?.hide()
+        onDismiss()
+    }
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -288,7 +281,6 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                 }
             }
         }
-    }
 }
 
 @Composable

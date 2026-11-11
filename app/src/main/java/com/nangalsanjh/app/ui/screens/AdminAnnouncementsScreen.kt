@@ -40,7 +40,7 @@ fun AdminAnnouncementsScreen() {
     ) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(6.dp))
-        Text("Add Headline (top news ticker)")
+        Text("Add headline", maxLines = 1)
     }
     Box(modifier = Modifier.fillMaxSize()) {
         if (announcements.isEmpty()) {

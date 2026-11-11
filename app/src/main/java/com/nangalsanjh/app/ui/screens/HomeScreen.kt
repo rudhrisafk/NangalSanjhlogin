@@ -184,7 +184,10 @@ fun HomeScreen(
                                     label = {
                                         Text(
                                             item.label,
-                                            style = MaterialTheme.typography.labelSmall
+                                            style = MaterialTheme.typography.labelSmall,
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                         )
                                     },
                                     selected = selectedTab == index,
@@ -233,7 +236,9 @@ fun HomeScreen(
     }
 
     if (showAIAssistant) {
-        AIAssistantDialog { showAIAssistant = false }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AIAssistantDialog { showAIAssistant = false }
+        }
     }
 
     if (showProfileSetupPopup) {
@@ -496,10 +501,10 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
     )
     "admin" -> listOf(
         NavItem("Dashboard", Icons.Default.Dashboard),
-        NavItem("Complaints", Icons.Default.Report),
+        NavItem("Issues", Icons.Default.Report),
         NavItem("Resolved", Icons.Default.CheckCircle),
         NavItem("Reports", Icons.Default.Flag),
-        NavItem("Announcements", Icons.Default.Campaign),
+        NavItem("Notices", Icons.Default.Campaign),
         NavItem("Map", Icons.Default.Map)
     )
     else -> listOf(
