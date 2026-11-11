@@ -29,9 +29,19 @@ fun AdminAnnouncementsScreen() {
     val viewModel: AnnouncementViewModel = viewModel()
     val announcements by viewModel.announcements.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var addAsHeadline by remember { mutableStateOf(false) }
     var editingAnnouncement by remember { mutableStateOf<Announcement?>(null) }
     var deletingAnnouncement by remember { mutableStateOf<Announcement?>(null) }
 
+    Column(modifier = Modifier.fillMaxSize()) {
+    OutlinedButton(
+        onClick = { addAsHeadline = true; showAddDialog = true },
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp)
+    ) {
+        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text("Add Headline (top news ticker)")
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         if (announcements.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -115,15 +125,17 @@ fun AdminAnnouncementsScreen() {
         }
 
         FloatingActionButton(
-            onClick = { showAddDialog = true },
+            onClick = { addAsHeadline = false; showAddDialog = true },
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
             shape = RoundedCornerShape(16.dp)
-        ) { Icon(Icons.Default.Add, contentDescription = null) }
+        ) { Icon(Icons.Default.Add, contentDescription = "New announcement") }
+    }
     }
 
     if (showAddDialog) {
         AnnouncementFormDialog(
             existing = null,
+            initialType = if (addAsHeadline) "headline" else "news",
             onDismiss = { showAddDialog = false },
             onSave = { type, title, desc, contact, bloodType, location, imageUrl ->
                 viewModel.createAnnouncement(type, title, desc, contact, bloodType, location, imageUrl)
@@ -162,10 +174,11 @@ fun AdminAnnouncementsScreen() {
 @Composable
 fun AnnouncementFormDialog(
     existing: Announcement?,
+    initialType: String = "news",
     onDismiss: () -> Unit,
     onSave: (String, String, String, String, String, String, String) -> Unit
 ) {
-    var type by remember { mutableStateOf(existing?.type ?: "news") }
+    var type by remember { mutableStateOf(existing?.type ?: initialType) }
     var title by remember { mutableStateOf(existing?.title ?: "") }
     var description by remember { mutableStateOf(existing?.description ?: "") }
     var contact by remember { mutableStateOf(existing?.contact ?: "") }
@@ -173,7 +186,7 @@ fun AnnouncementFormDialog(
     var location by remember { mutableStateOf(existing?.location ?: "") }
     var imageUrl by remember { mutableStateOf(existing?.imageUrl ?: "") }
 
-    val types = listOf("news" to "📰 News", "ad" to "📢 Ad/Promotion", "emergency" to "🚨 Emergency Need")
+    val types = listOf("headline" to "Headline (ticker)", "news" to "📰 News", "ad" to "📢 Ad/Promotion", "emergency" to "🚨 Emergency Need")
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
 
     AlertDialog(
@@ -190,7 +203,8 @@ fun AnnouncementFormDialog(
                         )
                     }
                 }
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text(if (type == "headline") "Headline text" else "Title") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                if (type != "headline") {
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                 OutlinedTextField(
                     value = imageUrl,
@@ -200,6 +214,7 @@ fun AnnouncementFormDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
+                }
 
                 if (type == "emergency") {
                     Text("Blood Type (optional)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
@@ -215,13 +230,13 @@ fun AnnouncementFormDialog(
                     OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 }
 
-                OutlinedTextField(value = contact, onValueChange = { contact = it }, label = { Text("Contact Number (optional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                if (type != "headline") OutlinedTextField(value = contact, onValueChange = { contact = it }, label = { Text("Contact Number (optional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             }
         },
         confirmButton = {
             Button(
-                onClick = { onSave(type, title.trim(), description.trim(), contact.trim(), bloodType, location.trim(), imageUrl.trim()) },
-                enabled = title.isNotBlank() && description.isNotBlank()
+                onClick = { onSave(type, title.trim(), if (type == "headline") title.trim() else description.trim(), contact.trim(), bloodType, location.trim(), imageUrl.trim()) },
+                enabled = title.isNotBlank() && (type == "headline" || description.isNotBlank())
             ) { Text(if (existing == null) "Publish" else "Save Changes") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }

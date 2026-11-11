@@ -85,7 +85,7 @@ fun HomeScreen(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("🚨", fontSize = 14.sp)
+                                    Icon(Icons.Default.Warning, contentDescription = "Emergency", tint = Color(0xFFB71C1C), modifier = Modifier.size(18.dp))
                                 }
                             }
                         }
@@ -105,13 +105,15 @@ fun HomeScreen(
                             modifier = Modifier.size(32.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text(
+                                Icon(
                                     when (activeRole) {
-                                        "worker" -> "👷"
-                                        "admin" -> "🏛️"
-                                        else -> "👤"
+                                        "worker" -> Icons.Default.Build
+                                        "admin" -> Icons.Default.AdminPanelSettings
+                                        else -> Icons.Default.Person
                                     },
-                                    fontSize = 16.sp
+                                    contentDescription = "Profile",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }

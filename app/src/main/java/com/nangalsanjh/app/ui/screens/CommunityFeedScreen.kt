@@ -1,5 +1,6 @@
 package com.nangalsanjh.app.ui.screens
 
+import androidx.compose.ui.draw.clipToBounds
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.core.LinearEasing
@@ -84,6 +85,10 @@ fun SeekerFeedContent() {
         activeAnnouncements.filter { it.type == "ad" }
     }
 
+    val tickerItems = remember(activeAnnouncements) {
+        activeAnnouncements.filter { it.type == "news" || it.type == "headline" }
+    }
+
     var selectedAnnouncement by remember {
         mutableStateOf<Announcement?>(null)
     }
@@ -102,7 +107,7 @@ fun SeekerFeedContent() {
             .background(MaterialTheme.colorScheme.background)
     ) {
 
-        HeadlineTicker(newsItems = newsItems)
+        HeadlineTicker(newsItems = tickerItems)
 
         if (isLoading && activeAnnouncements.isEmpty()) {
 
@@ -435,29 +440,36 @@ fun TwoColAdRow(
 @Composable
 fun HeadlineTicker(newsItems: List<Announcement>) {
     val tickerText = remember(newsItems) {
-        if (newsItems.isEmpty()) "🗞️ NANGAL TIMES — Stay tuned for local updates"
+        if (newsItems.isEmpty()) "NANGAL TIMES — Stay tuned for local updates"
         else newsItems.joinToString("      •      ") { it.title }
     }
     var containerWidth by remember { mutableStateOf(0f) }
     var textWidth by remember { mutableStateOf(0f) }
-    val infiniteTransition = rememberInfiniteTransition(label = "ticker")
-    val offset by infiniteTransition.animateFloat(
-        initialValue = -textWidth,
-        targetValue = containerWidth,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = (12000 + (textWidth / 2).toInt()),
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "tickerOffset"
-    )
+    val density = androidx.compose.ui.platform.LocalDensity.current
+
+    // Text enters fully from the right edge, scrolls to the left until it has completely
+    // left the screen, then restarts from the right edge again (no mid-screen pop-in).
+    val progress = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(containerWidth, textWidth) {
+        if (containerWidth <= 0f || textWidth <= 0f) return@LaunchedEffect
+        val distancePx = containerWidth + textWidth
+        val speedPxPerSec = with(density) { 70.dp.toPx() }
+        val durationMs = ((distancePx / speedPxPerSec) * 1000).toInt().coerceAtLeast(4000)
+        while (true) {
+            progress.snapTo(0f)
+            progress.animateTo(1f, tween(durationMs, easing = LinearEasing))
+        }
+    }
+
+    val startX = containerWidth
+    val x = startX - progress.value * (containerWidth + textWidth)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
             .background(Color(0xFFB71C1C))
+            .clipToBounds()
             .onGloballyPositioned { containerWidth = it.size.width.toFloat() },
         contentAlignment = Alignment.CenterStart
     ) {
@@ -468,9 +480,11 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             maxLines = 1,
+            softWrap = false,
             modifier = Modifier
+                .wrapContentWidth(align = Alignment.Start, unbounded = true)
                 .onGloballyPositioned { textWidth = it.size.width.toFloat() }
-                .offset { IntOffset(-offset.roundToInt(), 0) }
+                .offset { IntOffset(x.roundToInt(), 0) }
         )
     }
 }

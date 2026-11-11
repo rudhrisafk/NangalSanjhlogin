@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object NangalColors {
@@ -81,7 +82,15 @@ val NangalDarkColorScheme = darkColorScheme(
     error = CrimsonError,
     onError = Color.White,
     inverseSurface = TextPrimaryDark,
-    inverseOnSurface = CharcoalBase
+    inverseOnSurface = CharcoalBase,
+    surfaceTint = Color.Transparent,
+    surfaceBright = CharcoalElevated,
+    surfaceDim = InkBlack,
+    surfaceContainerLowest = InkBlack,
+    surfaceContainerLow = CharcoalBase,
+    surfaceContainer = CharcoalSurface,
+    surfaceContainerHigh = CharcoalElevated,
+    surfaceContainerHighest = CharcoalElevated
 )
 
 val NangalLightColorScheme = lightColorScheme(
@@ -103,7 +112,23 @@ val NangalLightColorScheme = lightColorScheme(
     error = CrimsonError,
     onError = Color.White,
     inverseSurface = InkOnLight,
-    inverseOnSurface = CreamSurface
+    inverseOnSurface = CreamSurface,
+    surfaceTint = Color.Transparent,
+    surfaceBright = CreamSurface,
+    surfaceDim = CreamElevated,
+    surfaceContainerLowest = CreamSurface,
+    surfaceContainerLow = CreamSurface,
+    surfaceContainer = CreamSurface,
+    surfaceContainerHigh = CreamElevated,
+    surfaceContainerHighest = CreamElevated
+)
+
+val NangalShapes = androidx.compose.material3.Shapes(
+    extraSmall = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+    small = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+    medium = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+    large = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+    extraLarge = androidx.compose.foundation.shape.RoundedCornerShape(28.dp)
 )
 
 val NangalTypography = androidx.compose.material3.Typography(
@@ -183,6 +208,7 @@ fun NangalSevaTheme(
     MaterialTheme(
         colorScheme = if (isDark) NangalDarkColorScheme else NangalLightColorScheme,
         typography = NangalTypography,
+        shapes = NangalShapes,
         content = content
     )
 }
