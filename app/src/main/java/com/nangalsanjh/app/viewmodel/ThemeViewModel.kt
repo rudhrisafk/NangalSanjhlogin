@@ -8,7 +8,7 @@ enum class AppLanguage { ENGLISH, HINDI, PUNJABI }
 enum class AppTheme { DARK, LIGHT }
 
 class ThemeViewModel : ViewModel() {
-    private val _theme = MutableStateFlow(AppTheme.DARK)
+    private val _theme = MutableStateFlow(AppTheme.LIGHT)
     val theme: StateFlow<AppTheme> = _theme
 
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)

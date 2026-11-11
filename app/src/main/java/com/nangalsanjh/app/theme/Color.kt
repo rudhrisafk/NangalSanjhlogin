@@ -1,40 +1,40 @@
-// Color.kt — FULL FILE (premium dark palette, warm amber-orange gradient accent, richer status colors)
+// Color.kt — clean civic palette: white base, navy ink, saffron accent
 
 package com.nangalsanjh.app.theme
 
 import androidx.compose.ui.graphics.Color
 
 // Core brand gradient — warm sunset orange to amber
-val BrandOrange = Color(0xFFFF7A18)
-val BrandAmber = Color(0xFFFFB238)
-val BrandOrangeDeep = Color(0xFFE85D04)
+val BrandOrange = Color(0xFFE8590C)
+val BrandAmber = Color(0xFFF59F00)
+val BrandOrangeDeep = Color(0xFFC2410C)
 
 // Rich near-black surfaces with a hint of warmth (not pure #000, feels premium)
-val InkBlack = Color(0xFF0A0908)
-val CharcoalBase = Color(0xFF121110)
-val CharcoalSurface = Color(0xFF1A1816)
-val CharcoalElevated = Color(0xFF221F1C)
-val CharcoalBorder = Color(0xFF2D2A26)
-val CharcoalDivider = Color(0xFF35312C)
+val InkBlack = Color(0xFF0A1220)
+val CharcoalBase = Color(0xFF0F1828)
+val CharcoalSurface = Color(0xFF142034)
+val CharcoalElevated = Color(0xFF1B2A42)
+val CharcoalBorder = Color(0xFF283950)
+val CharcoalDivider = Color(0xFF314560)
 
 // Light theme — warm cream, not sterile white
-val CreamBase = Color(0xFFFBF8F4)
+val CreamBase = Color(0xFFFFFFFF)
 val CreamSurface = Color(0xFFFFFFFF)
-val CreamElevated = Color(0xFFF3EEE7)
-val CreamBorder = Color(0xFFE7DFD3)
-val InkOnLight = Color(0xFF1C1712)
-val MutedOnLight = Color(0xFF7A7168)
+val CreamElevated = Color(0xFFF4F6FA)
+val CreamBorder = Color(0xFFE2E7EF)
+val InkOnLight = Color(0xFF0B1F3A)
+val MutedOnLight = Color(0xFF55627A)
 
 // Text hierarchy on dark
-val TextPrimaryDark = Color(0xFFF5F0E8)
-val TextSecondaryDark = Color(0xFFB8B0A4)
-val TextMutedDark = Color(0xFF7A7268)
+val TextPrimaryDark = Color(0xFFF1F5FB)
+val TextSecondaryDark = Color(0xFFB4C0D3)
+val TextMutedDark = Color(0xFF7F8DA3)
 
 // Status — deeper, richer, not neon-flat
-val EmeraldSuccess = Color(0xFF2BD576)
-val AmberWarning = Color(0xFFFFC94D)
-val CrimsonError = Color(0xFFFF4F58)
-val SapphireInfo = Color(0xFF4DA3FF)
+val EmeraldSuccess = Color(0xFF138A4B)
+val AmberWarning = Color(0xFFB7791F)
+val CrimsonError = Color(0xFFD92D3A)
+val SapphireInfo = Color(0xFF1F5FBF)
 
 // Blood / emergency accent
 val BloodRed = Color(0xFFB3101B)

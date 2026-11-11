@@ -44,19 +44,19 @@ object NangalColors {
 
 // ── Signature gradients — used across buttons, headers, banners ──
 object NangalGradients {
-    val BrandHorizontal = Brush.horizontalGradient(listOf(BrandOrange, BrandAmber))
-    val BrandDiagonal = Brush.linearGradient(listOf(BrandOrangeDeep, BrandOrange, BrandAmber))
+    val BrandHorizontal = Brush.horizontalGradient(listOf(BrandOrangeDeep, BrandOrange))
+    val BrandDiagonal = Brush.linearGradient(listOf(BrandOrangeDeep, BrandOrange))
     val BrandVertical = Brush.verticalGradient(listOf(BrandOrange, BrandOrangeDeep))
 
     val DarkGlow = Brush.radialGradient(
-        colors = listOf(BrandOrange.copy(alpha = 0.18f), Color.Transparent)
+        colors = listOf(BrandOrange.copy(alpha = 0.08f), Color.Transparent)
     )
 
     val CardSheenDark = Brush.linearGradient(
-        listOf(CharcoalElevated, CharcoalSurface)
+        listOf(CharcoalSurface, CharcoalSurface)
     )
     val CardSheenLight = Brush.linearGradient(
-        listOf(CreamSurface, CreamElevated)
+        listOf(CreamSurface, CreamSurface)
     )
 
     val EmergencyGradient = Brush.horizontalGradient(listOf(Color(0xFF8E0E12), BloodRed))
@@ -89,8 +89,8 @@ val NangalLightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     primaryContainer = BrandOrange.copy(alpha = 0.14f),
     onPrimaryContainer = BrandOrangeDeep,
-    secondary = BrandAmber,
-    onSecondary = Color(0xFF3A2200),
+    secondary = InkOnLight,
+    onSecondary = Color.White,
     tertiary = SapphireInfo,
     background = CreamBase,
     onBackground = InkOnLight,
@@ -108,19 +108,19 @@ val NangalLightColorScheme = lightColorScheme(
 
 val NangalTypography = androidx.compose.material3.Typography(
     displayLarge = TextStyle(
-        fontWeight = FontWeight.Black,
-        fontSize = 38.sp,
-        lineHeight = 44.sp,
-        letterSpacing = (-0.8).sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 40.sp,
+        lineHeight = 46.sp,
+        letterSpacing = (-1).sp
     ),
     displayMedium = TextStyle(
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 29.sp,
         lineHeight = 35.sp,
         letterSpacing = (-0.5).sp
     ),
     titleLarge = TextStyle(
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 23.sp,
         lineHeight = 29.sp,
         letterSpacing = (-0.4).sp
@@ -177,7 +177,7 @@ val NangalTypography = androidx.compose.material3.Typography(
 
 @Composable
 fun NangalSevaTheme(
-    isDark: Boolean = true,
+    isDark: Boolean = false,
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

@@ -34,8 +34,8 @@ object Spacing {
 object Radius {
     val sm = RoundedCornerShape(10.dp)
     val md = RoundedCornerShape(14.dp)
-    val lg = RoundedCornerShape(18.dp)
-    val xl = RoundedCornerShape(24.dp)
+    val lg = RoundedCornerShape(20.dp)
+    val xl = RoundedCornerShape(26.dp)
     val xxl = RoundedCornerShape(28.dp)
     val full = RoundedCornerShape(50.dp)
 }
@@ -52,16 +52,16 @@ fun NSCard(
 
     val cardModifier = modifier
         .shadow(
-            elevation = 10.dp,
+            elevation = if (isDark) 0.dp else 2.dp,
             shape = Radius.lg,
-            ambientColor = Color.Black.copy(alpha = 0.25f),
-            spotColor = Color.Black.copy(alpha = 0.35f)
+            ambientColor = Color(0xFF0B1F3A).copy(alpha = 0.06f),
+            spotColor = Color(0xFF0B1F3A).copy(alpha = 0.10f)
         )
         .clip(Radius.lg)
         .background(sheen)
         .border(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.outline,
             shape = Radius.lg
         )
 
@@ -104,7 +104,7 @@ fun NSButton(
             .clip(Radius.md)
             .then(
                 if (isActive) Modifier
-                    .shadow(elevation = 14.dp, shape = Radius.md, spotColor = BrandOrange.copy(alpha = 0.55f))
+                    .shadow(elevation = 3.dp, shape = Radius.md, spotColor = BrandOrange.copy(alpha = 0.25f))
                     .background(NangalGradients.BrandDiagonal)
                 else Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
             )
@@ -159,7 +159,7 @@ fun NSOutlinedButton(
         ),
         border = androidx.compose.foundation.BorderStroke(
             1.5.dp,
-            Brush.horizontalGradient(listOf(BrandOrange.copy(alpha = 0.7f), BrandAmber.copy(alpha = 0.7f)))
+            Brush.horizontalGradient(listOf(BrandOrangeDeep, BrandOrangeDeep))
         )
     ) {
         Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -236,8 +236,8 @@ fun NSStatusBadge(
     Surface(
         modifier = modifier,
         shape = Radius.full,
-        color = color.copy(alpha = 0.16f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.4f))
+        color = color.copy(alpha = 0.10f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.35f))
     ) {
         Text(
             text = text,

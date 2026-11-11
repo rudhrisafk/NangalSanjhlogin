@@ -48,31 +48,42 @@ fun LoginScreen(
                 .padding(horizontal = Spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(72.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-            Image(
-                painter = painterResource(id = R.drawable.nangal_seva_logo),
-                contentDescription = null,
-                modifier = Modifier.size(72.dp)
-            )
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                Image(
+                    painter = painterResource(id = R.drawable.nangal_seva_logo),
+                    contentDescription = "Nangal Seva logo",
+                    modifier = Modifier.size(56.dp)
+                )
+                Spacer(modifier = Modifier.height(Spacing.xl))
+                Text(
+                    text = "NANGAL SEVA  ·  ਨੰਗਲ ਸੇਵਾ",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.2.sp
+                )
+                Spacer(modifier = Modifier.height(Spacing.sm))
+                Text(
+                    text = "One door to every local service.",
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(Spacing.sm))
+                Text(
+                    text = "ਹਰ ਸਥਾਨਕ ਸੇਵਾ ਲਈ ਇੱਕ ਦਰਵਾਜ਼ਾ",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+                Text(
+                    text = "Find trusted workers, report issues and get help in Nangal. No ads. No spam.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-            Spacer(modifier = Modifier.height(Spacing.xl))
-
-            Text(
-                text = "Nangal Seva",
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.xs))
-
-            Text(
-                text = "ਨੰਗਲ ਸੇਵਾ",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             // Phone section
             Column(
