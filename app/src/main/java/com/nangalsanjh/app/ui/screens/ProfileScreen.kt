@@ -120,11 +120,15 @@ fun ProfileScreen(
 
         Surface(
             shape = RoundedCornerShape(50.dp),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-            modifier = Modifier.size(100.dp)
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(96.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text(roleEmoji, fontSize = 48.sp)
+                Text(
+                    (profile.name.ifEmpty { userName }).trim().take(1).uppercase().ifEmpty { "N" },
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.background
+                )
             }
         }
 
@@ -135,7 +139,7 @@ fun ProfileScreen(
         } else {
             Text(
                 profile.name.ifEmpty { userName },
-                fontSize = 24.sp,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )

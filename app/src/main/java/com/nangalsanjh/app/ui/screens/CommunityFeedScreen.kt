@@ -469,28 +469,61 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
     val startX = containerWidth
     val x = startX - progress.value * (containerWidth + textWidth)
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(44.dp)
-            .background(Color(0xFFB3101B))
-            .clipToBounds()
-            .onGloballyPositioned { containerWidth = it.size.width.toFloat() },
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Text(
-            text = tickerText,
-            color = Color.White,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic,
-            maxLines = 1,
-            softWrap = false,
+    Column {
+        Row(
             modifier = Modifier
-                .wrapContentWidth(align = Alignment.Start, unbounded = true)
-                .onGloballyPositioned { textWidth = it.size.width.toFloat() }
-                .offset { IntOffset(x.roundToInt(), 0) }
-        )
+                .fillMaxWidth()
+                .height(44.dp)
+                .background(MaterialTheme.colorScheme.surface),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Fixed label chip
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.onBackground)
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(MaterialTheme.colorScheme.primary, androidx.compose.foundation.shape.CircleShape)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "NEWS",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.background,
+                    letterSpacing = 1.2.sp
+                )
+            }
+
+            // Scrolling area
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clipToBounds()
+                    .onGloballyPositioned { containerWidth = it.size.width.toFloat() },
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = tickerText,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier = Modifier
+                        .wrapContentWidth(align = Alignment.Start, unbounded = true)
+                        .onGloballyPositioned { textWidth = it.size.width.toFloat() }
+                        .offset { IntOffset(x.roundToInt(), 0) }
+                )
+            }
+        }
+        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline)
     }
 }
 
