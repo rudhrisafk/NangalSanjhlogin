@@ -81,3 +81,46 @@ fun SegmentedTabs(
         }
     }
 }
+
+
+/** Neutral (navy) selected state for chips so saffron stays a rare accent. */
+@Composable
+fun neutralChipColors() = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+    selectedContainerColor = MaterialTheme.colorScheme.onBackground,
+    selectedLabelColor = MaterialTheme.colorScheme.background,
+    selectedLeadingIconColor = MaterialTheme.colorScheme.background
+)
+
+/** Icon-based empty state (no emoji). */
+@Composable
+fun EmptyBlock(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String = "",
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(Spacing.xxxl),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(Radius.full)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.material3.Icon(
+                icon, contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        Spacer(Modifier.height(Spacing.lg))
+        Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
+        if (subtitle.isNotEmpty()) {
+            Spacer(Modifier.height(Spacing.xs))
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        }
+    }
+}

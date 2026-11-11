@@ -190,11 +190,11 @@ fun HomeScreen(
                                     selected = selectedTab == index,
                                     onClick = { selectedTab = index },
                                     colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        selectedTextColor = MaterialTheme.colorScheme.onBackground,
                                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
                                     )
                                 )
                             }

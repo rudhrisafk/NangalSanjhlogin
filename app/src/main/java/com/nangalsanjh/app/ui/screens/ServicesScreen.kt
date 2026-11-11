@@ -13,6 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -34,10 +38,10 @@ import com.nangalsanjh.app.viewmodel.WorkerViewModel
 import java.util.Locale
 
 enum class JobSort(val label: String) {
-    DEFAULT("Default"),
-    TOP_RATED("⭐ Top Rated"),
-    PRICE_LOW_HIGH("💰 Price: Low-High"),
-    PRICE_HIGH_LOW("💰 Price: High-Low")
+    DEFAULT("Newest"),
+    TOP_RATED("Top rated"),
+    PRICE_LOW_HIGH("Price: low to high"),
+    PRICE_HIGH_LOW("Price: high to low")
 }
 
 @Composable
@@ -101,7 +105,7 @@ fun JobPostsTab() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search job posts...") },
+                placeholder = { Text("Search by name or category") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -125,25 +129,31 @@ fun JobPostsTab() {
                     FilterChip(
                         selected = sortBy == sort,
                         onClick = { sortBy = sort },
-                        label = { Text(sort.label, fontSize = 11.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                        label = { Text(sort.label, style = MaterialTheme.typography.labelMedium) },
+                        colors = neutralChipColors()
                     )
                 }
             }
 
-            ScrollableTabRow(
-                selectedTabIndex = filters.indexOf(selectedFilter).coerceAtLeast(0),
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary,
-                edgePadding = 8.dp
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                filters.forEach { filter ->
-                    Tab(selected = selectedFilter == filter, onClick = { selectedFilter = filter }, text = { Text(filter, fontSize = 12.sp) })
+                items(filters) { filter ->
+                    FilterChip(
+                        selected = selectedFilter == filter,
+                        onClick = { selectedFilter = filter },
+                        label = {
+                            Text(
+                                filter.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { filter },
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        colors = neutralChipColors()
+                    )
                 }
             }
+            Spacer(modifier = Modifier.height(4.dp))
 
             if (isLoading && jobPosts.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -171,14 +181,11 @@ fun JobPostsTab() {
 
                 if (filtered.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("📭", fontSize = 48.sp)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                if (searchQuery.isNotEmpty()) "No job posts found for \"$searchQuery\"" else "No job posts in this category yet",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                        }
+                        EmptyBlock(
+                            icon = Icons.Default.SearchOff,
+                            title = if (searchQuery.isNotEmpty()) "No job posts found for \"$searchQuery\"" else "No job posts here yet",
+                            subtitle = "Try another category, or post your own request."
+                        )
                     }
                 } else {
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -198,14 +205,15 @@ fun JobPostsTab() {
             }
         }
 
-        FloatingActionButton(
+        ExtendedFloatingActionButton(
             onClick = { showJobRequestDialog = true },
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(Icons.Default.AddLocationAlt, contentDescription = "Post Job Request", tint = MaterialTheme.colorScheme.onPrimary)
-        }
+            shape = RoundedCornerShape(18.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            icon = { Icon(Icons.Default.AddLocationAlt, contentDescription = null) },
+            text = { Text("Post a request", style = MaterialTheme.typography.labelLarge) }
+        )
     }
 
     if (showJobRequestDialog) {
@@ -240,25 +248,25 @@ fun FavoritesTab() {
 
     if (favorites.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("💔", fontSize = 48.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("No saved workers yet", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                Text("Tap the heart icon on a job post to save it", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
-            }
+            EmptyBlock(
+                icon = Icons.Default.FavoriteBorder,
+                title = "No saved workers yet",
+                subtitle = "Tap the heart on a job post to save it here."
+            )
         }
     } else {
         LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(favorites) { fav ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Column {
-                            Text(fav.workerName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                            Text(fav.category, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                            Text(fav.workerName, style = MaterialTheme.typography.titleSmall)
+                            Text(fav.category.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { fav.category }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Row {
                             IconButton(onClick = {
@@ -283,66 +291,105 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
 
     val hoursLeft = ((PostViewModel.WORKER_POST_EXPIRY_MS - (System.currentTimeMillis() - post.timeStamp)) / (60 * 60 * 1000)).toInt().coerceAtLeast(0)
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    val cleanCategory = post.category.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { post.category }
+    val cardShape = RoundedCornerShape(20.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(cardShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, cardShape)
+            .clickable(onClickLabel = "View details") { onMoreClick() }
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        post.userName.trim().take(1).uppercase().ifEmpty { "N" },
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(post.userName, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(post.userName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                        Text(cleanCategory, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (worker != null && worker.rating > 0f) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(13.dp))
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("${"%.1f".format(worker.rating)}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Text("%.1f".format(worker.rating), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
-                Row {
-                    IconButton(onClick = {
-                        if (isFavorite) favoriteViewModel.removeFavorite(post.uid)
-                        else favoriteViewModel.addFavorite(post.uid, post.userName, post.category, post.userPhone)
-                    }, modifier = Modifier.size(28.dp)) {
-                        Icon(
-                            if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = if (isFavorite) Color(0xFFD92D3A) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    IconButton(onClick = onMoreClick, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
-                    }
-                }
             }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(post.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), maxLines = 2)
-            if (post.price.isNotEmpty() || post.availability.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (post.price.isNotEmpty()) Text("💰 ${post.price}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                    if (post.availability.isNotEmpty()) Text("🕐 ${post.availability}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Expires in ${hoursLeft}h", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onCall, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Call", fontSize = 14.sp)
-                }
-                OutlinedButton(onClick = { showReportDialog = true }, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Default.Flag, contentDescription = "Report", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
-                }
+            IconButton(
+                onClick = {
+                    if (isFavorite) favoriteViewModel.removeFavorite(post.uid)
+                    else favoriteViewModel.addFavorite(post.uid, post.userName, post.category, post.userPhone)
+                },
+                modifier = Modifier.size(44.dp)
+            ) {
+                Icon(
+                    if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint = if (isFavorite) Color(0xFFD92D3A) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp)
+                )
             }
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            post.description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2
+        )
+
+        if (post.price.isNotEmpty() || post.availability.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (post.price.isNotEmpty()) InfoPill(Icons.Default.Payments, post.price)
+                if (post.availability.isNotEmpty()) InfoPill(Icons.Default.Schedule, post.availability)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = onCall,
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Call", style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(
+                onClick = { showReportDialog = true },
+                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Icon(Icons.Default.Flag, contentDescription = "Report user", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Expires in ${hoursLeft}h", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 
     if (showReportDialog) {
@@ -416,9 +463,14 @@ fun SeekerJobRequestDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(28.dp),
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("Post a Job Request") },
+        title = {
+            Column {
+                Text("NEW REQUEST  ·  ਨਵੀਂ ਮੰਗ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.2.sp)
+                Text("Post a job request", style = MaterialTheme.typography.titleLarge)
+            }
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
@@ -426,9 +478,9 @@ fun SeekerJobRequestDialog(
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = if (isOpenToAll)
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.secondaryContainer
                     else
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                        MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -469,7 +521,8 @@ fun SeekerJobRequestDialog(
                             FilterChip(
                                 selected = selectedCategory == cat,
                                 onClick = { selectedCategory = cat },
-                                label = { Text(cat, fontSize = 11.sp) }
+                                label = { Text(cat.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { cat }, style = MaterialTheme.typography.labelMedium) },
+                                colors = neutralChipColors()
                             )
                         }
                     }
@@ -485,6 +538,7 @@ fun SeekerJobRequestDialog(
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
                     minLines = 2
                 )
 
@@ -496,12 +550,16 @@ fun SeekerJobRequestDialog(
                         if (hasPermission) fetchLocation()
                         else permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
+                    Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        if (locationFetching) "Fetching..."
-                        else if (address.isNotEmpty()) "📍 $address"
-                        else "📍 Use Current Location"
+                        if (locationFetching) "Fetching location…"
+                        else if (address.isNotEmpty()) address
+                        else "Use current location",
+                        maxLines = 2
                     )
                 }
             }
@@ -687,4 +745,19 @@ fun PostDetailDialog(
             }
         }
     )
+}
+
+@Composable
+private fun InfoPill(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+    }
 }
