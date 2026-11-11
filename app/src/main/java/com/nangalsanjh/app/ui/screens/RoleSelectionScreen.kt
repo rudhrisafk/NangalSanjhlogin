@@ -1,21 +1,29 @@
 package com.nangalsanjh.app.ui.screens
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nangalsanjh.app.theme.NSButton
+import com.nangalsanjh.app.theme.NSStatusBadge
+import com.nangalsanjh.app.theme.Radius
+import com.nangalsanjh.app.theme.Spacing
 
 @Composable
 fun RoleSelectionScreen(
@@ -27,77 +35,84 @@ fun RoleSelectionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = Spacing.xxl)
     ) {
-        Text(
-            text = "Select Your Role",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "How will you use Nangal Seva?",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        RoleCard(
-            title = "Seeker",
-            subtitle = "Find workers & report civic issues",
-            icon = Icons.Default.Person,
-            isSelected = selectedRole == "seeker",
-            isCurrent = currentRole == "seeker",
-        ) {
-            selectedRole = "seeker"
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        RoleCard(
-            title = "Worker",
-            subtitle = "Offer your services to the community",
-            icon = Icons.Default.Build,
-            isSelected = selectedRole == "worker",
-            isCurrent = currentRole == "worker",
-        ) {
-            selectedRole = "worker"
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        RoleCard(
-            title = "Admin",
-            subtitle = "Municipal / Government Official",
-            icon = Icons.Default.AdminPanelSettings,
-            isSelected = selectedRole == "admin",
-            isCurrent = currentRole == "admin",
-        ) {
-            selectedRole = "admin"
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Button(
-            onClick = { onRoleSelected(selectedRole) },
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            enabled = selectedRole.isNotEmpty() && selectedRole != currentRole
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
         ) {
-            Text("Continue", fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(Spacing.huge))
+            Text(
+                text = "STEP 1 OF 1  ·  ਆਪਣੀ ਭੂਮਿਕਾ ਚੁਣੋ",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.2.sp
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            Text(
+                text = "How will you use Nangal Seva?",
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            Text(
+                text = "You can switch your role later from your profile.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(Spacing.xxxl))
+
+            RoleCard(
+                number = "01",
+                title = "Seeker",
+                subtitle = "Find trusted workers, post a job request and report civic issues.",
+                icon = Icons.Default.Person,
+                isSelected = selectedRole == "seeker",
+                isCurrent = currentRole == "seeker",
+            ) { selectedRole = "seeker" }
+
+            Spacer(modifier = Modifier.height(Spacing.md))
+
+            RoleCard(
+                number = "02",
+                title = "Worker",
+                subtitle = "Offer your skills, accept jobs nearby and build your rating.",
+                icon = Icons.Default.Build,
+                isSelected = selectedRole == "worker",
+                isCurrent = currentRole == "worker",
+            ) { selectedRole = "worker" }
+
+            Spacer(modifier = Modifier.height(Spacing.md))
+
+            RoleCard(
+                number = "03",
+                title = "Admin",
+                subtitle = "Municipal or government official managing the city.",
+                icon = Icons.Default.AdminPanelSettings,
+                isSelected = selectedRole == "admin",
+                isCurrent = currentRole == "admin",
+            ) { selectedRole = "admin" }
+
+            Spacer(modifier = Modifier.height(Spacing.xl))
         }
+
+        NSButton(
+            text = "Continue",
+            onClick = { onRoleSelected(selectedRole) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = selectedRole.isNotEmpty() && selectedRole != currentRole
+        )
+        Spacer(modifier = Modifier.height(Spacing.xl))
     }
 }
 
 @Composable
 fun RoleCard(
+    number: String = "",
     title: String,
     subtitle: String,
     icon: ImageVector,
@@ -105,76 +120,68 @@ fun RoleCard(
     isCurrent: Boolean = false,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected)
-        MaterialTheme.colorScheme.primary
-    else
-        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    val primary = MaterialTheme.colorScheme.primary
+    val borderColor = if (isSelected) primary else MaterialTheme.colorScheme.outline
+    val container = if (isSelected) primary.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface
 
-    val containerColor = if (isSelected)
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-    else
-        MaterialTheme.colorScheme.surface
-
-    Card(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(
-            width = if (isSelected) 2.dp else 1.dp,
-            color = borderColor
-        ),
-        colors = CardDefaults.cardColors(containerColor = containerColor)
+            .clip(Radius.lg)
+            .background(container)
+            .border(if (isSelected) 2.dp else 1.dp, borderColor, Radius.lg)
+            .clickable(onClickLabel = "Select $title") { onClick() }
+            .padding(Spacing.lg),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .size(48.dp)
+                .clip(Radius.md)
+                .background(if (isSelected) primary else MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = title,
-                tint = if (isSelected)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.size(32.dp)
+                contentDescription = null,
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
             )
+        }
 
-            Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(Spacing.lg))
 
-            Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (number.isNotEmpty()) {
+                    Text(
+                        number,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(Spacing.sm))
+                }
                 Text(
                     text = title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = if (isSelected)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
-
-            if (isCurrent) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                ) {
-                    Text(
-                        "Active",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                if (isCurrent) {
+                    Spacer(modifier = Modifier.width(Spacing.sm))
+                    NSStatusBadge(text = "Active", color = primary)
                 }
             }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        if (isSelected) {
+            Spacer(modifier = Modifier.width(Spacing.sm))
+            Icon(Icons.Default.CheckCircle, contentDescription = "Selected", tint = primary)
         }
     }
 }

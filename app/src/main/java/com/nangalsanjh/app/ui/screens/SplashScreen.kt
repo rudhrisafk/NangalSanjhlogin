@@ -64,7 +64,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             Text(
                 text = "Nangal Seva",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = (-0.5).sp
             )
@@ -87,7 +87,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Apna Shehar, Apni Zimmedari",
+                text = "ਆਪਣਾ ਸ਼ਹਿਰ, ਆਪਣੀ ਜ਼ਿੰਮੇਵਾਰੀ  ·  Apna Shehar, Apni Zimmedari",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )

@@ -61,19 +61,26 @@ fun HomeScreen(
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "Nangal Seva",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column {
+                            Text(
+                                "Nangal Seva",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "ਨੰਗਲ ਸੇਵਾ",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 },
                 actions = {
                     if (activeRole == "worker" || activeRole == "admin") {
                         IconButton(onClick = { showEmergency = true }) {
                             Surface(
-                                shape = RoundedCornerShape(4.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 color = Color(0xFFB71C1C).copy(alpha = 0.12f),
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -185,7 +192,7 @@ fun HomeScreen(
                                         selectedTextColor = MaterialTheme.colorScheme.primary,
                                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                                     )
                                 )
                             }
