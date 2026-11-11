@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -167,8 +168,9 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF880E4F))
-                .padding(16.dp)
+                .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                .background(Color(0xFFB3101B))
+                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -177,7 +179,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
             ) {
                 Column {
                     Text(
-                        "🩸 Blood Donors",
+                        "Blood donors",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -197,11 +199,11 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = null,
-                        tint = Color(0xFF880E4F),
+                        tint = Color(0xFFB3101B),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Register", color = Color(0xFF880E4F), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Register", color = Color(0xFFB3101B), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -221,7 +223,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                     onValueChange = { searchPhone = it },
                     placeholder = { Text("Search by phone number...") },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, null, tint = Color(0xFF880E4F))
+                        Icon(Icons.Default.Search, null, tint = Color(0xFFB3101B))
                     },
                     trailingIcon = {
                         if (searchPhone.isNotEmpty()) {
@@ -234,7 +236,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF880E4F),
+                        focusedBorderColor = Color(0xFFB3101B),
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                     )
                 )
@@ -263,7 +265,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                             .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF880E4F),
+                            focusedBorderColor = Color(0xFFB3101B),
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                         )
                     )
@@ -284,7 +286,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                                             fontWeight = if (selectedBloodGroup == group)
                                                 FontWeight.Bold else FontWeight.Normal,
                                             color = if (selectedBloodGroup == group)
-                                                Color(0xFF880E4F)
+                                                Color(0xFFB3101B)
                                             else
                                                 MaterialTheme.colorScheme.onSurface
                                         )
@@ -292,7 +294,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                                             Icon(
                                                 Icons.Default.Check,
                                                 null,
-                                                tint = Color(0xFF880E4F),
+                                                tint = Color(0xFFB3101B),
                                                 modifier = Modifier.size(16.dp)
                                             )
                                         }
@@ -322,26 +324,26 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         if (searchPhone.isNotEmpty()) {
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
-                                color = Color(0xFF880E4F).copy(alpha = 0.12f)
+                                color = Color(0xFFB3101B).copy(alpha = 0.12f)
                             ) {
                                 Text(
                                     "📞 $searchPhone",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                     fontSize = 11.sp,
-                                    color = Color(0xFF880E4F)
+                                    color = Color(0xFFB3101B)
                                 )
                             }
                         }
                         if (selectedBloodGroup != "All") {
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
-                                color = Color(0xFF880E4F).copy(alpha = 0.12f)
+                                color = Color(0xFFB3101B).copy(alpha = 0.12f)
                             ) {
                                 Text(
                                     "🩸 $selectedBloodGroup",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                     fontSize = 11.sp,
-                                    color = Color(0xFF880E4F)
+                                    color = Color(0xFFB3101B)
                                 )
                             }
                         }
@@ -362,7 +364,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
             ScrollableTabRow(
                 selectedTabIndex = bloodGroups.indexOf(selectedBloodGroup).coerceAtLeast(0),
                 containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = Color(0xFF880E4F),
+                contentColor = Color(0xFFB3101B),
                 edgePadding = 8.dp
             ) {
                 bloodGroups.forEach { group ->
@@ -396,7 +398,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
 
         if (isLoading && donors.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF880E4F))
+                CircularProgressIndicator(color = Color(0xFFB3101B))
             }
         } else if (filtered.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -416,7 +418,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = { showRegisterDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B))
                     ) {
                         Text("Register as Donor")
                     }
@@ -528,7 +530,7 @@ fun BloodDonorCard(
             // Blood Group Badge
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFF880E4F).copy(alpha = 0.15f),
+                color = Color(0xFFB3101B).copy(alpha = 0.15f),
                 modifier = Modifier.size(56.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -536,7 +538,7 @@ fun BloodDonorCard(
                         donor.bloodGroup,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF880E4F)
+                        color = Color(0xFFB3101B)
                     )
                 }
             }
@@ -582,7 +584,7 @@ fun BloodDonorCard(
                         DropdownMenuItem(
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Call, null, tint = Color(0xFF880E4F), modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Default.Call, null, tint = Color(0xFFB3101B), modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text("Call")
                                 }
@@ -615,7 +617,7 @@ fun BloodDonorCard(
             } else {
                 // Regular call button
                 IconButton(onClick = onCallClick) {
-                    Icon(Icons.Default.Call, contentDescription = "Call", tint = Color(0xFF880E4F))
+                    Icon(Icons.Default.Call, contentDescription = "Call", tint = Color(0xFFB3101B))
                 }
             }
         }
@@ -692,7 +694,7 @@ fun AdminEditDonorDialog(
                             .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF880E4F)
+                            focusedBorderColor = Color(0xFFB3101B)
                         )
                     )
                     ExposedDropdownMenu(
@@ -707,7 +709,7 @@ fun AdminEditDonorDialog(
                                         fontWeight = if (selectedBloodGroup == group)
                                             FontWeight.Bold else FontWeight.Normal,
                                         color = if (selectedBloodGroup == group)
-                                            Color(0xFF880E4F)
+                                            Color(0xFFB3101B)
                                         else
                                             MaterialTheme.colorScheme.onSurface
                                     )
@@ -726,7 +728,7 @@ fun AdminEditDonorDialog(
             Button(
                 onClick = { onSave(name.trim(), phone.trim(), selectedBloodGroup, area.trim()) },
                 enabled = name.isNotBlank() && phone.isNotBlank() && !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B)),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 if (isLoading) {
@@ -803,7 +805,7 @@ fun RegisterDonorDialog(
                             .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF880E4F)
+                            focusedBorderColor = Color(0xFFB3101B)
                         )
                     )
                     ExposedDropdownMenu(
@@ -828,7 +830,7 @@ fun RegisterDonorDialog(
                 onClick = { onRegister(name, phone, selectedBloodGroup, area) },
                 enabled = name.isNotBlank() && phone.isNotBlank() &&
                         area.isNotBlank() && !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B)),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 if (isLoading) {

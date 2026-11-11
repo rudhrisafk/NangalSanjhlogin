@@ -169,7 +169,7 @@ fun AdminDashboardScreen() {
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = if (worker.isBlocked) MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                            else if (worker.isAvailable) androidx.compose.ui.graphics.Color(0xFF2E7D32).copy(alpha = 0.15f)
+                            else if (worker.isAvailable) androidx.compose.ui.graphics.Color(0xFF138A4B).copy(alpha = 0.15f)
                             else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                         ) {
                             Text(
@@ -177,7 +177,7 @@ fun AdminDashboardScreen() {
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                 fontSize = 10.sp,
                                 color = if (worker.isBlocked) MaterialTheme.colorScheme.error
-                                else if (worker.isAvailable) androidx.compose.ui.graphics.Color(0xFF2E7D32)
+                                else if (worker.isAvailable) androidx.compose.ui.graphics.Color(0xFF138A4B)
                                 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         }

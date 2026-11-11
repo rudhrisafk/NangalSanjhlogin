@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +31,7 @@ data class EmergencyContact(
 
 val emergencyContacts = listOf(
     EmergencyContact("Police", "100", "👮", Color(0xFF1565C0), "Nangal Police Station"),
-    EmergencyContact("Ambulance", "108", "🚑", Color(0xFFB71C1C), "Emergency Medical Service"),
+    EmergencyContact("Ambulance", "108", "🚑", Color(0xFFB3101B), "Emergency Medical Service"),
     EmergencyContact("Fire Brigade", "101", "🚒", Color(0xFFE65100), "Fire & Rescue Service"),
     EmergencyContact("Disaster Management", "1077", "🆘", Color(0xFF6A1B9A), "State Disaster Helpline"),
     EmergencyContact("Women Helpline", "1091", "👩", Color(0xFFAD1457), "Women Safety & Support"),
@@ -55,12 +56,13 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFB71C1C))
-                .padding(16.dp)
+                .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                .background(Color(0xFFB3101B))
+                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)
         ) {
             Column {
                 Text(
-                    "🚨 Emergency Contacts",
+                    "Emergency contacts",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -81,7 +83,7 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFB71C1C)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFB3101B)),
                     onClick = {
                         val intent = Intent(Intent.ACTION_DIAL).apply {
                             data = Uri.parse("tel:112")
@@ -119,7 +121,7 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF880E4F)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFB3101B)),
                     onClick = onBloodDonors
                 ) {
                     Row(

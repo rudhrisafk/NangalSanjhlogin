@@ -91,6 +91,11 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
             }
         } else {
             Column(modifier = Modifier.fillMaxSize()) {
+                ScreenHeader(
+                    eyebrow = "COMPLAINTS  ·  ਸ਼ਿਕਾਇਤਾਂ",
+                    title = if (userRole == "admin") "Citizen complaints" else "Civic issues in Nangal",
+                    subtitle = "Track reports from pending to resolved."
+                )
                 if (userRole == "seeker" && isOnCooldown) {
                     val hoursLeft = (cooldownRemainingMs / (60 * 60 * 1000)) + 1
                     Surface(

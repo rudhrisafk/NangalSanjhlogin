@@ -45,10 +45,17 @@ fun ServicesScreen() {
     var selectedTab by remember { mutableStateOf(0) } // 0 = Job Posts, 1 = My Favorites
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = selectedTab) {
-            Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Job Posts", fontSize = 12.sp) })
-            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("My Favorites", fontSize = 12.sp) })
-        }
+        ScreenHeader(
+            eyebrow = "SERVICES  ·  ਸੇਵਾਵਾਂ",
+            title = "Find trusted workers in Nangal",
+            subtitle = "Browse job posts, save favourites or post your own request."
+        )
+        SegmentedTabs(
+            labels = listOf("Job Posts", "My Favorites"),
+            selected = selectedTab,
+            onSelect = { selectedTab = it }
+        )
+        Spacer(Modifier.height(4.dp))
 
         if (selectedTab == 0) JobPostsTab() else FavoritesTab()
     }
@@ -106,7 +113,7 @@ fun JobPostsTab() {
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
 
@@ -290,7 +297,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
                         Text(post.userName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
                         if (worker != null && worker.rating > 0f) {
                             Spacer(modifier = Modifier.width(6.dp))
-                            Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(11.dp))
+                            Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(11.dp))
                             Spacer(modifier = Modifier.width(2.dp))
                             Text("${"%.1f".format(worker.rating)}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                         }
@@ -304,7 +311,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
                         Icon(
                             if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favorite",
-                            tint = if (isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            tint = if (isFavorite) Color(0xFFD92D3A) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -558,7 +565,7 @@ fun PostDetailDialog(
                                 Icon(
                                     Icons.Default.Star,
                                     null,
-                                    tint = Color(0xFFFFA000),
+                                    tint = Color(0xFFF59F00),
                                     modifier = Modifier.size(13.dp)
                                 )
                                 Spacer(modifier = Modifier.width(2.dp))

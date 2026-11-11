@@ -167,13 +167,13 @@ fun ProfileScreen(
                 if (profile.bloodGroup.isNotEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = Color(0xFF880E4F).copy(alpha = 0.15f)
+                        color = Color(0xFFB3101B).copy(alpha = 0.15f)
                     ) {
                         Text(
                             "🩸 ${profile.bloodGroup}",
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                             fontSize = 12.sp,
-                            color = Color(0xFF880E4F),
+                            color = Color(0xFFB3101B),
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -997,7 +997,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                                 shape = RoundedCornerShape(20.dp),
                                 color = when {
                                     post.status == "assigned" -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                    post.status == "completed" -> Color(0xFF2E7D32).copy(alpha = 0.15f)
+                                    post.status == "completed" -> Color(0xFF138A4B).copy(alpha = 0.15f)
                                     else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                 }
                             ) {
@@ -1011,7 +1011,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                                     fontSize = 11.sp,
                                     color = when (post.status) {
                                         "assigned" -> MaterialTheme.colorScheme.primary
-                                        "completed" -> Color(0xFF2E7D32)
+                                        "completed" -> Color(0xFF138A4B)
                                         else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                     }
                                 )
@@ -1036,7 +1036,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                             } else if (post.rated) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(14.dp))
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("You rated ${post.feedbackRating}/5", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                                 }
@@ -1320,7 +1320,7 @@ fun ChangeBloodGroupDialog(
                 bloodGroups.chunked(4).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         row.forEach { group ->
-                            FilterChip(selected = selectedBloodGroup == group, onClick = { selectedBloodGroup = if (selectedBloodGroup == group) "" else group }, label = { Text(group, fontSize = 12.sp, fontWeight = FontWeight.Bold) }, modifier = Modifier.weight(1f), colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFF880E4F), selectedLabelColor = Color.White))
+                            FilterChip(selected = selectedBloodGroup == group, onClick = { selectedBloodGroup = if (selectedBloodGroup == group) "" else group }, label = { Text(group, fontSize = 12.sp, fontWeight = FontWeight.Bold) }, modifier = Modifier.weight(1f), colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFFB3101B), selectedLabelColor = Color.White))
                         }
                     }
                     Spacer(modifier = Modifier.height(6.dp))
@@ -1328,7 +1328,7 @@ fun ChangeBloodGroupDialog(
                 if (selectedBloodGroup.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = isDonor, onCheckedChange = { isDonor = it }, colors = CheckboxDefaults.colors(checkedColor = Color(0xFF880E4F)))
+                        Checkbox(checked = isDonor, onCheckedChange = { isDonor = it }, colors = CheckboxDefaults.colors(checkedColor = Color(0xFFB3101B)))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("I am willing to donate blood if needed", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
                     }
@@ -1336,7 +1336,7 @@ fun ChangeBloodGroupDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onSave(selectedBloodGroup, isDonor) }, enabled = !isLoading, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF880E4F)), shape = RoundedCornerShape(8.dp)) {
+            Button(onClick = { onSave(selectedBloodGroup, isDonor) }, enabled = !isLoading, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B)), shape = RoundedCornerShape(8.dp)) {
                 if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White) else Text("Save")
             }
         },
@@ -1386,13 +1386,13 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
                                 Text(post.category, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                                 Surface(
                                     shape = RoundedCornerShape(20.dp),
-                                    color = if (post.status == "completed") Color(0xFF2E7D32).copy(alpha = 0.15f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                    color = if (post.status == "completed") Color(0xFF138A4B).copy(alpha = 0.15f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                 ) {
                                     Text(
                                         if (post.status == "completed") "✅ Completed" else "🔧 In Progress",
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
                                         fontSize = 11.sp,
-                                        color = if (post.status == "completed") Color(0xFF2E7D32) else MaterialTheme.colorScheme.primary
+                                        color = if (post.status == "completed") Color(0xFF138A4B) else MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
@@ -1414,7 +1414,7 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
                             } else if (post.rated) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(14.dp))
+                                    Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("Rated ${post.feedbackRating}/5 by seeker", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                                 }
@@ -1446,7 +1446,7 @@ fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, 
                             Icon(
                                 if (star <= rating) Icons.Default.Star else Icons.Default.StarBorder,
                                 contentDescription = null,
-                                tint = Color(0xFFFFA000),
+                                tint = Color(0xFFF59F00),
                                 modifier = Modifier.size(28.dp)
                             )
                         }

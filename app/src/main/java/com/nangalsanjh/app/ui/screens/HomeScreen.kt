@@ -81,11 +81,11 @@ fun HomeScreen(
                         IconButton(onClick = { showEmergency = true }) {
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFFB71C1C).copy(alpha = 0.12f),
+                                color = Color(0xFFB3101B).copy(alpha = 0.12f),
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Default.Warning, contentDescription = "Emergency", tint = Color(0xFFB71C1C), modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Warning, contentDescription = "Emergency", tint = Color(0xFFB3101B), modifier = Modifier.size(18.dp))
                                 }
                             }
                         }
@@ -144,7 +144,7 @@ fun HomeScreen(
                                     icon = {
                                         Surface(
                                             shape = CircleShape,
-                                            color = Color(0xFFB71C1C),
+                                            color = Color(0xFFB3101B),
                                             modifier = Modifier.size(48.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {

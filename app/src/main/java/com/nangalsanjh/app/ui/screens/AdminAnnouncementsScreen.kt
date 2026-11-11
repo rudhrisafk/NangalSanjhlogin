@@ -74,7 +74,7 @@ fun AdminAnnouncementsScreen() {
                                     shape = RoundedCornerShape(20.dp),
                                     color = when (announcement.type) {
                                         "emergency" -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                                        "ad" -> Color(0xFF2E7D32).copy(alpha = 0.15f)
+                                        "ad" -> Color(0xFF138A4B).copy(alpha = 0.15f)
                                         else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                     }
                                 ) {
@@ -84,7 +84,7 @@ fun AdminAnnouncementsScreen() {
                                         fontSize = 11.sp,
                                         color = when (announcement.type) {
                                             "emergency" -> MaterialTheme.colorScheme.error
-                                            "ad" -> Color(0xFF2E7D32)
+                                            "ad" -> Color(0xFF138A4B)
                                             else -> MaterialTheme.colorScheme.primary
                                         }
                                     )

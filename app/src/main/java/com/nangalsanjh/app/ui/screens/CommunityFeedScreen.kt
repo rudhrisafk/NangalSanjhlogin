@@ -308,7 +308,7 @@ fun FourGridAdRow(
                                 fontSize = 9.sp,
                                 color = if (item.type == "news")
                                     MaterialTheme.colorScheme.primary
-                                else Color(0xFF2E7D32)
+                                else Color(0xFF138A4B)
                             )
                         }
                     }
@@ -473,7 +473,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
-            .background(Color(0xFFB71C1C))
+            .background(Color(0xFFB3101B))
             .clipToBounds()
             .onGloballyPositioned { containerWidth = it.size.width.toFloat() },
         contentAlignment = Alignment.CenterStart
@@ -707,7 +707,7 @@ fun AnnouncementDetailDialog(
                         shape = RoundedCornerShape(20.dp),
                         color = when (announcement.type) {
                             "emergency" -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                            "ad" -> Color(0xFF2E7D32).copy(alpha = 0.15f)
+                            "ad" -> Color(0xFF138A4B).copy(alpha = 0.15f)
                             else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                         }
                     ) {
@@ -721,7 +721,7 @@ fun AnnouncementDetailDialog(
                             fontSize = 11.sp,
                             color = when (announcement.type) {
                                 "emergency" -> MaterialTheme.colorScheme.error
-                                "ad" -> Color(0xFF2E7D32)
+                                "ad" -> Color(0xFF138A4B)
                                 else -> MaterialTheme.colorScheme.primary
                             }
                         )
@@ -1392,13 +1392,13 @@ fun JobDemandCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Surface(
                             shape = Radius.full,
-                            color = Color(0xFF4DA3FF).copy(alpha = 0.15f)
+                            color = Color(0xFF1F5FBF).copy(alpha = 0.15f)
                         ) {
                             Text(
                                 "🌐 Broadcast",
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                 fontSize = 10.sp,
-                                color = Color(0xFF4DA3FF),
+                                color = Color(0xFF1F5FBF),
                                 fontWeight = FontWeight.SemiBold
                             )
                         }

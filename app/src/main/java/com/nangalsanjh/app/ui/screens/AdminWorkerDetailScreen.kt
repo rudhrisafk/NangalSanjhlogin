@@ -106,13 +106,13 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
                                 color = if (p.isBlocked) MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                                else if (p.isAvailable) Color(0xFF2E7D32).copy(alpha = 0.15f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                                else if (p.isAvailable) Color(0xFF138A4B).copy(alpha = 0.15f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                             ) {
                                 Text(
                                     if (p.isBlocked) "Blocked" else if (p.isAvailable) "Online" else "Offline",
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                     fontSize = 11.sp,
-                                    color = if (p.isBlocked) MaterialTheme.colorScheme.error else if (p.isAvailable) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    color = if (p.isBlocked) MaterialTheme.colorScheme.error else if (p.isAvailable) Color(0xFF138A4B) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             }
                         }
@@ -169,7 +169,7 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                                 if (job.price.isNotEmpty()) Text("💰 Fee: ${job.price}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 if (job.rated) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Star, null, tint = Color(0xFFFFA000), modifier = Modifier.size(13.dp))
+                                        Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(13.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("${job.feedbackRating}/5 — ${job.feedbackComment.ifEmpty { "No comment" }}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                                     }

@@ -286,8 +286,8 @@ fun MapScreen(userRole: String = "seeker") {
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     LegendRow(color = Color.Red, label = "Pending ($pendingCount)")
-                    LegendRow(color = Color(0xFFFFB300), label = "In Review ($reviewCount)")
-                    LegendRow(color = Color(0xFF2E7D32), label = "Resolved ($resolvedCount)")
+                    LegendRow(color = Color(0xFFF59F00), label = "In Review ($reviewCount)")
+                    LegendRow(color = Color(0xFF138A4B), label = "Resolved ($resolvedCount)")
                 }
             }
 
@@ -345,8 +345,8 @@ fun MapScreen(userRole: String = "seeker") {
                     ) {
                         Text(complaint.category, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                         val statusColor = when (complaint.status) {
-                            "Resolved" -> Color(0xFF2E7D32)
-                            "In Review" -> Color(0xFFFFB300)
+                            "Resolved" -> Color(0xFF138A4B)
+                            "In Review" -> Color(0xFFF59F00)
                             else -> MaterialTheme.colorScheme.error
                         }
                         Surface(shape = RoundedCornerShape(20.dp), color = statusColor.copy(alpha = 0.15f)) {
