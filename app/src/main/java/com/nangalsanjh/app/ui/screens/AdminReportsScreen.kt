@@ -25,11 +25,15 @@ fun AdminReportsScreen() {
     var confirmBlockUid by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     if (reports.isEmpty()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+        ScreenHeader("REPORTS  ·  ਰਿਪੋਰਟਾਂ", "User reports", "Review reports and block or unblock users.")
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No reports yet", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
         }
+        }
     } else {
         LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item { ScreenHeader("REPORTS  ·  ਰਿਪੋਰਟਾਂ", "User reports", "Review reports and block or unblock users.", horizontalPadding = 0.dp) }
             items(reports) { report ->
                 val isBlocked = report.reportedUid in blockedUids
                 Card(

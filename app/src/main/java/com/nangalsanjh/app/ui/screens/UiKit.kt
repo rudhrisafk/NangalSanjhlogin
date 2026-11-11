@@ -24,9 +24,10 @@ fun ScreenHeader(
     eyebrow: String,
     title: String,
     subtitle: String = "",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    horizontalPadding: androidx.compose.ui.unit.Dp = Spacing.lg
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(horizontal = Spacing.lg, vertical = Spacing.md)) {
+    Column(modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = Spacing.md)) {
         Text(
             eyebrow,
             style = MaterialTheme.typography.labelMedium,

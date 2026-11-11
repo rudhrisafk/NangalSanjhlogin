@@ -22,6 +22,8 @@ fun ResolvedComplaintsScreen() {
     val resolved = complaints.filter { it.status == "Resolved" }
 
     if (resolved.isEmpty()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+        ScreenHeader("RESOLVED  ·  ਹੱਲ ਹੋਈਆਂ", "Resolved complaints", "Reopen a complaint if the issue comes back.")
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("✅", fontSize = 48.sp)
@@ -32,11 +34,13 @@ fun ResolvedComplaintsScreen() {
                 )
             }
         }
+        }
     } else {
         LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item { ScreenHeader("RESOLVED  ·  ਹੱਲ ਹੋਈਆਂ", "Resolved complaints", "Reopen a complaint if the issue comes back.", horizontalPadding = 0.dp) }
             items(resolved) { complaint ->
                 ResolvedComplaintCard(
                     complaint = complaint,

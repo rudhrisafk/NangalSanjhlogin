@@ -1,5 +1,17 @@
 package com.nangalsanjh.app.ui.screens
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -50,7 +62,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
         )
     }
     val chatHistory = remember { mutableListOf<Pair<String, String>>() }
-    val suggestions = listOf("Plumber chahiye", "Light nahi hai", "App help")
+    val suggestions = listOf("Plumber chahiye", "Light nahi hai", "Complaint kaise karein?", "App help")
 
     // ─── NEW: Focus & Keyboard controllers ───
     val focusRequester = remember { FocusRequester() }
@@ -109,233 +121,166 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
             ) {
 
                 // ── Header ───────────────────────────────────────
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 0.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = Spacing.lg,
-                                    vertical = Spacing.md
-                                ),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Surface(
-                                    shape = Radius.md,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                    modifier = Modifier.size(38.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text("🤖", fontSize = 18.sp)
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(Spacing.md))
-                                Column {
-                                    Text(
-                                        "Nangal AI",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        "Powered by AI",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                            IconButton(
-                                onClick = onDismiss,
-                                modifier = Modifier.size(36.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = "Close",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(20.dp)
+                Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AiAvatar(size = 44)
+                            Spacer(modifier = Modifier.width(Spacing.md))
+                            Column {
+                                Text(
+                                    "Nangal AI",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(7.dp)
+                                            .background(NangalColors.Green, CircleShape)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Online  ·  Hindi, Punjabi, English",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
-                        NSDivider()
+                        IconButton(onClick = onDismiss, modifier = Modifier.size(48.dp)) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Close assistant",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
+                    NSDivider()
                 }
 
                 // ── Messages ─────────────────────────────────────
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .height(300.dp)
+                        .weight(1f)
                         .fillMaxWidth(),
                     contentPadding = PaddingValues(Spacing.lg),
                     verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
-                    if (messages.size == 1) {
-                        item {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(Spacing.sm)
-                            ) {
-                                Text(
-                                    "Quick suggestions",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                suggestions.forEach { suggestion ->
-                                    Surface(
-                                        shape = Radius.md,
-                                        color = MaterialTheme.colorScheme.surface,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        onClick = { sendMessage(suggestion) }
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(
-                                                horizontal = Spacing.lg,
-                                                vertical = Spacing.md
-                                            ),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Text(
-                                                suggestion,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurface
-                                            )
-                                            Icon(
-                                                Icons.Default.ArrowUpward,
-                                                null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(Spacing.sm))
-                            }
-                        }
-                    }
-
                     items(messages) { message ->
                         ChatBubble(message = message)
                     }
 
-                    if (isLoading) {
+                    if (messages.size == 1) {
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(
-                                        topStart = 4.dp,
-                                        topEnd = 16.dp,
-                                        bottomStart = 16.dp,
-                                        bottomEnd = 16.dp
-                                    ),
-                                    color = MaterialTheme.colorScheme.surface
-                                ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                                Text(
+                                    "TRY ASKING  ·  ਪੁੱਛ ਕੇ ਦੇਖੋ",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    letterSpacing = 1.2.sp
+                                )
+                                suggestions.forEach { suggestion ->
                                     Row(
-                                        modifier = Modifier.padding(
-                                            horizontal = Spacing.lg,
-                                            vertical = Spacing.md
-                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 48.dp)
+                                            .clip(Radius.lg)
+                                            .background(MaterialTheme.colorScheme.surface)
+                                            .border(1.dp, MaterialTheme.colorScheme.outline, Radius.lg)
+                                            .clickable(onClickLabel = "Ask: $suggestion") { sendMessage(suggestion) }
+                                            .padding(horizontal = Spacing.lg),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text("🤖", fontSize = 13.sp)
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(14.dp),
-                                            strokeWidth = 1.5.dp,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
                                         Text(
-                                            "Thinking...",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            suggestion,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Icon(
+                                            Icons.Default.ArrowUpward,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
                                         )
                                     }
                                 }
                             }
                         }
                     }
+
+                    if (isLoading) {
+                        item { TypingIndicator() }
+                    }
                 }
 
                 // ── Input Bar ─────────────────────────────────────
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column {
-                        NSDivider()
-                        Row(
+                Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+                    NSDivider()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                    ) {
+                        OutlinedTextField(
+                            value = inputText,
+                            onValueChange = { inputText = it },
+                            placeholder = {
+                                Text(
+                                    "Ask anything about Nangal…",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = Spacing.lg,
-                                    vertical = Spacing.md
-                                ),
-                            verticalAlignment = Alignment.Bottom,
-                            horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
-                        ) {
-                            OutlinedTextField(
-                                value = inputText,
-                                onValueChange = { inputText = it },
-                                placeholder = {
-                                    Text(
-                                        "Ask anything...",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .focusRequester(focusRequester),  // ─── ADDED ───
-                                shape = RoundedCornerShape(24.dp),
-                                maxLines = 5,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.background
-                                ),
-                                textStyle = MaterialTheme.typography.bodyMedium
-                            )
+                                .weight(1f)
+                                .focusRequester(focusRequester),
+                            shape = RoundedCornerShape(26.dp),
+                            maxLines = 5,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                focusedContainerColor = MaterialTheme.colorScheme.background,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.background
+                            ),
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
 
-                            val canSend = inputText.isNotBlank() && !isLoading
-                            Surface(
-                                shape = Radius.full,
-                                color = if (canSend)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .align(Alignment.Bottom),
-                                onClick = {
-                                    if (canSend) sendMessage(inputText.trim())
-                                }
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    if (isLoading) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(18.dp),
-                                            strokeWidth = 2.dp,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.ArrowUpward,
-                                            contentDescription = "Send",
-                                            tint = if (canSend)
-                                                MaterialTheme.colorScheme.onPrimary
-                                            else
-                                                MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
+                        val canSend = inputText.isNotBlank() && !isLoading
+                        Surface(
+                            shape = Radius.full,
+                            color = if (canSend) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier
+                                .size(52.dp)
+                                .align(Alignment.Bottom),
+                            onClick = { if (canSend) sendMessage(inputText.trim()) }
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                if (isLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(18.dp),
+                                        strokeWidth = 2.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.ArrowUpward,
+                                        contentDescription = "Send message",
+                                        tint = if (canSend) MaterialTheme.colorScheme.onPrimary
+                                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(22.dp)
+                                    )
                                 }
                             }
                         }
@@ -347,67 +292,102 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun AiAvatar(size: Int = 32) {
+    Box(
+        modifier = Modifier
+            .size(size.dp)
+            .clip(Radius.md)
+            .background(MaterialTheme.colorScheme.onBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            Icons.Default.AutoAwesome,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.background,
+            modifier = Modifier.size((size * 0.5f).dp)
+        )
+    }
+}
+
+@Composable
+fun TypingIndicator() {
+    val transition = rememberInfiniteTransition(label = "typing")
+    Row(verticalAlignment = Alignment.Bottom) {
+        AiAvatar(size = 28)
+        Spacer(modifier = Modifier.width(Spacing.sm))
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomStart = 18.dp, bottomEnd = 18.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(topStart = 4.dp, topEnd = 18.dp, bottomStart = 18.dp, bottomEnd = 18.dp)
+                )
+                .padding(horizontal = Spacing.lg, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(3) { i ->
+                val alpha by transition.animateFloat(
+                    initialValue = 0.25f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(600, delayMillis = i * 150),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "dot$i"
+                )
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .alpha(alpha)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun ChatBubble(message: ChatMessage) {
+    val shape = RoundedCornerShape(
+        topStart = if (message.isUser) 18.dp else 4.dp,
+        topEnd = if (message.isUser) 4.dp else 18.dp,
+        bottomStart = 18.dp,
+        bottomEnd = 18.dp
+    )
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom
     ) {
         if (!message.isUser) {
-            Surface(
-                shape = Radius.md,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.Bottom)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("🤖", fontSize = 13.sp)
-                }
-            }
+            AiAvatar(size = 28)
             Spacer(modifier = Modifier.width(Spacing.sm))
         }
 
-        Surface(
-            shape = RoundedCornerShape(
-                topStart = if (message.isUser) 16.dp else 4.dp,
-                topEnd = if (message.isUser) 4.dp else 16.dp,
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            ),
-            color = if (message.isUser)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.surface,
-            modifier = Modifier.widthIn(max = 280.dp)
+        Box(
+            modifier = Modifier
+                .widthIn(max = 300.dp)
+                .clip(shape)
+                .background(
+                    if (message.isUser) MaterialTheme.colorScheme.onBackground
+                    else MaterialTheme.colorScheme.surface
+                )
+                .then(
+                    if (message.isUser) Modifier
+                    else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape)
+                )
         ) {
             Text(
                 text = message.text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (message.isUser)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(
-                    horizontal = Spacing.lg,
-                    vertical = Spacing.md
-                ),
-                lineHeight = 20.sp
+                color = if (message.isUser) MaterialTheme.colorScheme.background
+                else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                lineHeight = 21.sp
             )
-        }
-
-        if (message.isUser) {
-            Spacer(modifier = Modifier.width(Spacing.sm))
-            Surface(
-                shape = Radius.md,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.Bottom)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("👤", fontSize = 13.sp)
-                }
-            }
         }
     }
 }

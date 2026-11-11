@@ -207,11 +207,12 @@ fun HomeScreen(
             if (activeRole == "seeker") {
                 FloatingActionButton(
                     onClick = { showAIAssistant = true },
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background,
                     shape = CircleShape,
-                    modifier = Modifier.size(50.dp)
+                    modifier = Modifier.size(52.dp)
                 ) {
-                    Text("🤖", fontSize = 20.sp)
+                    Icon(Icons.Default.AutoAwesome, contentDescription = "Open Nangal AI assistant", modifier = Modifier.size(24.dp))
                 }
             }
         },
