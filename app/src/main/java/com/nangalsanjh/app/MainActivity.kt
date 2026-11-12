@@ -52,10 +52,7 @@ class MainActivity : ComponentActivity() {
 
             NangalSevaTheme(isDark = theme == AppTheme.DARK) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
-                        NangalSevaNavHost(themeViewModel = themeViewModel)
-                        com.nangalsanjh.app.ui.screens.VenomThemeTransition(themeViewModel)
-                    }
+                    NangalSevaNavHost(themeViewModel = themeViewModel)
                 }
             }
         }

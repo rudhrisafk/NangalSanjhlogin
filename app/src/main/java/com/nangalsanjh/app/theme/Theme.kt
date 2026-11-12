@@ -2,6 +2,9 @@
 
 package com.nangalsanjh.app.theme
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -209,10 +212,39 @@ fun NangalSevaTheme(
     isDark: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val target = if (isDark) NangalDarkColorScheme else NangalLightColorScheme
     MaterialTheme(
-        colorScheme = if (isDark) NangalDarkColorScheme else NangalLightColorScheme,
+        colorScheme = animatedColorScheme(target),
         typography = NangalTypography,
         shapes = NangalShapes,
         content = content
+    )
+}
+
+/** Cross-fades every theme colour (700 ms) so switching light/dark feels like one smooth wash. */
+@Composable
+private fun animatedColorScheme(t: ColorScheme): ColorScheme {
+    val spec = tween<Color>(durationMillis = 700)
+    @Composable fun a(c: Color) = animateColorAsState(c, spec, label = "themeColor").value
+    return t.copy(
+        primary = a(t.primary), onPrimary = a(t.onPrimary),
+        primaryContainer = a(t.primaryContainer), onPrimaryContainer = a(t.onPrimaryContainer),
+        secondary = a(t.secondary), onSecondary = a(t.onSecondary),
+        secondaryContainer = a(t.secondaryContainer), onSecondaryContainer = a(t.onSecondaryContainer),
+        tertiary = a(t.tertiary), onTertiary = a(t.onTertiary),
+        tertiaryContainer = a(t.tertiaryContainer), onTertiaryContainer = a(t.onTertiaryContainer),
+        background = a(t.background), onBackground = a(t.onBackground),
+        surface = a(t.surface), onSurface = a(t.onSurface),
+        surfaceVariant = a(t.surfaceVariant), onSurfaceVariant = a(t.onSurfaceVariant),
+        surfaceTint = a(t.surfaceTint),
+        inverseSurface = a(t.inverseSurface), inverseOnSurface = a(t.inverseOnSurface),
+        inversePrimary = a(t.inversePrimary),
+        error = a(t.error), onError = a(t.onError),
+        errorContainer = a(t.errorContainer), onErrorContainer = a(t.onErrorContainer),
+        outline = a(t.outline), outlineVariant = a(t.outlineVariant),
+        surfaceBright = a(t.surfaceBright), surfaceDim = a(t.surfaceDim),
+        surfaceContainer = a(t.surfaceContainer), surfaceContainerHigh = a(t.surfaceContainerHigh),
+        surfaceContainerHighest = a(t.surfaceContainerHighest),
+        surfaceContainerLow = a(t.surfaceContainerLow), surfaceContainerLowest = a(t.surfaceContainerLowest),
     )
 }

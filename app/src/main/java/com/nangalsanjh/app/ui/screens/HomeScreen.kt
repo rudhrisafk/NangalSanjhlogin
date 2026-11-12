@@ -39,8 +39,6 @@ fun HomeScreen(
     var showEmergency by remember { mutableStateOf(false) }
     var showBloodDonors by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
-    val darkOrigin = remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-    val lightOrigin = remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
     var showProfile by remember { mutableStateOf(false) }
 
     var showProfileSetupPopup by remember(isProfileSetup) { mutableStateOf(!isProfileSetup) }
@@ -352,11 +350,8 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         OutlinedButton(
-                            onClick = {
-                                showSettings = false
-                                themeViewModel.requestTheme(AppTheme.DARK, darkOrigin.value.x, darkOrigin.value.y)
-                            },
-                            modifier = Modifier.weight(1f).captureScreenCenter(darkOrigin),
+                            onClick = { themeViewModel.setTheme(AppTheme.DARK) },
+                            modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp),
                             colors = if (theme == AppTheme.DARK)
                                 ButtonDefaults.outlinedButtonColors(
@@ -373,11 +368,8 @@ fun HomeScreen(
                             )
                         }
                         OutlinedButton(
-                            onClick = {
-                                showSettings = false
-                                themeViewModel.requestTheme(AppTheme.LIGHT, lightOrigin.value.x, lightOrigin.value.y)
-                            },
-                            modifier = Modifier.weight(1f).captureScreenCenter(lightOrigin),
+                            onClick = { themeViewModel.setTheme(AppTheme.LIGHT) },
+                            modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp),
                             colors = if (theme == AppTheme.LIGHT)
                                 ButtonDefaults.outlinedButtonColors(

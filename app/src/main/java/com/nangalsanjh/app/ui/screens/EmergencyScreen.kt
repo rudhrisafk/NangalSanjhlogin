@@ -59,7 +59,7 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                .background(Color(0xFFB3101B))
+                .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFFB3101B), Color(0xFF7A0A12))))
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)
         ) {
             Column {

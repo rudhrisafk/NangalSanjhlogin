@@ -2,6 +2,7 @@ package com.nangalsanjh.app.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -169,7 +170,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                .background(Color(0xFFB3101B))
+                .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFFB3101B), Color(0xFF7A0A12))))
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)
         ) {
             Row(
@@ -191,19 +192,16 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         color = Color.White.copy(alpha = 0.8f)
                     )
                 }
-                Button(
-                    onClick = { showRegisterDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(20.dp)
+                Row(
+                    modifier = Modifier
+                        .glass(RoundedCornerShape(20.dp), fillAlpha = 0.2f)
+                        .clickable(onClickLabel = "Register as donor") { showRegisterDialog = true }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = null,
-                        tint = Color(0xFFB3101B),
-                        modifier = Modifier.size(16.dp)
-                    )
+                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Register", color = Color(0xFFB3101B), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Register", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

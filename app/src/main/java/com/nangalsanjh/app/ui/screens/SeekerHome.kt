@@ -160,6 +160,26 @@ fun SeekerHome(
                     Spacer(Modifier.width(8.dp))
                     Text("Post a job request", style = MaterialTheme.typography.labelLarge)
                 }
+                Spacer(Modifier.height(Spacing.md))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .glass(Radius.md, fillAlpha = 0.12f)
+                        .clickable(onClickLabel = "Emergency help") { onNavigate(2) }
+                        .padding(horizontal = Spacing.lg),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFFB4AB), modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(Spacing.md))
+                    Text(
+                        "Emergency help",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.7f))
+                }
             }
         }
 
