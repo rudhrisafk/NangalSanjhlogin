@@ -7,7 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -215,12 +215,14 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
             )
         }
 
-        items(others) { contact ->
-            EmergencyContactCard(
-                contact = contact,
-                onCallClick = { dial(context, contact.number) },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+        itemsIndexed(others) { i, contact ->
+            RevealOnLoad(minOf(i, 6)) {
+                EmergencyContactCard(
+                    contact = contact,
+                    onCallClick = { dial(context, contact.number) },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
     }
 }

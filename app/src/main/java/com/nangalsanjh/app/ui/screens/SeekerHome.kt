@@ -155,11 +155,29 @@ fun SeekerHome(
                 ) {
                     Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.85f))
                     Spacer(Modifier.width(Spacing.md))
-                    Text(
-                        "Plumber, electrician, tutor…",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.85f)
-                    )
+                    val hints = remember {
+                        listOf("Plumber chahiye?", "Electrician, AC repair…", "Tutor, painter, cleaner…", "Report a street light…")
+                    }
+                    var hintIdx by remember { mutableStateOf(0) }
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            delay(2400)
+                            hintIdx = (hintIdx + 1) % hints.size
+                        }
+                    }
+                    androidx.compose.animation.Crossfade(
+                        targetState = hintIdx,
+                        animationSpec = tween(500),
+                        label = "hint"
+                    ) { i ->
+                        Text(
+                            hints[i],
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 Spacer(Modifier.height(Spacing.md))
                 androidx.compose.material3.Button(
@@ -273,7 +291,11 @@ private fun QuickTile(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(Radius.md)
-                    .background(tint.copy(alpha = 0.12f)),
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            listOf(tint.copy(alpha = 0.22f), tint.copy(alpha = 0.06f))
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))

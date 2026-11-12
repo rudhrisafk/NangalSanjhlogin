@@ -132,8 +132,15 @@ fun AdminDashboardScreen() {
                                 Text(count.toString(), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
+                            var grow by remember { mutableStateOf(false) }
+                            LaunchedEffect(Unit) { grow = true }
+                            val barProgress by androidx.compose.animation.core.animateFloatAsState(
+                                targetValue = if (grow) count.toFloat() / maxCount.toFloat() else 0f,
+                                animationSpec = androidx.compose.animation.core.tween(900, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                                label = "bar"
+                            )
                             LinearProgressIndicator(
-                                progress = { count.toFloat() / maxCount.toFloat() },
+                                progress = { barProgress },
                                 modifier = Modifier.fillMaxWidth().height(8.dp),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 trackColor = MaterialTheme.colorScheme.secondaryContainer
