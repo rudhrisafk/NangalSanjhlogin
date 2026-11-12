@@ -36,6 +36,14 @@ fun RoleSelectionScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .aurora(
+                listOf(
+                    androidx.compose.ui.graphics.Color(0xFF3A7BFF).copy(alpha = 0.10f),
+                    androidx.compose.ui.graphics.Color(0xFF8E5BFF).copy(alpha = 0.08f),
+                    androidx.compose.ui.graphics.Color(0xFF19C3B1).copy(alpha = 0.08f)
+                ),
+                periodMs = 9000
+            )
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = Spacing.xxl)

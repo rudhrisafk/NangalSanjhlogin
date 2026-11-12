@@ -116,12 +116,21 @@ fun ProfileScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         Surface(
             shape = RoundedCornerShape(50.dp),
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.size(96.dp)
+            modifier = Modifier
+                .size(96.dp)
+                .spinningRing(
+                    listOf(
+                        androidx.compose.ui.graphics.Color(0xFF3A7BFF),
+                        androidx.compose.ui.graphics.Color(0xFF8E5BFF),
+                        androidx.compose.ui.graphics.Color(0xFF19C3B1)
+                    ),
+                    periodMs = 5000
+                )
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(

@@ -1023,12 +1023,23 @@ fun WorkerFeedContent(userName: String) {
 
                     Column {
 
-                        Text(
-                            "Availability Status",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isAvailable) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(9.dp)
+                                        .pulseRing(NangalColors.Green)
+                                        .background(NangalColors.Green, androidx.compose.foundation.shape.CircleShape)
+                                )
+                                Spacer(Modifier.width(10.dp))
+                            }
+                            Text(
+                                "Availability Status",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
 
                         Text(
                             if (isAvailable)
