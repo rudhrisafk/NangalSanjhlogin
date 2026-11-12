@@ -91,6 +91,14 @@ fun SeekerHome(
     onNavigate: (Int) -> Unit
 ) {
     val firstName = userName.trim().substringBefore(" ").ifEmpty { "there" }
+    val greeting = remember {
+        when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+            in 5..11 -> "GOOD MORNING  ·  ਸ਼ੁਭ ਸਵੇਰ"
+            in 12..16 -> "GOOD AFTERNOON  ·  ਸ਼ੁਭ ਦੁਪਹਿਰ"
+            in 17..20 -> "GOOD EVENING  ·  ਸ਼ੁਭ ਸ਼ਾਮ"
+            else -> "NAMASTE  ·  ਸਤ ਸ੍ਰੀ ਅਕਾਲ"
+        }
+    }
     val ink = InkOnLight
 
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xl)) {
@@ -116,7 +124,7 @@ fun SeekerHome(
                     .padding(Spacing.xl)
             ) {
                 Text(
-                    "NAMASTE  ·  ਸਤ ਸ੍ਰੀ ਅਕਾਲ",
+                    greeting,
                     style = MaterialTheme.typography.labelMedium,
                     color = Color(0xFFB8C7E6),
                     letterSpacing = 1.2.sp

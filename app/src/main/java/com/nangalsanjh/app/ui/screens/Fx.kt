@@ -82,3 +82,33 @@ fun Modifier.pulseRing(color: Color, periodMs: Int = 1700): Modifier {
 @Composable
 fun animatedInt(target: Int, durationMs: Int = 900): Int =
     animateIntAsState(target, tween(durationMs, easing = FastOutSlowInEasing), label = "count").value
+
+/** Rotating multi-colour ring around a round element (e.g. the AI button). Draws outside the bounds. */
+@Composable
+fun Modifier.spinningRing(colors: List<Color>, ringWidthPx: Float = 7f, gapPx: Float = 6f, periodMs: Int = 3600): Modifier {
+    val deg by rememberInfiniteTransition(label = "ring").animateFloat(
+        initialValue = 0f, targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(periodMs, easing = LinearEasing)),
+        label = "ringDeg"
+    )
+    return this.drawBehind {
+        androidx.compose.ui.graphics.drawscope.rotate(deg, center) {
+            drawCircle(
+                brush = Brush.sweepGradient(colors + colors.first(), center),
+                radius = size.minDimension / 2f + gapPx,
+                style = Stroke(width = ringWidthPx)
+            )
+        }
+    }
+}
+
+/** Gentle repeating scale "breathing" value 1f..[to]; read it inside graphicsLayer/scale. */
+@Composable
+fun breathing(to: Float = 1.12f, periodMs: Int = 1800): Float {
+    val v by rememberInfiniteTransition(label = "breath").animateFloat(
+        initialValue = 1f, targetValue = to,
+        animationSpec = infiniteRepeatable(tween(periodMs, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "breathV"
+    )
+    return v
+}

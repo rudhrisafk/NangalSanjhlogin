@@ -16,7 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -139,9 +141,17 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 quick.forEach { c ->
+                    val src = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                    val down by src.collectIsPressedAsState()
+                    val sc by androidx.compose.animation.core.animateFloatAsState(
+                        if (down) 0.93f else 1f,
+                        androidx.compose.animation.core.spring(dampingRatio = 0.5f, stiffness = 500f),
+                        label = "tilePress"
+                    )
                     Surface(
                         onClick = { dial(context, c.number) },
-                        modifier = Modifier.weight(1f),
+                        interactionSource = src,
+                        modifier = Modifier.weight(1f).scale(sc),
                         shape = RoundedCornerShape(20.dp),
                         color = MaterialTheme.colorScheme.surface,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)

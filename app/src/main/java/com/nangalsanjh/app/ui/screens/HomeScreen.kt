@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nangalsanjh.app.R
@@ -40,6 +41,7 @@ fun HomeScreen(
     var showBloodDonors by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showProfile by remember { mutableStateOf(false) }
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
 
     var showProfileSetupPopup by remember(isProfileSetup) { mutableStateOf(!isProfileSetup) }
 
@@ -150,7 +152,7 @@ fun HomeScreen(
                                         Surface(
                                             shape = CircleShape,
                                             color = Color(0xFFB3101B),
-                                            modifier = Modifier.size(48.dp)
+                                            modifier = Modifier.size(48.dp).pulseRing(Color(0xFFB3101B))
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
                                                 Column(
@@ -158,7 +160,7 @@ fun HomeScreen(
                                                     verticalArrangement = Arrangement.Center,
                                                     modifier = Modifier.fillMaxSize()
                                                 ) {
-                                                    Text("🚨", fontSize = 16.sp)
+                                                    Icon(Icons.Default.Warning, null, tint = Color.White, modifier = Modifier.size(18.dp))
                                                     Text(
                                                         "SOS",
                                                         style = MaterialTheme.typography.labelSmall,
@@ -172,18 +174,26 @@ fun HomeScreen(
                                     },
                                     label = {},
                                     selected = false,
-                                    onClick = { showEmergency = true },
+                                    onClick = {
+                                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                        showEmergency = true
+                                    },
                                     colors = NavigationBarItemDefaults.colors(
                                         indicatorColor = Color.Transparent
                                     )
                                 )
                             } else {
+                                val bounce by androidx.compose.animation.core.animateFloatAsState(
+                                    targetValue = if (selectedTab == index) 1.2f else 1f,
+                                    animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.35f, stiffness = 380f),
+                                    label = "navBounce"
+                                )
                                 NavigationBarItem(
                                     icon = {
                                         Icon(
                                             item.icon,
                                             contentDescription = item.label,
-                                            modifier = Modifier.size(22.dp)
+                                            modifier = Modifier.size(22.dp).scale(bounce)
                                         )
                                     },
                                     label = {
@@ -196,7 +206,10 @@ fun HomeScreen(
                                         )
                                     },
                                     selected = selectedTab == index,
-                                    onClick = { selectedTab = index },
+                                    onClick = {
+                                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                        selectedTab = index
+                                    },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                         selectedTextColor = MaterialTheme.colorScheme.onBackground,
@@ -218,9 +231,15 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.onBackground,
                     contentColor = MaterialTheme.colorScheme.background,
                     shape = CircleShape,
-                    modifier = Modifier.size(52.dp)
+                    modifier = Modifier
+                        .size(52.dp)
+                        .spinningRing(listOf(Color(0xFF3A7BFF), Color(0xFF8E5BFF), Color(0xFF19C3B1)))
                 ) {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = "Open Nangal AI assistant", modifier = Modifier.size(24.dp))
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = "Open Nangal AI assistant",
+                        modifier = Modifier.size(24.dp).scale(breathing())
+                    )
                 }
             }
         },
