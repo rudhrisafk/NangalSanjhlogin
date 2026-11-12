@@ -3,6 +3,7 @@ package com.nangalsanjh.app.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -118,11 +120,16 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
             }
 
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFB3101B)),
-                    onClick = onBloodDonors
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            androidx.compose.ui.graphics.Brush.linearGradient(
+                                listOf(Color(0xFFB3101B), Color(0xFF7A0A12))
+                            )
+                        )
+                        .clickable(onClickLabel = "Blood donors") { onBloodDonors() }
                 ) {
                     Row(
                         modifier = Modifier
@@ -130,7 +137,12 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("🩸", fontSize = 32.sp)
+                        Box(
+                            modifier = Modifier.size(48.dp).glass(RoundedCornerShape(14.dp), fillAlpha = 0.18f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.WaterDrop, null, tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
