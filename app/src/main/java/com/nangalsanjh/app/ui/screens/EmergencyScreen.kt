@@ -179,8 +179,9 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}) {
 fun EmergencyContactCard(contact: EmergencyContact, onCallClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             modifier = Modifier
@@ -215,13 +216,13 @@ fun EmergencyContactCard(contact: EmergencyContact, onCallClick: () -> Unit) {
                     contact.number,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = contact.color
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Button(
                 onClick = onCallClick,
                 shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = contact.color),
+                colors = ButtonDefaults.buttonColors(),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Icon(Icons.Default.Call, null, modifier = Modifier.size(18.dp), tint = Color.White)

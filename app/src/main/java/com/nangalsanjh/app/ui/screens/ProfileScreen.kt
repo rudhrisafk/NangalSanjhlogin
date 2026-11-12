@@ -316,8 +316,9 @@ fun ProfileScreen(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -362,7 +363,7 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.Favorite,
             title = "Blood Group",
@@ -415,7 +416,7 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.Info,
             title = "About Nangal Seva",
@@ -423,7 +424,7 @@ fun ProfileScreen(
             onClick = { showAbout = true }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.SwitchAccount,
             title = "Switch Profile",
@@ -431,7 +432,7 @@ fun ProfileScreen(
             onClick = { showSwitchProfile = true }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.AutoMirrored.Filled.Logout,
             title = "Logout",
@@ -1214,38 +1215,49 @@ fun ProfileMenuItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         onClick = onClick
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                shape = RoundedCornerShape(14.dp),
+                color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
                 else MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(44.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        icon, contentDescription = title,
+                        icon, contentDescription = null,
                         tint = if (isDestructive) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    title, fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
                     color = if (isDestructive) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.onSurface
                 )
                 if (subtitle.isNotEmpty()) {
-                    Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(
+                        subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
                 }
             }
-            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), modifier = Modifier.size(18.dp))
+            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }
     }
 }
