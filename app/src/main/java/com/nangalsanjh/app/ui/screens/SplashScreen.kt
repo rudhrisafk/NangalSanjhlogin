@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +66,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             Image(
                 painter = painterResource(id = R.drawable.nangal_seva_logo),
                 contentDescription = "Nangal Seva",
-                modifier = Modifier.size(96.dp)
+                modifier = Modifier.size(96.dp).scale(breathing(1.07f, 1600))
             )
 
             Spacer(modifier = Modifier.height(Spacing.xxl))

@@ -93,8 +93,10 @@ fun JobPostsTab() {
         allPosts.filter { it.userRole == "worker" && it.timeStamp >= cutoff }
     }
 
+    var celebrate by remember { mutableIntStateOf(0) }
     LaunchedEffect(postSuccess) {
         if (postSuccess) {
+            celebrate += 1
             showJobRequestDialog = false
             postViewModel.resetPostSuccess()
         }
@@ -204,6 +206,8 @@ fun JobPostsTab() {
                 }
             }
         }
+
+        ConfettiBurst(trigger = celebrate)
 
         ExtendedFloatingActionButton(
             onClick = { showJobRequestDialog = true },

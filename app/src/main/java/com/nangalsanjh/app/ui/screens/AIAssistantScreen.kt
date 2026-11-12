@@ -38,10 +38,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.activity.compose.BackHandler
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.withStyle
 
 data class ChatMessage(
     val text: String,
     val isUser: Boolean,
+    val id: Long = System.nanoTime(),
 )
 
 @Composable
@@ -50,6 +53,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
 
     var inputText by remember { mutableStateOf("") }
+    val typedIds = remember { mutableSetOf<Long>() }
     var isLoading by remember { mutableStateOf(value = false) }
     var messages by remember {
         mutableStateOf(
@@ -166,7 +170,11 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
                     items(messages) { message ->
-                        ChatBubble(message = message)
+                        ChatBubble(
+                            message = message,
+                            animate = !message.isUser && message.id !in typedIds,
+                            onTyped = { typedIds.add(message.id) }
+                        )
                     }
 
                     if (messages.size == 1) {
@@ -340,7 +348,17 @@ fun TypingIndicator() {
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(message: ChatMessage, animate: Boolean = false, onTyped: () -> Unit = {}) {
+    var shown by remember(message.id) { mutableIntStateOf(if (animate) 0 else message.text.length) }
+    LaunchedEffect(message.id) {
+        if (animate) {
+            while (shown < message.text.length) {
+                kotlinx.coroutines.delay(16)
+                shown = minOf(message.text.length, shown + 2)
+            }
+            onTyped()
+        }
+    }
     val shape = RoundedCornerShape(
         topStart = if (message.isUser) 18.dp else 4.dp,
         topEnd = if (message.isUser) 4.dp else 18.dp,
@@ -371,7 +389,12 @@ fun ChatBubble(message: ChatMessage) {
                 )
         ) {
             Text(
-                text = message.text,
+                text = androidx.compose.ui.text.buildAnnotatedString {
+                    append(message.text.take(shown))
+                    withStyle(androidx.compose.ui.text.SpanStyle(color = Color.Transparent)) {
+                        append(message.text.drop(shown))
+                    }
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (message.isUser) MaterialTheme.colorScheme.background
                 else MaterialTheme.colorScheme.onSurface,
