@@ -64,10 +64,10 @@ object NangalGradients {
 }
 
 val NangalDarkColorScheme = darkColorScheme(
-    primary = BrandOrange,
-    onPrimary = Color(0xFF1A0D00),
-    primaryContainer = BrandOrange.copy(alpha = 0.16f),
-    onPrimaryContainer = BrandAmber,
+    primary = Color(0xFF9DB8F0),
+    onPrimary = Color(0xFF0A1220),
+    primaryContainer = Color(0xFF263A57),
+    onPrimaryContainer = TextPrimaryDark,
     secondary = BrandAmber,
     onSecondary = Color(0xFF1A0D00),
     secondaryContainer = Color(0xFF263A57),
@@ -96,10 +96,10 @@ val NangalDarkColorScheme = darkColorScheme(
 )
 
 val NangalLightColorScheme = lightColorScheme(
-    primary = BrandOrangeDeep,
+    primary = InkOnLight,
     onPrimary = Color.White,
-    primaryContainer = BrandOrange.copy(alpha = 0.14f),
-    onPrimaryContainer = BrandOrangeDeep,
+    primaryContainer = Color(0xFFE6ECF7),
+    onPrimaryContainer = InkOnLight,
     secondary = InkOnLight,
     onSecondary = Color.White,
     secondaryContainer = Color(0xFFE6ECF7),

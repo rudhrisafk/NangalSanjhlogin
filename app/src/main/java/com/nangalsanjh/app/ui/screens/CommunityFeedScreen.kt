@@ -490,7 +490,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(MaterialTheme.colorScheme.primary, androidx.compose.foundation.shape.CircleShape)
+                        .background(com.nangalsanjh.app.theme.BrandAmber, androidx.compose.foundation.shape.CircleShape)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(

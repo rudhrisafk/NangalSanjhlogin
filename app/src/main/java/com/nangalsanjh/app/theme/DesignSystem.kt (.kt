@@ -104,8 +104,8 @@ fun NSButton(
             .clip(Radius.md)
             .then(
                 if (isActive) Modifier
-                    .shadow(elevation = 3.dp, shape = Radius.md, spotColor = BrandOrange.copy(alpha = 0.25f))
-                    .background(NangalGradients.BrandDiagonal)
+                    .shadow(elevation = 2.dp, shape = Radius.md, spotColor = Color(0xFF0B1F3A).copy(alpha = 0.25f))
+                    .background(MaterialTheme.colorScheme.primary)
                 else Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
             )
     ) {
@@ -115,14 +115,14 @@ fun NSButton(
             modifier = Modifier.fillMaxSize(),
             shape = Radius.md,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = Color.White,
-                disabledContentColor = Color.White.copy(alpha = 0.6f)
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
             )
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(18.dp),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -134,7 +134,7 @@ fun NSButton(
                     text,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -159,7 +159,7 @@ fun NSOutlinedButton(
         ),
         border = androidx.compose.foundation.BorderStroke(
             1.5.dp,
-            Brush.horizontalGradient(listOf(BrandOrangeDeep, BrandOrangeDeep))
+            Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline))
         )
     ) {
         Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)

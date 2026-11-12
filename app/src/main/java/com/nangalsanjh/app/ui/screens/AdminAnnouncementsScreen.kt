@@ -30,6 +30,10 @@ fun AdminAnnouncementsScreen() {
     val announcements by viewModel.announcements.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var addAsHeadline by remember { mutableStateOf(false) }
+    var typeFilter by remember { mutableStateOf("all") }
+    val shown = remember(announcements, typeFilter) {
+        if (typeFilter == "all") announcements else announcements.filter { it.type == typeFilter }
+    }
     var editingAnnouncement by remember { mutableStateOf<Announcement?>(null) }
     var deletingAnnouncement by remember { mutableStateOf<Announcement?>(null) }
 
@@ -42,8 +46,21 @@ fun AdminAnnouncementsScreen() {
         Spacer(modifier = Modifier.width(6.dp))
         Text("Add headline", maxLines = 1)
     }
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(listOf("all" to "All", "headline" to "Headlines", "news" to "News", "ad" to "Ads", "emergency" to "Emergency")) { (value, label) ->
+            FilterChip(
+                selected = typeFilter == value,
+                onClick = { typeFilter = value },
+                label = { Text(label, style = MaterialTheme.typography.labelMedium) },
+                colors = neutralChipColors()
+            )
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
-        if (announcements.isEmpty()) {
+        if (shown.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📰", fontSize = 48.sp)
@@ -53,7 +70,7 @@ fun AdminAnnouncementsScreen() {
             }
         } else {
             LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(announcements) { announcement ->
+                items(shown) { announcement ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),

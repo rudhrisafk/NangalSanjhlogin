@@ -50,6 +50,11 @@ fun HomeScreen(
         selectedTab = 0
     }
 
+    if (showAIAssistant) {
+        AIAssistantDialog { showAIAssistant = false }
+        return
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -232,12 +237,6 @@ fun HomeScreen(
                 "admin" -> AdminContent(selectedTab, userName, onLogout)
                 else -> SeekerContent(selectedTab, userName, onLogout, onNavigate = { if (it == 2) showEmergency = true else selectedTab = it })
             }
-        }
-    }
-
-    if (showAIAssistant) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            AIAssistantDialog { showAIAssistant = false }
         }
     }
 

@@ -108,9 +108,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .imePadding()
+                    .safeDrawingPadding()
             ) {
 
                 // ── Header ───────────────────────────────────────

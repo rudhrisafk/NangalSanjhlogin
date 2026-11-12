@@ -107,7 +107,7 @@ fun SeekerHome(
                 Text(
                     "NAMASTE  ·  ਸਤ ਸ੍ਰੀ ਅਕਾਲ",
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color(0xFFFFB36B),
+                    color = Color(0xFFB8C7E6),
                     letterSpacing = 1.2.sp
                 )
                 Spacer(Modifier.height(Spacing.sm))
@@ -144,12 +144,19 @@ fun SeekerHome(
                     )
                 }
                 Spacer(Modifier.height(Spacing.md))
-                NSButton(
-                    text = "Post a job request",
+                androidx.compose.material3.Button(
                     onClick = { onNavigate(1) },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = Icons.Default.Add
-                )
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    shape = Radius.md,
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF0B1F3A)
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Post a job request", style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
 
@@ -159,7 +166,7 @@ fun SeekerHome(
                 SectionLabel("QUICK ACTIONS", "ਤੁਰੰਤ ਕਾਰਵਾਈ")
                 Spacer(Modifier.height(Spacing.md))
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md), modifier = Modifier.fillMaxWidth()) {
-                    QuickTile("Services", "ਸੇਵਾਵਾਂ", Icons.Default.Build, MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onNavigate(1) }
+                    QuickTile("Services", "ਸੇਵਾਵਾਂ", Icons.Default.Build, MaterialTheme.colorScheme.onSurface, Modifier.weight(1f)) { onNavigate(1) }
                     QuickTile("Complaints", "ਸ਼ਿਕਾਇਤ", Icons.Default.Report, Color(0xFF1F5FBF), Modifier.weight(1f)) { onNavigate(3) }
                 }
                 Spacer(Modifier.height(Spacing.md))
@@ -254,7 +261,7 @@ private fun StepRow(number: String, title: String, body: String) {
         Text(
             number,
             style = MaterialTheme.typography.titleLarge,
-            color = BrandOrangeDeep,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.width(Spacing.lg))
