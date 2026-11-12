@@ -82,7 +82,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
         } else if (complaints.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 NSEmptyState(
-                    emoji = "📋",
+                    icon = Icons.Default.Assignment,
                     title = "No complaints yet",
                     subtitle = "Be the first to report a civic issue",
                     actionText = if (userRole == "seeker") "Report Issue" else "",
@@ -104,7 +104,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
                     ) {
                         Text(
-                            "⏳ You can file your next complaint in ${hoursLeft}h",
+                            "You can file your next complaint in ${hoursLeft}h",
                             modifier = Modifier.padding(Spacing.md),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.error
@@ -205,10 +205,10 @@ fun RealComplaintCard(
         else -> NangalColors.Red
     }
 
-    val statusEmoji = when (complaint.status) {
-        "Resolved" -> "✅"
-        "In Review" -> "🔄"
-        else -> "🔴"
+    val statusIcon = when (complaint.status) {
+        "Resolved" -> Icons.Default.CheckCircle
+        "In Review" -> Icons.Default.Sync
+        else -> Icons.Default.ErrorOutline
     }
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
@@ -224,8 +224,8 @@ fun RealComplaintCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     NSAvatar(
-                        emoji = statusEmoji,
-                        size = 40.dp,
+                        icon = statusIcon,
+                        size = 44.dp,
                         color = statusColor
                     )
                     Spacer(modifier = Modifier.width(Spacing.md))
@@ -266,12 +266,12 @@ fun RealComplaintCard(
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("Mark In Review", style = MaterialTheme.typography.bodyMedium) },
-                                    leadingIcon = { Text("🔄", fontSize = 14.sp) },
+                                    leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     onClick = { selectedStatus = "In Review"; showMenu = false; showUpdateDialog = true }
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Mark Resolved", style = MaterialTheme.typography.bodyMedium) },
-                                    leadingIcon = { Text("✅", fontSize = 14.sp) },
+                                    leadingIcon = { Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     onClick = { selectedStatus = "Resolved"; showMenu = false; showUpdateDialog = true }
                                 )
                                 DropdownMenuItem(

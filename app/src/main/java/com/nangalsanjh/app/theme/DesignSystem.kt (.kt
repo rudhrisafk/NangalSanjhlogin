@@ -252,9 +252,10 @@ fun NSStatusBadge(
 // ── NS Avatar — gradient ring ──────────────────────────────────
 @Composable
 fun NSAvatar(
-    emoji: String,
+    emoji: String = "",
     size: Dp = 44.dp,
-    color: Color = MaterialTheme.colorScheme.primary
+    color: Color = MaterialTheme.colorScheme.primary,
+    icon: ImageVector? = null
 ) {
     Box(
         modifier = Modifier
@@ -264,7 +265,11 @@ fun NSAvatar(
             .border(1.dp, color.copy(alpha = 0.35f), Radius.md),
         contentAlignment = Alignment.Center
     ) {
-        Text(emoji, fontSize = (size.value * 0.45).sp)
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size((size.value * 0.5).dp))
+        } else {
+            Text(emoji, fontSize = (size.value * 0.45).sp)
+        }
     }
 }
 
@@ -305,7 +310,8 @@ fun NSDivider(modifier: Modifier = Modifier) {
 // ── NS Empty State ────────────────────────────────────────────
 @Composable
 fun NSEmptyState(
-    emoji: String,
+    emoji: String = "",
+    icon: ImageVector? = null,
     title: String,
     subtitle: String = "",
     actionText: String = "",
@@ -321,10 +327,14 @@ fun NSEmptyState(
             modifier = Modifier
                 .size(84.dp)
                 .clip(Radius.full)
-                .background(Brush.radialGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), Color.Transparent))),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Text(emoji, fontSize = 44.sp)
+            if (icon != null) {
+                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(40.dp))
+            } else {
+                Text(emoji, fontSize = 44.sp)
+            }
         }
         Spacer(modifier = Modifier.height(Spacing.lg))
         Text(

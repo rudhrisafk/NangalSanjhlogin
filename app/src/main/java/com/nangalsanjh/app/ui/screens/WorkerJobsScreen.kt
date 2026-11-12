@@ -128,7 +128,7 @@ fun WorkerJobsScreen() {
                 if (!withinHours) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(14.dp),
                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
                     ) {
                         Text(
@@ -177,14 +177,11 @@ fun WorkerJobsScreen() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("📭", fontSize = 48.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "No job requests for your category",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
-                }
+                EmptyBlock(
+                    icon = Icons.Default.Inbox,
+                    title = "No job requests for your category",
+                    subtitle = "New requests will show up here."
+                )
             }
         } else {
             LazyColumn(
@@ -221,10 +218,11 @@ fun JobRequestCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -251,7 +249,7 @@ fun JobRequestCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                "👤 ${post.userName}",
+                post.userName,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
@@ -260,7 +258,7 @@ fun JobRequestCard(
                 OutlinedButton(
                     onClick = onDecline,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Icon(
                         Icons.Default.Close,
@@ -273,7 +271,7 @@ fun JobRequestCard(
                 Button(
                     onClick = onAccept,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Icon(
                         Icons.Default.Call,

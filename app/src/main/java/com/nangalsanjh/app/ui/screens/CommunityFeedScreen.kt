@@ -153,7 +153,7 @@ fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
                             contentAlignment = Alignment.Center
                         ) {
                             NSEmptyState(
-                                emoji = "📰",
+                                icon = androidx.compose.material.icons.Icons.Default.Newspaper,
                                 title = "Nothing to show right now",
                                 subtitle = "Community news, ads, and emergency alerts will appear here"
                             )
@@ -1408,91 +1408,83 @@ fun JobDemandCard(
     val minutes = (remainingMs / 1000) / 60
     val seconds = (remainingMs / 1000) % 60
     val isUrgent = remainingMs < 2 * 60 * 1000
+    val cleanCategory = post.category.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { post.category }
+    val progress = (remainingMs.toFloat() / PostViewModel.JOB_ACCEPT_WINDOW_MS.toFloat()).coerceIn(0f, 1f)
+    val timerColor = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(Spacing.lg)) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        post.category,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        cleanCategory,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                     if (post.isOpenToAll) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Surface(
-                            shape = Radius.full,
-                            color = Color(0xFF1F5FBF).copy(alpha = 0.15f)
-                        ) {
-                            Text(
-                                "🌐 Broadcast",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                fontSize = 10.sp,
-                                color = Color(0xFF1F5FBF),
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        NSStatusBadge(text = "Broadcast", color = Color(0xFF1F5FBF))
                     }
                 }
                 Text(
                     timeAgo,
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                post.description,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                "👤 ${post.userName}",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            if (post.address.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    "📍 ${post.address}",
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Surface(
-                shape = Radius.md,
-                color = if (isUrgent)
-                    MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
-                else
-                    MaterialTheme.colorScheme.secondaryContainer
-            ) {
-                Text(
-                    "⏱️ Respond in ${minutes}:${seconds.toString().padStart(2, '0')}",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (isUrgent)
-                        MaterialTheme.colorScheme.error
-                    else
-                        MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                post.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(post.userName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (post.address.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(post.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Countdown
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Timer, contentDescription = null, tint = timerColor, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    "Respond in ${minutes}:${seconds.toString().padStart(2, '0')}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = timerColor
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth().height(6.dp).clip(Radius.full),
+                color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                trackColor = MaterialTheme.colorScheme.secondaryContainer
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NSOutlinedButton(
