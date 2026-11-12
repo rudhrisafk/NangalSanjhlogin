@@ -97,8 +97,14 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Spacer(Modifier.height(14.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .glass(RoundedCornerShape(14.dp))
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
                     Column {
                         Text(
                             completedJobs.size.toString(),

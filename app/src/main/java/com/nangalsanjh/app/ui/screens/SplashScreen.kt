@@ -25,18 +25,18 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
     val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 900, easing = EaseOut),
+        animationSpec = tween(durationMillis = 450, easing = EaseOut),
         label = "alpha",
     )
     val translateY by animateFloatAsState(
         targetValue = if (startAnimation) 0f else 24f,
-        animationSpec = tween(durationMillis = 900, easing = EaseOut),
+        animationSpec = tween(durationMillis = 450, easing = EaseOut),
         label = "translateY",
     )
 
     LaunchedEffect(Unit) {
         startAnimation = true
-        delay(2400.milliseconds)
+        delay(600.milliseconds)
         onSplashComplete()
     }
 

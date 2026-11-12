@@ -17,20 +17,15 @@
         android:theme="@style/Theme.NangalSeva">
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.NangalSeva.Splash">
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.NangalSeva">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.NangalSeva" />
 
         <service
             android:name=".data.MyFirebaseMessagingService"

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.NangalSeva" parent="Theme.AppCompat.Light.NoActionBar" />
+    <style name="Theme.NangalSeva" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- White window so the first frame matches the in-app splash (no black flash) -->
+        <item name="android:windowBackground">@color/white</item>
+    </style>
 
     <style name="Theme.NangalSeva.Splash" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/white</item>

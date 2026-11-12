@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nangalsanjh.app.ui.screens.AdminPasscodeScreen
 import com.nangalsanjh.app.ui.screens.HomeScreen
@@ -55,7 +56,10 @@ fun NangalSevaNavHost(themeViewModel: ThemeViewModel) {
     var existingBloodGroup by remember { mutableStateOf("") }
 
     // Login Persistence
-    var startDestination by remember { mutableStateOf(Screen.Splash.route) }
+    var startDestination by remember { mutableStateOf(Screen.Login.route) }
+    // Splash animation plays while the auth check runs; both must finish before we continue
+    var minSplashDone by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { delay(650); minSplashDone = true }
     var isCheckingAuth by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
@@ -81,7 +85,7 @@ fun NangalSevaNavHost(themeViewModel: ThemeViewModel) {
         }
     }
 
-    if (isCheckingAuth) {
+    if (isCheckingAuth || !minSplashDone) {
         SplashScreen { }
         return
     }

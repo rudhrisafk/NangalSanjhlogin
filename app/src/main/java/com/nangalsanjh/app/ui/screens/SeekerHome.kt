@@ -101,7 +101,11 @@ fun SeekerHome(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(Radius.xxl)
-                    .background(ink)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            listOf(ink, Color(0xFF173B6B))
+                        )
+                    )
                     .padding(Spacing.xl)
             ) {
                 Text(
@@ -129,18 +133,17 @@ fun SeekerHome(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 52.dp)
-                        .clip(Radius.md)
-                        .background(Color.White)
+                        .glass(Radius.md, fillAlpha = 0.16f)
                         .clickable(onClickLabel = "Search services") { onNavigate(1) }
                         .padding(horizontal = Spacing.lg),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF55627A))
+                    Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.85f))
                     Spacer(Modifier.width(Spacing.md))
                     Text(
                         "Plumber, electrician, tutor…",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF55627A)
+                        color = Color.White.copy(alpha = 0.85f)
                     )
                 }
                 Spacer(Modifier.height(Spacing.md))
@@ -149,8 +152,8 @@ fun SeekerHome(
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                     shape = Radius.md,
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF0B1F3A)
+                        containerColor = Color(0xFFE8590C),
+                        contentColor = Color.White
                     )
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))

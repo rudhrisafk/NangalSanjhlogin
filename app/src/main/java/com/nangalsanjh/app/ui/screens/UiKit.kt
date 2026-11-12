@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -124,3 +125,33 @@ fun EmptyBlock(
         }
     }
 }
+
+
+/**
+ * Glassmorphism for dark/gradient backgrounds: translucent white fill plus a
+ * soft light border. Use only on top of a coloured surface (hero, splash) so the
+ * "frosted" effect is actually visible.
+ */
+fun Modifier.glass(
+    shape: androidx.compose.ui.graphics.Shape,
+    fillAlpha: Float = 0.14f,
+    borderAlpha: Float = 0.28f
+): Modifier = this
+    .clip(shape)
+    .background(
+        androidx.compose.ui.graphics.Brush.verticalGradient(
+            listOf(
+                Color.White.copy(alpha = fillAlpha + 0.06f),
+                Color.White.copy(alpha = fillAlpha)
+            )
+        )
+    )
+    .border(
+        androidx.compose.foundation.BorderStroke(
+            1.dp,
+            androidx.compose.ui.graphics.Brush.verticalGradient(
+                listOf(Color.White.copy(alpha = borderAlpha + 0.12f), Color.White.copy(alpha = borderAlpha * 0.4f))
+            )
+        ),
+        shape
+    )
