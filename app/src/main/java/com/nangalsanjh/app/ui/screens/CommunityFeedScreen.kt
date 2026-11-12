@@ -476,14 +476,14 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp)
-                .background(MaterialTheme.colorScheme.surface),
+                .background(MaterialTheme.colorScheme.background),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Fixed label chip
             Row(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.onBackground)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -497,7 +497,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
                     "NEWS",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.background,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     letterSpacing = 1.2.sp
                 )
             }
@@ -525,7 +525,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
                 )
             }
         }
-        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
