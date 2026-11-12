@@ -281,7 +281,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                Column(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -448,38 +448,38 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (showBloodDonors) {
-                            IconButton(onClick = { showBloodDonors = false }) {
-                                Icon(
-                                    Icons.Default.ArrowBack, null,
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.width(48.dp))
-                        }
-                        IconButton(onClick = {
-                            showEmergency = false
-                            showBloodDonors = false
-                        }) {
-                            Icon(
-                                Icons.Default.Close, null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+                        )
+                ) {
                     if (showBloodDonors) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { showBloodDonors = false }) {
+                                Icon(Icons.Default.ArrowBack, "Back", tint = MaterialTheme.colorScheme.onSurface)
+                            }
+                            IconButton(onClick = {
+                                showEmergency = false
+                                showBloodDonors = false
+                            }) {
+                                Icon(Icons.Default.Close, "Close", tint = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
                         BloodDonorsScreen(userRole = activeRole)
                     } else {
-                        EmergencyScreen(onBloodDonors = { showBloodDonors = true })
+                        EmergencyScreen(
+                            onBloodDonors = { showBloodDonors = true },
+                            onClose = { showEmergency = false }
+                        )
                     }
                 }
             }
