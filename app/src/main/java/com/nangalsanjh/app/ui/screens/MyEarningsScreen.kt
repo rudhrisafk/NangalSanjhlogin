@@ -2,6 +2,7 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,11 +10,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,9 +43,11 @@ fun MyEarningsScreen(onBack: () -> Unit) {
     val thisMonthJobs = remember(completedJobs) {
         val cal = java.util.Calendar.getInstance()
         val currentMonth = cal.get(java.util.Calendar.MONTH)
+        val currentYear = cal.get(java.util.Calendar.YEAR)
         completedJobs.filter {
             val jobCal = java.util.Calendar.getInstance().apply { timeInMillis = it.timeStamp }
-            jobCal.get(java.util.Calendar.MONTH) == currentMonth
+            jobCal.get(java.util.Calendar.MONTH) == currentMonth &&
+                jobCal.get(java.util.Calendar.YEAR) == currentYear
         }
     }
     val avgRating = remember(completedJobs) {
@@ -47,51 +55,160 @@ fun MyEarningsScreen(onBack: () -> Unit) {
         if (rated.isEmpty()) 0f else rated.map { it.feedbackRating }.average().toFloat()
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-            Text("My Earnings", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .safeDrawingPadding()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                StatCard(count = "₹$totalEarnings", label = "Total Earned", emoji = "💰")
-                StatCard(count = completedJobs.size.toString(), label = "Jobs Done", emoji = "✅")
-                StatCard(count = thisMonthJobs.size.toString(), label = "This Month", emoji = "📅")
-            }
-        }
-        if (avgRating > 0f) {
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.Center) {
-                Text("⭐ Average rating: %.1f".format(avgRating), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
+            Column {
+                Text(
+                    "WORKER · ਕਮਾਈ",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.2.sp
+                )
+                Text("My earnings", fontWeight = FontWeight.Bold, fontSize = 20.sp)
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Summary card
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.primary
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    "Total earned",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
+                )
+                Text(
+                    "₹$totalEarnings",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Column {
+                        Text(
+                            completedJobs.size.toString(),
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text("Jobs done", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                    }
+                    Column {
+                        Text(
+                            thisMonthJobs.size.toString(),
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text("This month", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                    }
+                    if (avgRating > 0f) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Star, null,
+                                    tint = Color(0xFFF59F00),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(3.dp))
+                                Text(
+                                    "%.1f".format(avgRating),
+                                    fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                            Text("Avg rating", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
 
         if (completedJobs.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No completed jobs yet", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                EmptyBlock(
+                    icon = Icons.Default.AccountBalanceWallet,
+                    title = "No completed jobs yet",
+                    subtitle = "Finished jobs and their fees will show up here."
+                )
             }
         } else {
-            LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 items(completedJobs) { job ->
-                    Card(
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column {
-                                Text(job.category, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                Text("👤 ${job.userName}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    job.category.substringAfter(' '),
+                                    fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Person, null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        job.userName,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
+                            Spacer(Modifier.width(8.dp))
                             Column(horizontalAlignment = Alignment.End) {
-                                if (job.price.isNotEmpty()) Text("💰 ${job.price}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                if (job.rated) Text("⭐ ${job.feedbackRating}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                if (job.price.isNotEmpty()) {
+                                    Text(
+                                        job.price,
+                                        fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF138A4B),
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                if (job.rated) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.Default.Star, null,
+                                            tint = Color(0xFFF59F00),
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                        Spacer(Modifier.width(3.dp))
+                                        Text(
+                                            "${job.feedbackRating}",
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

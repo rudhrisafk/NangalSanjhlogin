@@ -2,14 +2,18 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -79,10 +83,13 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
     fun priceValue(price: String): Int = price.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
     val totalEarned = remember(completedJobs) { completedJobs.sumOf { priceValue(it.price) } }
 
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-            Text("Worker Details", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding()) {
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
+            Column {
+                Text("ADMIN · ਵਰਕਰ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.2.sp)
+                Text("Worker details", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            }
         }
 
         val p = profile
@@ -92,81 +99,96 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
             }
         } else {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-                Card(
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column {
-                                Text(p.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                Text(p.category, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
-                            }
-                            Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = if (p.isBlocked) MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                                else if (p.isAvailable) Color(0xFF138A4B).copy(alpha = 0.15f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier.size(52.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
                             ) {
+                                Text(
+                                    p.name.trim().take(1).uppercase().ifEmpty { "?" },
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontWeight = FontWeight.Bold, fontSize = 22.sp
+                                )
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(p.name, fontWeight = FontWeight.Bold, fontSize = 18.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(p.category.substringAfter(' '), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            val green = Color(0xFF138A4B)
+                            val badgeColor = if (p.isBlocked) MaterialTheme.colorScheme.error else if (p.isAvailable) green else MaterialTheme.colorScheme.onSurfaceVariant
+                            Surface(shape = RoundedCornerShape(20.dp), color = badgeColor.copy(alpha = 0.12f)) {
                                 Text(
                                     if (p.isBlocked) "Blocked" else if (p.isAvailable) "Online" else "Offline",
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                    fontSize = 11.sp,
-                                    color = if (p.isBlocked) MaterialTheme.colorScheme.error else if (p.isAvailable) Color(0xFF138A4B) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                    fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = badgeColor
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("📞 ${p.phone}", fontSize = 13.sp)
-                        if (p.address.isNotEmpty()) Text("📍 ${p.address}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                        if (p.experience.isNotEmpty()) Text("🛠️ ${p.experience} years experience", fontSize = 13.sp)
-                        if (p.aadhar.isNotEmpty()) Text("🆔 Aadhar: ${p.aadhar}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                        Spacer(modifier = Modifier.height(14.dp))
+                        AdminInfoRow(Icons.Default.Phone, p.phone)
+                        if (p.address.isNotEmpty()) AdminInfoRow(Icons.Default.LocationOn, p.address)
+                        if (p.experience.isNotEmpty()) AdminInfoRow(Icons.Default.Build, "${p.experience} years experience")
+                        if (p.aadhar.isNotEmpty()) AdminInfoRow(Icons.Default.Badge, "Aadhar: ${p.aadhar}")
                         if (p.about.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(p.about, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                            Text(p.about, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            AdminDetailStatCard(count = "%.1f".format(p.rating), label = "Rating", emoji = "⭐")
-                            AdminDetailStatCard(count = p.jobsDone.toString(), label = "Jobs Done", emoji = "✅")
-                            AdminDetailStatCard(count = "₹$totalEarned", label = "Total Fees", emoji = "💰")
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            AdminDetailStatCard(Modifier.weight(1f), "%.1f".format(p.rating), "Rating", Icons.Default.Star)
+                            AdminDetailStatCard(Modifier.weight(1f), p.jobsDone.toString(), "Jobs done", Icons.Default.CheckCircle)
+                            AdminDetailStatCard(Modifier.weight(1f), "₹$totalEarned", "Total fees", Icons.Default.AccountBalanceWallet)
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
                         if (p.isBlocked) {
                             Button(
                                 onClick = { db.collection("users").document(workerUid).update("isBlocked", false) },
-                                modifier = Modifier.fillMaxWidth()
-                            ) { Text("Unblock Worker") }
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) { Text("Unblock worker", fontWeight = FontWeight.Bold) }
                         } else {
                             OutlinedButton(
                                 onClick = { db.collection("users").document(workerUid).update("isBlocked", true) },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                            ) { Text("Block Worker") }
+                            ) { Text("Block worker", fontWeight = FontWeight.Bold) }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Job History & Fee Slips", fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
+                Text("Job history & fee slips", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(bottom = 10.dp))
 
                 if (completedJobs.isEmpty()) {
-                    Text("No completed jobs yet", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text("No completed jobs yet", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     completedJobs.forEach { job ->
-                        Card(
+                        Surface(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            shape = RoundedCornerShape(18.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(job.category, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                    Text(job.category.substringAfter(' '), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                                     Text(getTimeAgo(job.timeStamp), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("👤 ${job.userName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                                if (job.price.isNotEmpty()) Text("💰 Fee: ${job.price}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Customer: ${job.userName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (job.price.isNotEmpty()) Text("Fee: ${job.price}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 if (job.rated) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(13.dp))
@@ -211,20 +233,26 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun AdminDetailStatCard(count: String, label: String, emoji: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(emoji, fontSize = 20.sp)
+private fun AdminInfoRow(icon: ImageVector, text: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun AdminDetailStatCard(modifier: Modifier, count: String, label: String, icon: ImageVector) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f))
+            .padding(vertical = 12.dp, horizontal = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            count,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            label,
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
+        Text(count, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
+        Text(label, fontSize = 11.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

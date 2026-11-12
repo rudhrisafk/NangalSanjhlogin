@@ -3,11 +3,12 @@
 package com.nangalsanjh.app.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,81 +55,80 @@ fun WorkerCategoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
         Text(
-            text = "Your Work Details",
-            fontSize = 26.sp,
+            "WORKER SETUP · ਕੰਮ ਦੀ ਜਾਣਕਾਰੀ",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            letterSpacing = 1.2.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Your work details",
+            fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
-            text = "Tell us about your services",
+            "Pick what you do. Seekers will find you by this.",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(Modifier.height(24.dp))
 
-        Text(
-            "Select Category",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.align(Alignment.Start)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.height(500.dp)
-        ) {
-            items(workerCategories) { category ->
-                val isSelected = selectedCategory == category
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(72.dp)
-                        .clickable { selectedCategory = category },
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(
-                        width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                    ),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected)
-                            MaterialTheme.colorScheme.secondaryContainer
-                        else
-                            MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = category,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(8.dp)
+        // Non-lazy 2-column grid so the page scrolls as one and nothing is clipped
+        workerCategories.chunked(2).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                row.forEach { category ->
+                    val isSelected = selectedCategory == category
+                    Surface(
+                        onClick = { selectedCategory = category },
+                        modifier = Modifier.weight(1f).heightIn(min = 60.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                        else MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(
+                            if (isSelected) 1.5.dp else 1.dp,
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.outlineVariant
                         )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            if (isSelected) {
+                                Icon(
+                                    Icons.Default.CheckCircle, null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(6.dp))
+                            }
+                            Text(
+                                text = category.substringAfter(' '),
+                                fontSize = 14.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
             }
+            Spacer(Modifier.height(12.dp))
         }
 
         if (isOther) {
@@ -140,7 +140,7 @@ fun WorkerCategoryScreen(
                 placeholder = { Text("Eg. AC Repair, DJ Services...") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp)
             )
         }
 
@@ -154,7 +154,7 @@ fun WorkerCategoryScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
@@ -169,7 +169,7 @@ fun WorkerCategoryScreen(
             placeholder = { Text("Eg. ₹500/day or ₹200/hour") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
@@ -184,7 +184,7 @@ fun WorkerCategoryScreen(
             placeholder = { Text("Describe your skills and experience...") },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
@@ -200,7 +200,7 @@ fun WorkerCategoryScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
@@ -208,9 +208,9 @@ fun WorkerCategoryScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            "🔒 Aadhar details are stored securely for verification only",
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+            "Aadhar details are stored securely for verification only",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -222,11 +222,11 @@ fun WorkerCategoryScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .height(56.dp),
             enabled = selectedCategory.isNotEmpty() &&
                     (!isOther || customCategory.isNotBlank()) &&
                     !isLoading,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -234,7 +234,7 @@ fun WorkerCategoryScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Save & Continue →", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Save & Continue", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 

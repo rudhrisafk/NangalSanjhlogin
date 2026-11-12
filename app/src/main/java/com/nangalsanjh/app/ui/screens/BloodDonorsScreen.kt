@@ -251,10 +251,10 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         onValueChange = {},
                         readOnly = true,
                         leadingIcon = {
-                            Text(
-                                "🩸",
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(start = 4.dp)
+                            Icon(
+                                Icons.Default.WaterDrop, null,
+                                tint = Color(0xFFB3101B),
+                                modifier = Modifier.size(18.dp)
                             )
                         },
                         trailingIcon = {
@@ -327,7 +327,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                                 color = Color(0xFFB3101B).copy(alpha = 0.12f)
                             ) {
                                 Text(
-                                    "📞 $searchPhone",
+                                    "Phone: $searchPhone",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                     fontSize = 11.sp,
                                     color = Color(0xFFB3101B)
@@ -340,7 +340,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                                 color = Color(0xFFB3101B).copy(alpha = 0.12f)
                             ) {
                                 Text(
-                                    "🩸 $selectedBloodGroup",
+                                    "Blood: $selectedBloodGroup",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                     fontSize = 11.sp,
                                     color = Color(0xFFB3101B)
@@ -403,7 +403,11 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
         } else if (filtered.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🩸", fontSize = 48.sp)
+                    Icon(
+                        Icons.Default.WaterDrop, null,
+                        tint = Color(0xFFB3101B).copy(alpha = 0.5f),
+                        modifier = Modifier.size(48.dp)
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         if (searchPhone.isNotEmpty())
@@ -515,11 +519,11 @@ fun BloodDonorCard(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    Card(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier
@@ -530,14 +534,14 @@ fun BloodDonorCard(
             // Blood Group Badge
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFFB3101B).copy(alpha = 0.15f),
-                modifier = Modifier.size(56.dp)
+                color = Color(0xFFB3101B).copy(alpha = 0.10f),
+                modifier = Modifier.size(52.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         donor.bloodGroup,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        fontWeight = FontWeight.Bold,
                         color = Color(0xFFB3101B)
                     )
                 }
@@ -550,20 +554,34 @@ fun BloodDonorCard(
                     donor.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    "📞 ${donor.phone}",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-                if (donor.area.isNotEmpty()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Call, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
+                    Spacer(Modifier.width(4.dp))
                     Text(
-                        "📍 ${donor.area}",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        donor.phone,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
+                }
+                if (donor.area.isNotEmpty()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            donor.area,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
 
@@ -644,7 +662,7 @@ fun AdminEditDonorDialog(
         onDismissRequest = onDismiss,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("🩸", fontSize = 20.sp)
+                Icon(Icons.Default.WaterDrop, null, tint = Color(0xFFB3101B), modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Edit Donor — Admin", fontWeight = FontWeight.Bold)
             }
@@ -761,7 +779,7 @@ fun RegisterDonorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("🩸 Register as Donor", fontWeight = FontWeight.Bold) },
+        title = { Text("Register as donor", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
