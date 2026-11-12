@@ -90,7 +90,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
                 )
                 Text(
-                    "₹$totalEarnings",
+                    "₹${animatedInt(totalEarnings)}",
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary,

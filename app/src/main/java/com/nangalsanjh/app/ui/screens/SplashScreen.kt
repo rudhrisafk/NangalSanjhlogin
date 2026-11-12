@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,7 +44,15 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .aurora(
+                listOf(
+                    Color(0xFF3A7BFF).copy(alpha = 0.16f),
+                    Color(0xFF8E5BFF).copy(alpha = 0.12f),
+                    Color(0xFF19C3B1).copy(alpha = 0.12f)
+                ),
+                periodMs = 6000
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(

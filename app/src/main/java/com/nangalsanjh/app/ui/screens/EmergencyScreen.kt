@@ -115,7 +115,7 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        modifier = Modifier.size(52.dp).clip(CircleShape).background(Color.White),
+                        modifier = Modifier.size(52.dp).pulseRing(Color.White).clip(CircleShape).background(Color.White),
                         contentAlignment = Alignment.Center
                     ) { Icon(Icons.Default.Call, null, tint = SosRed, modifier = Modifier.size(26.dp)) }
                     Spacer(Modifier.width(14.dp))

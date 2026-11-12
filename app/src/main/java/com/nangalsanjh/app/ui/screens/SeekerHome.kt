@@ -106,6 +106,13 @@ fun SeekerHome(
                             listOf(ink, Color(0xFF173B6B))
                         )
                     )
+                    .aurora(
+                        listOf(
+                            Color(0xFF3A7BFF).copy(alpha = 0.38f),
+                            Color(0xFF8E5BFF).copy(alpha = 0.26f),
+                            Color(0xFF19C3B1).copy(alpha = 0.22f)
+                        )
+                    )
                     .padding(Spacing.xl)
             ) {
                 Text(
@@ -149,7 +156,7 @@ fun SeekerHome(
                 Spacer(Modifier.height(Spacing.md))
                 androidx.compose.material3.Button(
                     onClick = { onNavigate(1) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).clip(Radius.md).shimmerSweep(),
                     shape = Radius.md,
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE8590C),

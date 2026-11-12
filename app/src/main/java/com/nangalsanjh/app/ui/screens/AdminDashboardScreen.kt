@@ -208,7 +208,7 @@ fun DashboardStatCard(label: String, count: String, icon: ImageVector, modifier:
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Text(count, style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(count.toIntOrNull()?.let { animatedInt(it).toString() } ?: count, style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onSurface)
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
