@@ -7,7 +7,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -87,6 +101,18 @@ fun NSCard(
     }
 }
 
+/** Springy press feedback: shrinks while pressed, bounces back on release. */
+@Composable
+fun rememberPressScale(source: MutableInteractionSource, pressedScale: Float = 0.95f): Float {
+    val pressed by source.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) pressedScale else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        label = "pressScale"
+    )
+    return scale
+}
+
 // ── NS Button — signature gradient fill with glow ────────────
 @Composable
 fun NSButton(
@@ -98,8 +124,12 @@ fun NSButton(
     leadingIcon: ImageVector? = null
 ) {
     val isActive = enabled && !isLoading
+    val source = remember { MutableInteractionSource() }
+    val pressScale = rememberPressScale(source)
+    val haptic = LocalHapticFeedback.current
     Box(
         modifier = modifier
+            .scale(pressScale)
             .height(54.dp)
             .clip(Radius.md)
             .then(
@@ -110,8 +140,12 @@ fun NSButton(
             )
     ) {
         androidx.compose.material3.TextButton(
-            onClick = onClick,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick()
+            },
             enabled = isActive,
+            interactionSource = source,
             modifier = Modifier.fillMaxSize(),
             shape = Radius.md,
             colors = ButtonDefaults.textButtonColors(
@@ -119,23 +153,31 @@ fun NSButton(
                 disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
             )
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                if (leadingIcon != null) {
-                    Icon(leadingIcon, null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(Spacing.sm))
+            AnimatedContent(
+                targetState = isLoading,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "buttonContent"
+            ) { loading ->
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (leadingIcon != null) {
+                            Icon(leadingIcon, null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(Spacing.sm))
+                        }
+                        Text(
+                            text,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
-                Text(
-                    text,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
             }
         }
     }
@@ -149,9 +191,16 @@ fun NSOutlinedButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
+    val source = remember { MutableInteractionSource() }
+    val pressScale = rememberPressScale(source)
+    val haptic = LocalHapticFeedback.current
     OutlinedButton(
-        onClick = onClick,
-        modifier = modifier.height(54.dp),
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onClick()
+        },
+        interactionSource = source,
+        modifier = modifier.scale(pressScale).height(54.dp),
         enabled = enabled,
         shape = Radius.md,
         colors = ButtonDefaults.outlinedButtonColors(
