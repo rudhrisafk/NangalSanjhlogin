@@ -3,6 +3,7 @@ package com.nangalsanjh.app.ui.screens
 import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -127,13 +128,6 @@ fun ProfileScreen(
                         listOf(com.nangalsanjh.app.theme.InkOnLight, Color(0xFF173B6B))
                     )
                 )
-                .aurora(
-                    listOf(
-                        Color(0xFF3A7BFF).copy(alpha = 0.38f),
-                        Color(0xFF8E5BFF).copy(alpha = 0.26f),
-                        Color(0xFF19C3B1).copy(alpha = 0.22f)
-                    )
-                )
                 .padding(vertical = 24.dp, horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -142,14 +136,7 @@ fun ProfileScreen(
             color = Color.White,
             modifier = Modifier
                 .size(96.dp)
-                .spinningRing(
-                    listOf(
-                        androidx.compose.ui.graphics.Color(0xFF3A7BFF),
-                        androidx.compose.ui.graphics.Color(0xFF8E5BFF),
-                        androidx.compose.ui.graphics.Color(0xFF19C3B1)
-                    ),
-                    periodMs = 5000
-                )
+                .border(2.dp, Color.White.copy(alpha = 0.45f), RoundedCornerShape(50.dp))
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(

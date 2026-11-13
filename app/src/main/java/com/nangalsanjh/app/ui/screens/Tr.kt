@@ -26,6 +26,10 @@ object TrData {
         // ── App title sub-text (follows the selected language) ──
         E("ਨੰਗਲ ਸੇਵਾ", "नंगल सेवा", "ਨੰਗਲ ਸੇਵਾ"),
 
+        E("Reported", "दर्ज", "ਦਰਜ"),
+        E("In Review", "समीक्षा में", "ਸਮੀਖਿਆ ਵਿੱਚ"),
+        E("Resolved", "हल हुई", "ਹੱਲ ਹੋਈ"),
+
         // ── Home / settings ──
         E("Complete Your Profile", "अपनी प्रोफ़ाइल पूरी करें", "ਆਪਣੀ ਪ੍ਰੋਫਾਈਲ ਪੂਰੀ ਕਰੋ"),
         E("Your profile isn't set up yet. Complete it to get the most out of Nangal Seva.", "आपकी प्रोफ़ाइल अभी सेट नहीं है। नंगल सेवा का पूरा लाभ लेने के लिए इसे पूरा करें।", "ਤੁਹਾਡੀ ਪ੍ਰੋਫਾਈਲ ਅਜੇ ਸੈੱਟ ਨਹੀਂ ਹੈ। ਨੰਗਲ ਸੇਵਾ ਦਾ ਪੂਰਾ ਲਾਭ ਲੈਣ ਲਈ ਇਸਨੂੰ ਪੂਰਾ ਕਰੋ।"),

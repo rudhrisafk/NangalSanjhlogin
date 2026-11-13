@@ -72,9 +72,8 @@ fun HomeScreen(
                         Column {
                             Text(
                                 "Nangal Seva",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    brush = flowingTitleBrush(MaterialTheme.colorScheme.onBackground)
-                                ),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(

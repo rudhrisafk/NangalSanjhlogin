@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -317,6 +319,9 @@ fun RealComplaintCard(
                 Text(complaint.location, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
+            Spacer(modifier = Modifier.height(Spacing.md))
+            ComplaintTimeline(complaint.status, statusColor)
+
             if (complaint.departmentUpdate.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(Spacing.md))
                 NSDivider()
@@ -553,4 +558,38 @@ fun NewComplaintDialog(
         },
         dismissButton = { NSOutlinedButton(text = tr("Cancel"), onClick = onDismiss, modifier = Modifier.fillMaxWidth()) }
     )
+}
+
+/** Reported → In Review → Resolved progress line. */
+@Composable
+private fun ComplaintTimeline(status: String, color: Color) {
+    val reached = when (status) { "Resolved" -> 3; "In Review" -> 2; else -> 1 }
+    val steps = listOf("Reported", "In Review", "Resolved")
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            steps.forEachIndexed { i, _ ->
+                val on = i < reached
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(if (on) color else MaterialTheme.colorScheme.outlineVariant)
+                )
+                if (i < steps.lastIndex) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(2.dp)
+                            .background(if (i + 1 < reached) color else MaterialTheme.colorScheme.outlineVariant)
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            steps.forEach {
+                Text(tr(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
 }
