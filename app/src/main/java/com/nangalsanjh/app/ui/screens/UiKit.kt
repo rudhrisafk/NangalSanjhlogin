@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nangalsanjh.app.theme.Radius
@@ -177,3 +178,28 @@ fun Modifier.glass(
         ),
         shape
     )
+
+/**
+ * Status accent for cards: a soft corner glow plus a slim bar on the left edge.
+ * [pulse] makes the glow breathe (use for urgent items).
+ */
+@androidx.compose.runtime.Composable
+fun Modifier.accentGlow(color: Color, pulse: Boolean = false): Modifier {
+    val k = if (pulse) breathing(to = 2f, periodMs = 1100) - 1f else 0f
+    return this.drawBehind {
+        val a = if (pulse) 0.10f + 0.12f * k else 0.14f
+        drawRect(
+            androidx.compose.ui.graphics.Brush.radialGradient(
+                colors = listOf(color.copy(alpha = a), Color.Transparent),
+                center = androidx.compose.ui.geometry.Offset(0f, 0f),
+                radius = size.width * 0.8f
+            )
+        )
+        drawRect(
+            androidx.compose.ui.graphics.Brush.verticalGradient(
+                listOf(color, color.copy(alpha = 0.25f))
+            ),
+            size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height)
+        )
+    }
+}

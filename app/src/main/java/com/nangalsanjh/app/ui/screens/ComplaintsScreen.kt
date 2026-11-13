@@ -213,7 +213,7 @@ fun RealComplaintCard(
     }
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+        Column(modifier = Modifier.accentGlow(statusColor, pulse = complaint.status == "Pending").padding(Spacing.lg)) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

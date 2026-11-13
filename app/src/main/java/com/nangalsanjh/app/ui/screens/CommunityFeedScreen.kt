@@ -1427,7 +1427,7 @@ fun JobDemandCard(
     val timerColor = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+        Column(modifier = Modifier.accentGlow(if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, pulse = isUrgent).padding(Spacing.lg)) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1494,7 +1494,7 @@ fun JobDemandCard(
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth().height(6.dp).clip(Radius.full),
-                color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.secondaryContainer
             )
 
