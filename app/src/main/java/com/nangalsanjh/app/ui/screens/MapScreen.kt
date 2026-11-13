@@ -196,7 +196,7 @@ fun MapScreen(userRole: String = "seeker") {
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("On the way to customer", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text(tr("On the way to customer"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text("Customer: ${activeJob.userName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                         if (activeJob.address.isNotEmpty()) {
@@ -217,13 +217,13 @@ fun MapScreen(userRole: String = "seeker") {
                             ) {
                                 Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Call", fontSize = 13.sp)
+                                Text(tr("Call"), fontSize = 13.sp)
                             }
                             OutlinedButton(
                                 onClick = { showCompleteDialog = true },
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(14.dp)
-                            ) { Text("Mark Complete", fontSize = 13.sp) }
+                            ) { Text(tr("Mark Complete"), fontSize = 13.sp) }
                         }
                     }
                 }
@@ -239,12 +239,12 @@ fun MapScreen(userRole: String = "seeker") {
                         Icon(Icons.Default.Map, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "No active job right now",
+                            tr("No active job right now"),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                         Text(
-                            "Accept a job to see the customer's exact location here",
+                            tr("Accept a job to see the customer's exact location here"),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                             textAlign = TextAlign.Center
@@ -261,7 +261,7 @@ fun MapScreen(userRole: String = "seeker") {
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Worker on the way", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(tr("Worker on the way"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(6.dp))
                     Text("Worker: ${activeJob.assignedWorkerName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(10.dp))
@@ -277,7 +277,7 @@ fun MapScreen(userRole: String = "seeker") {
                     ) {
                         Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Call Worker", fontSize = 13.sp)
+                        Text(tr("Call Worker"), fontSize = 13.sp)
                     }
                 }
             }
@@ -308,7 +308,7 @@ fun MapScreen(userRole: String = "seeker") {
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(visibleComplaints.size.toString(), fontWeight = FontWeight.Bold, fontSize = 22.sp, color = MaterialTheme.colorScheme.background)
-                        Text("Total", fontSize = 10.sp, color = MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
+                        Text(tr("Total"), fontSize = 10.sp, color = MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
                     }
                 }
             }
@@ -331,7 +331,7 @@ fun MapScreen(userRole: String = "seeker") {
                         )
                         if (userRole != "admin") {
                             Text(
-                                "Submit a complaint with GPS location to see it here",
+                                tr("Submit a complaint with GPS location to see it here"),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 textAlign = TextAlign.Center
@@ -388,7 +388,7 @@ fun MapScreen(userRole: String = "seeker") {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = { selectedComplaint = null }, modifier = Modifier.align(Alignment.End)) {
-                        Text("Close")
+                        Text(tr("Close"))
                     }
                 }
             }
@@ -413,15 +413,15 @@ fun CompleteJobDialog(onDismiss: () -> Unit, onSubmit: (String, String) -> Unit)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Mark Job Complete", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("Mark Job Complete"), fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text("Add before/after photos as proof of work (optional)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(tr("Add before/after photos as proof of work (optional)"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
                     value = beforeUrl,
                     onValueChange = { beforeUrl = it },
-                    label = { Text("Before Photo URL") },
+                    label = { Text(tr("Before Photo URL")) },
                     placeholder = { Text("https://...") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -430,7 +430,7 @@ fun CompleteJobDialog(onDismiss: () -> Unit, onSubmit: (String, String) -> Unit)
                 OutlinedTextField(
                     value = afterUrl,
                     onValueChange = { afterUrl = it },
-                    label = { Text("After Photo URL") },
+                    label = { Text(tr("After Photo URL")) },
                     placeholder = { Text("https://...") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -438,9 +438,9 @@ fun CompleteJobDialog(onDismiss: () -> Unit, onSubmit: (String, String) -> Unit)
             }
         },
         confirmButton = {
-            Button(onClick = { onSubmit(beforeUrl.trim(), afterUrl.trim()) }) { Text("Mark Complete") }
+            Button(onClick = { onSubmit(beforeUrl.trim(), afterUrl.trim()) }) { Text(tr("Mark Complete")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }
 

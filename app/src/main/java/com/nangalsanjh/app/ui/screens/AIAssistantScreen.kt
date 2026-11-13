@@ -199,7 +199,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                                 Text(
-                                    "TRY ASKING  ·  ਪੁੱਛ ਕੇ ਦੇਖੋ",
+                                    tr("TRY ASKING  ·  ਪੁੱਛ ਕੇ ਦੇਖੋ"),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     letterSpacing = 1.2.sp
@@ -254,7 +254,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                             onValueChange = { inputText = it },
                             placeholder = {
                                 Text(
-                                    "Ask anything about Nangal…",
+                                    tr("Ask anything about Nangal…"),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

@@ -68,12 +68,12 @@ fun MyEarningsScreen(onBack: () -> Unit) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
             Column {
                 Text(
-                    "WORKER · ਕਮਾਈ",
+                    tr("WORKER · ਕਮਾਈ"),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 1.2.sp
                 )
-                Text("My earnings", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(tr("My earnings"), fontWeight = FontWeight.Bold, fontSize = 20.sp)
             }
         }
 
@@ -85,7 +85,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
-                    "Total earned",
+                    tr("Total earned"),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
                 )
@@ -111,7 +111,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                             fontSize = 20.sp, fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimary
                         )
-                        Text("Jobs done", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                        Text(tr("Jobs done"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
                     }
                     Column {
                         Text(
@@ -119,7 +119,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                             fontSize = 20.sp, fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimary
                         )
-                        Text("This month", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                        Text(tr("This month"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
                     }
                     if (avgRating > 0f) {
                         Column {
@@ -136,7 +136,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
-                            Text("Avg rating", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
+                            Text(tr("Avg rating"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f))
                         }
                     }
                 }
@@ -149,8 +149,8 @@ fun MyEarningsScreen(onBack: () -> Unit) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyBlock(
                     icon = Icons.Default.AccountBalanceWallet,
-                    title = "No completed jobs yet",
-                    subtitle = "Finished jobs and their fees will show up here."
+                    title = tr("No completed jobs yet"),
+                    subtitle = tr("Finished jobs and their fees will show up here.")
                 )
             }
         } else {

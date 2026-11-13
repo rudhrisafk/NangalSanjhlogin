@@ -52,9 +52,9 @@ fun ServicesScreen() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(
-            eyebrow = "SERVICES  ·  ਸੇਵਾਵਾਂ",
-            title = "Find trusted workers in Nangal",
-            subtitle = "Browse job posts, save favourites or post your own request."
+            eyebrow = tr("SERVICES  ·  ਸੇਵਾਵਾਂ"),
+            title = tr("Find trusted workers in Nangal"),
+            subtitle = tr("Browse job posts, save favourites or post your own request.")
         )
         SegmentedTabs(
             labels = listOf("Job Posts", "My Favorites"),
@@ -109,7 +109,7 @@ fun JobPostsTab() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search by name or category") },
+                placeholder = { Text(tr("Search by name or category")) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -188,7 +188,7 @@ fun JobPostsTab() {
                         EmptyBlock(
                             icon = Icons.Default.SearchOff,
                             title = if (searchQuery.isNotEmpty()) "No job posts found for \"$searchQuery\"" else "No job posts here yet",
-                            subtitle = "Try another category, or post your own request."
+                            subtitle = tr("Try another category, or post your own request.")
                         )
                     }
                 } else {
@@ -220,7 +220,7 @@ fun JobPostsTab() {
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             icon = { Icon(Icons.Default.AddLocationAlt, contentDescription = null) },
-            text = { Text("Post a request", style = MaterialTheme.typography.labelLarge) }
+            text = { Text(tr("Post a request"), style = MaterialTheme.typography.labelLarge) }
         )
     }
 
@@ -258,8 +258,8 @@ fun FavoritesTab() {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             EmptyBlock(
                 icon = Icons.Default.FavoriteBorder,
-                title = "No saved workers yet",
-                subtitle = "Tap the heart on a job post to save it here."
+                title = tr("No saved workers yet"),
+                subtitle = tr("Tap the heart on a job post to save it here.")
             )
         }
     } else {
@@ -281,7 +281,7 @@ fun FavoritesTab() {
                                 val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${fav.phone}") }
                                 context.startActivity(intent)
                             }) { Icon(Icons.Default.Call, contentDescription = "Call") }
-                            TextButton(onClick = { viewModel.removeFavorite(fav.workerUid) }) { Text("Remove") }
+                            TextButton(onClick = { viewModel.removeFavorite(fav.workerUid) }) { Text(tr("Remove")) }
                         }
                     }
                 }
@@ -385,7 +385,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
             ) {
                 Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Call", style = MaterialTheme.typography.labelLarge)
+                Text(tr("Call"), style = MaterialTheme.typography.labelLarge)
             }
             OutlinedButton(
                 onClick = { showReportDialog = true },
@@ -475,8 +475,8 @@ fun SeekerJobRequestDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Column {
-                Text("NEW REQUEST  ·  ਨਵੀਂ ਮੰਗ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, letterSpacing = 1.2.sp)
-                Text("Post a job request", style = MaterialTheme.typography.titleLarge)
+                Text(tr("NEW REQUEST  ·  ਨਵੀਂ ਮੰਗ"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface, letterSpacing = 1.2.sp)
+                Text(tr("Post a job request"), style = MaterialTheme.typography.titleLarge)
             }
         },
         text = {
@@ -500,12 +500,12 @@ fun SeekerJobRequestDialog(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Not sure who to ask?",
+                                tr("Not sure who to ask?"),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                "Broadcast this to every worker, regardless of category",
+                                tr("Broadcast this to every worker, regardless of category"),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
@@ -520,7 +520,7 @@ fun SeekerJobRequestDialog(
                 // Category chips (hidden when open to all)
                 if (!isOpenToAll) {
                     Text(
-                        "Category",
+                        tr("Category"),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -580,11 +580,11 @@ fun SeekerJobRequestDialog(
                 },
                 enabled = description.isNotBlank() && latitude != 0.0 && longitude != 0.0
             ) {
-                Text("Post Request")
+                Text(tr("Post Request"))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }
@@ -667,7 +667,7 @@ fun PostDetailDialog(
                 }
 
                 Text(
-                    "Job Description",
+                    tr("Job Description"),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -692,7 +692,7 @@ fun PostDetailDialog(
                 if (!worker?.about.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        "Experience / About",
+                        tr("Experience / About"),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -741,7 +741,7 @@ fun PostDetailDialog(
             ) {
                 Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Call Now")
+                Text(tr("Call Now"))
             }
         },
         dismissButton = {
@@ -749,7 +749,7 @@ fun PostDetailDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Close")
+                Text(tr("Close"))
             }
         }
     )

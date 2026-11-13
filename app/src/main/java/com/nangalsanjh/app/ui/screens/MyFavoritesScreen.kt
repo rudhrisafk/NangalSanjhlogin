@@ -47,12 +47,12 @@ fun MyFavoritesScreen(onBack: () -> Unit) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
             Column {
                 Text(
-                    "SAVED · ਪਸੰਦੀਦਾ",
+                    tr("SAVED · ਪਸੰਦੀਦਾ"),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 1.2.sp
                 )
-                Text("My favorites", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(tr("My favorites"), fontWeight = FontWeight.Bold, fontSize = 20.sp)
             }
         }
 
@@ -60,8 +60,8 @@ fun MyFavoritesScreen(onBack: () -> Unit) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyBlock(
                     icon = Icons.Default.FavoriteBorder,
-                    title = "No saved workers yet",
-                    subtitle = "Tap the heart on a worker to save them here."
+                    title = tr("No saved workers yet"),
+                    subtitle = tr("Tap the heart on a worker to save them here.")
                 )
             }
         } else {
@@ -112,7 +112,7 @@ fun MyFavoritesScreen(onBack: () -> Unit) {
                                 Icon(Icons.Default.Call, contentDescription = "Call", tint = MaterialTheme.colorScheme.primary)
                             }
                             TextButton(onClick = { viewModel.removeFavorite(fav.workerUid) }) {
-                                Text("Remove", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(tr("Remove"), color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

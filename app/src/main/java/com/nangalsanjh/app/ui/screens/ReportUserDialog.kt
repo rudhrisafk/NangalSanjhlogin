@@ -57,13 +57,13 @@ fun ReportUserDialog(
                         submitted = true
                     },
                     enabled = reason.isNotBlank()
-                ) { Text("Submit") }
+                ) { Text(tr("Submit")) }
             } else {
-                Button(onClick = onDismiss) { Text("Close") }
+                Button(onClick = onDismiss) { Text(tr("Close")) }
             }
         },
         dismissButton = {
-            if (!submitted) TextButton(onClick = onDismiss) { Text("Cancel") }
+            if (!submitted) TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }

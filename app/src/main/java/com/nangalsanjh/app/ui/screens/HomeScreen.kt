@@ -78,7 +78,7 @@ fun HomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "ਨੰਗਲ ਸੇਵਾ",
+                                tr("ਨੰਗਲ ਸੇਵਾ"),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -268,12 +268,12 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("👤", fontSize = 18.sp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Complete Your Profile", fontWeight = FontWeight.Bold)
+                    Text(tr("Complete Your Profile"), fontWeight = FontWeight.Bold)
                 }
             },
             text = {
                 Text(
-                    "Your profile isn't set up yet. Complete it to get the most out of Nangal Seva.",
+                    tr("Your profile isn't set up yet. Complete it to get the most out of Nangal Seva."),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
@@ -281,10 +281,10 @@ fun HomeScreen(
                 TextButton(onClick = {
                     showProfileSetupPopup = false
                     showProfile = true
-                }) { Text("Set Up Now") }
+                }) { Text(tr("Set Up Now")) }
             },
             dismissButton = {
-                TextButton(onClick = { showProfileSetupPopup = false }) { Text("Later") }
+                TextButton(onClick = { showProfileSetupPopup = false }) { Text(tr("Later")) }
             }
         )
     }
@@ -317,7 +317,7 @@ fun HomeScreen(
                             )
                         }
                         Text(
-                            "Profile",
+                            tr("Profile"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             color = MaterialTheme.colorScheme.onSurface
@@ -354,13 +354,13 @@ fun HomeScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Settings", fontWeight = FontWeight.Bold)
+                    Text(tr("Settings"), fontWeight = FontWeight.Bold)
                 }
             },
             text = {
                 Column {
                     Text(
-                        "Theme",
+                        tr("Theme"),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         fontWeight = FontWeight.Medium
@@ -381,7 +381,7 @@ fun HomeScreen(
                             else ButtonDefaults.outlinedButtonColors()
                         ) {
                             Text(
-                                "Dark",
+                                tr("Dark"),
                                 fontSize = 13.sp,
                                 color = if (theme == AppTheme.DARK)
                                     MaterialTheme.colorScheme.primary
@@ -399,7 +399,7 @@ fun HomeScreen(
                             else ButtonDefaults.outlinedButtonColors()
                         ) {
                             Text(
-                                "Light",
+                                tr("Light"),
                                 fontSize = 13.sp,
                                 color = if (theme == AppTheme.LIGHT)
                                     MaterialTheme.colorScheme.primary
@@ -448,7 +448,7 @@ fun HomeScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showSettings = false }) { Text("Done") }
+                TextButton(onClick = { showSettings = false }) { Text(tr("Done")) }
             }
         )
     }

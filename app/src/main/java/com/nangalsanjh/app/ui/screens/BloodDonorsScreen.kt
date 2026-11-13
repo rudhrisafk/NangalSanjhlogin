@@ -181,7 +181,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
             ) {
                 Column {
                     Text(
-                        "Blood donors",
+                        tr("Blood donors"),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -202,7 +202,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Register", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Register"), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -220,7 +220,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                 OutlinedTextField(
                     value = searchPhone,
                     onValueChange = { searchPhone = it },
-                    placeholder = { Text("Search by phone number...") },
+                    placeholder = { Text(tr("Search by phone number...")) },
                     leadingIcon = {
                         Icon(Icons.Default.Search, null, tint = Color(0xFFB3101B))
                     },
@@ -316,7 +316,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Active filters:",
+                            tr("Active filters:"),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
@@ -353,7 +353,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                             },
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            Text("Clear all", fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+                            Text(tr("Clear all"), fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -423,7 +423,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         onClick = { showRegisterDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B))
                     ) {
-                        Text("Register as Donor")
+                        Text(tr("Register as Donor"))
                     }
                 }
             }
@@ -486,7 +486,7 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
     donorToDelete?.let { donor ->
         AlertDialog(
             onDismissRequest = { donorToDelete = null },
-            title = { Text("Delete Donor", fontWeight = FontWeight.Bold) },
+            title = { Text(tr("Delete Donor"), fontWeight = FontWeight.Bold) },
             text = { Text("Remove ${donor.name} from blood donor list? This cannot be undone.") },
             confirmButton = {
                 Button(
@@ -498,10 +498,10 @@ fun BloodDonorsScreen(userRole: String = "seeker") {
                         containerColor = MaterialTheme.colorScheme.error
                     ),
                     shape = RoundedCornerShape(8.dp)
-                ) { Text("Delete") }
+                ) { Text(tr("Delete")) }
             },
             dismissButton = {
-                TextButton(onClick = { donorToDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { donorToDelete = null }) { Text(tr("Cancel")) }
             }
         )
     }
@@ -603,7 +603,7 @@ fun BloodDonorCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Call, null, tint = Color(0xFFB3101B), modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Call")
+                                    Text(tr("Call"))
                                 }
                             },
                             onClick = { showMenu = false; onCallClick() }
@@ -613,7 +613,7 @@ fun BloodDonorCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Edit Details")
+                                    Text(tr("Edit Details"))
                                 }
                             },
                             onClick = { showMenu = false; onEditClick() }
@@ -624,7 +624,7 @@ fun BloodDonorCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Remove", color = MaterialTheme.colorScheme.error)
+                                    Text(tr("Remove"), color = MaterialTheme.colorScheme.error)
                                 }
                             },
                             onClick = { showMenu = false; onDeleteClick() }
@@ -671,7 +671,7 @@ fun AdminEditDonorDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Full Name") },
+                    label = { Text(tr("Full Name")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -679,7 +679,7 @@ fun AdminEditDonorDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Phone Number") },
+                    label = { Text(tr("Phone Number")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -687,7 +687,7 @@ fun AdminEditDonorDialog(
                 OutlinedTextField(
                     value = area,
                     onValueChange = { area = it },
-                    label = { Text("Area / Mohalla") },
+                    label = { Text(tr("Area / Mohalla")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -702,7 +702,7 @@ fun AdminEditDonorDialog(
                         value = selectedBloodGroup,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Blood Group") },
+                        label = { Text(tr("Blood Group")) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = showDropdown)
                         },
@@ -751,12 +751,12 @@ fun AdminEditDonorDialog(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
                 } else {
-                    Text("Save Changes")
+                    Text(tr("Save Changes"))
                 }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }
@@ -778,13 +778,13 @@ fun RegisterDonorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Register as donor", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("Register as donor"), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Full Name") },
+                    label = { Text(tr("Full Name")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -792,7 +792,7 @@ fun RegisterDonorDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Phone Number") },
+                    label = { Text(tr("Phone Number")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -800,7 +800,7 @@ fun RegisterDonorDialog(
                 OutlinedTextField(
                     value = area,
                     onValueChange = { area = it },
-                    label = { Text("Area / Mohalla") },
+                    label = { Text(tr("Area / Mohalla")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
@@ -813,7 +813,7 @@ fun RegisterDonorDialog(
                         value = selectedBloodGroup,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Blood Group") },
+                        label = { Text(tr("Blood Group")) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = showDropdown)
                         },
@@ -853,12 +853,12 @@ fun RegisterDonorDialog(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
                 } else {
-                    Text("Register")
+                    Text(tr("Register"))
                 }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }

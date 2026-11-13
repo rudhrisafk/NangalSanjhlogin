@@ -78,7 +78,7 @@ fun AdminPasscodeScreen(
                 passcode = it
                 error = null
             },
-            label = { Text("Passcode") },
+            label = { Text(tr("Passcode")) },
             placeholder = { Text("Enter admin passcode") },
             singleLine = true,
             visualTransformation = if (showPasscode)

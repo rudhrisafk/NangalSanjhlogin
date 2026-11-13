@@ -90,7 +90,7 @@ fun AdminReportsScreen() {
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) { Text("Block") }
             },
-            dismissButton = { TextButton(onClick = { confirmBlockUid = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { confirmBlockUid = null }) { Text(tr("Cancel")) } }
         )
     }
 }

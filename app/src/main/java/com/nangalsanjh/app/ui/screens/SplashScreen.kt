@@ -82,7 +82,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             Spacer(modifier = Modifier.height(Spacing.xs))
 
             Text(
-                text = "ਨੰਗਲ ਸੇਵਾ",
+                text = tr("ਨੰਗਲ ਸੇਵਾ"),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
