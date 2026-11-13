@@ -20,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -117,11 +118,28 @@ fun ProfileScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(14.dp))
-
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    androidx.compose.ui.graphics.Brush.linearGradient(
+                        listOf(com.nangalsanjh.app.theme.InkOnLight, Color(0xFF173B6B))
+                    )
+                )
+                .aurora(
+                    listOf(
+                        Color(0xFF3A7BFF).copy(alpha = 0.38f),
+                        Color(0xFF8E5BFF).copy(alpha = 0.26f),
+                        Color(0xFF19C3B1).copy(alpha = 0.22f)
+                    )
+                )
+                .padding(vertical = 24.dp, horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         Surface(
             shape = RoundedCornerShape(50.dp),
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             modifier = Modifier
                 .size(96.dp)
                 .spinningRing(
@@ -137,7 +155,7 @@ fun ProfileScreen(
                 Text(
                     (profile.name.ifEmpty { userName }).trim().take(1).uppercase().ifEmpty { "N" },
                     style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.background
+                    color = com.nangalsanjh.app.theme.InkOnLight
                 )
             }
         }
@@ -145,13 +163,13 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoading && profile.name.isEmpty()) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
+            CircularProgressIndicator(color = Color.White)
         } else {
             Text(
                 profile.name.ifEmpty { userName },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -159,21 +177,18 @@ fun ProfileScreen(
             Text(
                 profile.phone,
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = Color.White.copy(alpha = 0.7f)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                ) {
+                Box(modifier = Modifier.glass(RoundedCornerShape(20.dp), 0.16f, 0.30f)) {
                     Text(
                         currentRole.replaceFirstChar { it.uppercase() },
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = Color.White,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -181,7 +196,7 @@ fun ProfileScreen(
                 if (profile.bloodGroup.isNotEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = Color(0xFFB3101B).copy(alpha = 0.15f)
+                        color = Color(0xFFFFE3E5)
                     ) {
                         Text(
                             "🩸 ${profile.bloodGroup}",
@@ -199,17 +214,18 @@ fun ProfileScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Home, null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        tint = Color.White.copy(alpha = 0.6f),
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         profile.address,
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.7f)
                     )
                 }
             }
+        }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -219,9 +235,10 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = com.nangalsanjh.app.theme.InkOnLight
                 )
             ) {
+                Box(modifier = Modifier.aurora(listOf(Color(0xFF3A7BFF).copy(alpha = 0.30f), Color(0xFF8E5BFF).copy(alpha = 0.20f)), 11000)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -233,20 +250,17 @@ fun ProfileScreen(
                                 userPoints.level,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = Color.White
                             )
                             Text(
                                 "${userPoints.points} Seva Points",
                                 fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                color = Color.White.copy(alpha = 0.7f)
                             )
                         }
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.onSurface
-                        ) {
+                        Box(modifier = Modifier.glass(RoundedCornerShape(14.dp), 0.18f, 0.34f)) {
                             Text(
-                                userPoints.points.toString(),
+                                animatedInt(userPoints.points).toString(),
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -262,9 +276,9 @@ fun ProfileScreen(
 
                     LinearProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier.fillMaxWidth().height(6.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        trackColor = MaterialTheme.colorScheme.secondaryContainer
+                        modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                        color = Color(0xFF6FA2FF),
+                        trackColor = Color.White.copy(alpha = 0.15f)
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -272,21 +286,18 @@ fun ProfileScreen(
                     Text(
                         "${userPoints.points}/${userPoints.nextLevelPoints} pts to next level",
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.6f)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    ) {
+                    Box(modifier = Modifier.glass(RoundedCornerShape(12.dp), 0.10f, 0.22f)) {
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
                                 tr("🏆 Seva Points Levels"),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = Color.White
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             listOf(
@@ -304,21 +315,22 @@ fun ProfileScreen(
                                         level,
                                         fontSize = 12.sp,
                                         color = if (userPoints.level == level)
-                                            MaterialTheme.colorScheme.primary
+                                            Color(0xFF8FB8FF)
                                         else
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                            Color.White.copy(alpha = 0.7f),
                                         fontWeight = if (userPoints.level == level)
                                             FontWeight.Bold else FontWeight.Normal
                                     )
                                     Text(
                                         range,
                                         fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                        color = Color.White.copy(alpha = 0.45f)
                                     )
                                 }
                             }
                         }
                     }
+                }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -1223,31 +1235,28 @@ fun ProfileMenuItem(
     onClick: () -> Unit,
     isDestructive: Boolean = false
 ) {
-    Card(
+    val tint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    PressableCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        onClick = onClick
+        onClick = onClick,
+        onClickLabel = title
     ) {
         Row(
             modifier = Modifier.heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
-                else MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.size(44.dp)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            listOf(tint.copy(alpha = 0.22f), tint.copy(alpha = 0.06f))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        icon, contentDescription = null,
-                        tint = if (isDestructive) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -1267,7 +1276,13 @@ fun ProfileMenuItem(
                     )
                 }
             }
-            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            Box(
+                modifier = Modifier.size(28.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }

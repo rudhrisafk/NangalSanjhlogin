@@ -302,15 +302,12 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
     val cleanCategory = post.category.replace(Regex("[^a-zA-Z ]"), "").trim().ifEmpty { post.category }
     val cardShape = RoundedCornerShape(20.dp)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outline, cardShape)
-            .clickable(onClickLabel = "View details") { onMoreClick() }
-            .padding(16.dp)
+    PressableCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onMoreClick,
+        onClickLabel = "View details"
     ) {
+      Column(modifier = Modifier.padding(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -321,13 +318,17 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
                     modifier = Modifier
                         .size(44.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                        .background(
+                            androidx.compose.ui.graphics.Brush.linearGradient(
+                                listOf(com.nangalsanjh.app.theme.InkOnLight, Color(0xFF2A5AA8))
+                            )
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         post.userName.trim().take(1).uppercase().ifEmpty { "N" },
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = Color.White
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
@@ -397,7 +398,12 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Expires in ${hoursLeft}h", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "Expires in ${hoursLeft}h",
+            style = MaterialTheme.typography.labelSmall,
+            color = if (hoursLeft <= 6) Color(0xFFD92D3A) else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
     }
 
     if (showReportDialog) {
