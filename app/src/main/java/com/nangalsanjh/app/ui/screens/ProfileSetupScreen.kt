@@ -1,5 +1,6 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

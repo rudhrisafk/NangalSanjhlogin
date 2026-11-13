@@ -1,5 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

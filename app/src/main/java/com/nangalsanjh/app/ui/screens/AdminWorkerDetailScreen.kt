@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

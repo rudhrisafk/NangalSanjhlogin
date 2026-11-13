@@ -1,5 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.ui.draw.clipToBounds
 import android.content.Intent
 import android.net.Uri

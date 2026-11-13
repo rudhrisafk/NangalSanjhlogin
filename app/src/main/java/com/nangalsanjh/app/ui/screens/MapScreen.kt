@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
@@ -189,7 +191,7 @@ fun MapScreen(userRole: String = "seeker") {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)),
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
@@ -229,7 +231,7 @@ fun MapScreen(userRole: String = "seeker") {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)),
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
@@ -254,7 +256,7 @@ fun MapScreen(userRole: String = "seeker") {
             Card(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
@@ -315,7 +317,7 @@ fun MapScreen(userRole: String = "seeker") {
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)),
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
@@ -344,7 +346,7 @@ fun MapScreen(userRole: String = "seeker") {
             Card(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
