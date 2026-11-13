@@ -3,6 +3,7 @@ package com.nangalsanjh.app.ui.screens
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -11,6 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
@@ -152,7 +154,7 @@ fun ConfettiBurst(trigger: Int, modifier: Modifier = Modifier) {
             val y = oy - kotlin.math.sin(p.a) * p.v * speed * t + 0.5f * g * t * t
             val fade = (1f - ((t - 0.7f) / 0.3f)).coerceIn(0f, 1f)
             val w = 9f * p.s
-            androidx.compose.ui.graphics.drawscope.rotate(p.spin * t * 60f, Offset(x, y)) {
+            rotate(p.spin * t * 60f, Offset(x, y)) {
                 drawRect(p.c.copy(alpha = fade), topLeft = Offset(x - w / 2, y - w / 3), size = androidx.compose.ui.geometry.Size(w, w * 0.6f))
             }
         }
