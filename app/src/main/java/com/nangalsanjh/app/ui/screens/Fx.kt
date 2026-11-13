@@ -9,7 +9,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.*
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
@@ -92,7 +92,7 @@ fun Modifier.spinningRing(colors: List<Color>, ringWidthPx: Float = 7f, gapPx: F
         label = "ringDeg"
     )
     return this.drawBehind {
-        androidx.compose.ui.graphics.drawscope.rotate(deg, center) {
+        rotate(deg, center) {
             drawCircle(
                 brush = Brush.sweepGradient(colors + colors.first(), center),
                 radius = size.minDimension / 2f + gapPx,
