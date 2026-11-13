@@ -64,7 +64,7 @@ fun OTPScreen(
             Spacer(modifier = Modifier.height(Spacing.xxl))
 
             Text(
-                "Verify OTP",
+                tr("Verify OTP"),
                 style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -137,7 +137,7 @@ fun OTPScreen(
             Spacer(modifier = Modifier.height(Spacing.xxxl))
 
             NSButton(
-                text = "Verify",
+                text = tr("Verify"),
                 onClick = { onVerifyClick(otp) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = otp.length == 6,
@@ -153,7 +153,7 @@ fun OTPScreen(
                     canResend = false
                 }) {
                     Text(
-                        "Resend OTP",
+                        tr("Resend OTP"),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )

@@ -2,6 +2,7 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -56,13 +57,13 @@ fun ReportUserDialog(
                         submitted = true
                     },
                     enabled = reason.isNotBlank()
-                ) { Text("Submit") }
+                ) { Text(tr("Submit")) }
             } else {
-                Button(onClick = onDismiss) { Text("Close") }
+                Button(onClick = onDismiss) { Text(tr("Close")) }
             }
         },
         dismissButton = {
-            if (!submitted) TextButton(onClick = onDismiss) { Text("Cancel") }
+            if (!submitted) TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }

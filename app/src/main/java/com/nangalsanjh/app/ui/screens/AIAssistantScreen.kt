@@ -38,10 +38,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.activity.compose.BackHandler
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.withStyle
 
 data class ChatMessage(
     val text: String,
     val isUser: Boolean,
+    val id: Long = System.nanoTime(),
 )
 
 @Composable
@@ -50,6 +54,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
 
     var inputText by remember { mutableStateOf("") }
+    val typedIds = remember { mutableSetOf<Long>() }
     var isLoading by remember { mutableStateOf(value = false) }
     var messages by remember {
         mutableStateOf(
@@ -112,7 +117,19 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
             ) {
 
                 // ── Header ───────────────────────────────────────
-                Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Brush.linearGradient(listOf(Color(0xFF0B1F3A), Color(0xFF173B6B))))
+                        .aurora(
+                            listOf(
+                                Color(0xFF3A7BFF).copy(alpha = 0.35f),
+                                Color(0xFF8E5BFF).copy(alpha = 0.25f),
+                                Color(0xFF19C3B1).copy(alpha = 0.20f)
+                            ),
+                            periodMs = 10000
+                        )
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -121,15 +138,20 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            AiAvatar(size = 44)
+                            AiAvatar(size = 44, glassStyle = true)
                             Spacer(modifier = Modifier.width(Spacing.md))
                             Column {
                                 Text(
                                     "Nangal AI",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = Color.White
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    modifier = Modifier
+                                        .glass(RoundedCornerShape(20.dp), fillAlpha = 0.12f)
+                                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Box(
                                         modifier = Modifier
                                             .size(7.dp)
@@ -139,7 +161,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                                     Text(
                                         "Online  ·  Hindi, Punjabi, English",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = Color.White.copy(alpha = 0.9f)
                                     )
                                 }
                             }
@@ -148,7 +170,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                             Icon(
                                 Icons.Default.Close,
                                 contentDescription = "Close assistant",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = Color.White,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -166,14 +188,18 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(Spacing.md)
                 ) {
                     items(messages) { message ->
-                        ChatBubble(message = message)
+                        ChatBubble(
+                            message = message,
+                            animate = !message.isUser && message.id !in typedIds,
+                            onTyped = { typedIds.add(message.id) }
+                        )
                     }
 
                     if (messages.size == 1) {
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                                 Text(
-                                    "TRY ASKING  ·  ਪੁੱਛ ਕੇ ਦੇਖੋ",
+                                    tr("TRY ASKING  ·  ਪੁੱਛ ਕੇ ਦੇਖੋ"),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     letterSpacing = 1.2.sp
@@ -228,7 +254,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                             onValueChange = { inputText = it },
                             placeholder = {
                                 Text(
-                                    "Ask anything about Nangal…",
+                                    tr("Ask anything about Nangal…"),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -282,18 +308,20 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun AiAvatar(size: Int = 32) {
+fun AiAvatar(size: Int = 32, glassStyle: Boolean = false) {
     Box(
         modifier = Modifier
             .size(size.dp)
-            .clip(Radius.md)
-            .background(MaterialTheme.colorScheme.onBackground),
+            .then(
+                if (glassStyle) Modifier.glass(Radius.md, fillAlpha = 0.2f)
+                else Modifier.clip(Radius.md).background(MaterialTheme.colorScheme.onBackground)
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             Icons.Default.AutoAwesome,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.background,
+            tint = if (glassStyle) Color.White else MaterialTheme.colorScheme.background,
             modifier = Modifier.size((size * 0.5f).dp)
         )
     }
@@ -340,7 +368,17 @@ fun TypingIndicator() {
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(message: ChatMessage, animate: Boolean = false, onTyped: () -> Unit = {}) {
+    var shown by remember(message.id) { mutableIntStateOf(if (animate) 0 else message.text.length) }
+    LaunchedEffect(message.id) {
+        if (animate) {
+            while (shown < message.text.length) {
+                kotlinx.coroutines.delay(16)
+                shown = minOf(message.text.length, shown + 2)
+            }
+            onTyped()
+        }
+    }
     val shape = RoundedCornerShape(
         topStart = if (message.isUser) 18.dp else 4.dp,
         topEnd = if (message.isUser) 4.dp else 18.dp,
@@ -371,7 +409,12 @@ fun ChatBubble(message: ChatMessage) {
                 )
         ) {
             Text(
-                text = message.text,
+                text = androidx.compose.ui.text.buildAnnotatedString {
+                    append(message.text.take(shown))
+                    withStyle(androidx.compose.ui.text.SpanStyle(color = Color.Transparent)) {
+                        append(message.text.drop(shown))
+                    }
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (message.isUser) MaterialTheme.colorScheme.background
                 else MaterialTheme.colorScheme.onSurface,

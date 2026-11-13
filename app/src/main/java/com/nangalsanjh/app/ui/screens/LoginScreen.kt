@@ -58,26 +58,26 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.height(Spacing.xl))
                 Text(
-                    text = "NANGAL SEVA  ·  ਨੰਗਲ ਸੇਵਾ",
+                    text = tr("NANGAL SEVA  ·  ਨੰਗਲ ਸੇਵਾ"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 1.2.sp
                 )
                 Spacer(modifier = Modifier.height(Spacing.sm))
                 Text(
-                    text = "One door to every local service.",
+                    text = tr("One door to every local service."),
                     style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(Spacing.sm))
                 Text(
-                    text = "ਹਰ ਸਥਾਨਕ ਸੇਵਾ ਲਈ ਇੱਕ ਦਰਵਾਜ਼ਾ",
+                    text = tr("ਹਰ ਸਥਾਨਕ ਸੇਵਾ ਲਈ ਇੱਕ ਦਰਵਾਜ਼ਾ"),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(Spacing.md))
                 Text(
-                    text = "Find trusted workers, report issues and get help in Nangal. No ads. No spam.",
+                    text = tr("Find trusted workers, report issues and get help in Nangal. No ads. No spam."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -91,7 +91,7 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    "Phone Number",
+                    tr("Phone Number"),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -165,7 +165,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(Spacing.xxxl))
 
             NSButton(
-                text = "Continue",
+                text = tr("Continue"),
                 onClick = {
                     // NEW CHANGE: no longer calls onBloodInfoSaved — phone submit only
                     onLoginClick("+91$phoneNumber")
@@ -178,7 +178,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(Spacing.xl))
 
             Text(
-                "By continuing, you agree to our Terms of Service",
+                tr("By continuing, you agree to our Terms of Service"),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center

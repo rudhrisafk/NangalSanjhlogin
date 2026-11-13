@@ -7,7 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -86,13 +86,13 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "EMERGENCY · ਐਮਰਜੈਂਸੀ",
+                            tr("EMERGENCY · ਐਮਰਜੈਂਸੀ"),
                             style = MaterialTheme.typography.labelMedium,
                             color = Color.White.copy(alpha = 0.8f),
                             letterSpacing = 1.2.sp
                         )
                         Text(
-                            "Help is one tap away",
+                            tr("Help is one tap away"),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -122,9 +122,9 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
                     ) { Icon(Icons.Default.Call, null, tint = SosRed, modifier = Modifier.size(26.dp)) }
                     Spacer(Modifier.width(14.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("SOS · Call 112", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(tr("SOS · Call 112"), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         Text(
-                            "National emergency number",
+                            tr("National emergency number"),
                             fontSize = 12.sp,
                             color = Color.White.copy(alpha = 0.8f)
                         )
@@ -198,8 +198,8 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
                 ) { Icon(Icons.Default.WaterDrop, null, tint = Color.White, modifier = Modifier.size(26.dp)) }
                 Spacer(Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Blood donors", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Find donors by blood group", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
+                    Text(tr("Blood donors"), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(tr("Find donors by blood group"), fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
                 }
                 Icon(Icons.Default.ArrowForward, null, tint = Color.White)
             }
@@ -207,7 +207,7 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
 
         item {
             Text(
-                "HELPLINES · ਹੈਲਪਲਾਈਨ",
+                tr("HELPLINES · ਹੈਲਪਲਾਈਨ"),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 1.2.sp,
@@ -215,12 +215,14 @@ fun EmergencyScreen(onBloodDonors: () -> Unit = {}, onClose: () -> Unit = {}) {
             )
         }
 
-        items(others) { contact ->
-            EmergencyContactCard(
-                contact = contact,
-                onCallClick = { dial(context, contact.number) },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+        itemsIndexed(others) { i, contact ->
+            RevealOnLoad(minOf(i, 6)) {
+                EmergencyContactCard(
+                    contact = contact,
+                    onCallClick = { dial(context, contact.number) },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
     }
 }

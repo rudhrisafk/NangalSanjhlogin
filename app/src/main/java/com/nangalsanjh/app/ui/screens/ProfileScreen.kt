@@ -1,7 +1,9 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -116,27 +119,30 @@ fun ProfileScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(14.dp))
-
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    androidx.compose.ui.graphics.Brush.linearGradient(
+                        listOf(com.nangalsanjh.app.theme.InkOnLight, Color(0xFF173B6B))
+                    )
+                )
+                .padding(vertical = 24.dp, horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         Surface(
             shape = RoundedCornerShape(50.dp),
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             modifier = Modifier
                 .size(96.dp)
-                .spinningRing(
-                    listOf(
-                        androidx.compose.ui.graphics.Color(0xFF3A7BFF),
-                        androidx.compose.ui.graphics.Color(0xFF8E5BFF),
-                        androidx.compose.ui.graphics.Color(0xFF19C3B1)
-                    ),
-                    periodMs = 5000
-                )
+                .border(2.dp, Color.White.copy(alpha = 0.45f), RoundedCornerShape(50.dp))
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
                     (profile.name.ifEmpty { userName }).trim().take(1).uppercase().ifEmpty { "N" },
                     style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.background
+                    color = com.nangalsanjh.app.theme.InkOnLight
                 )
             }
         }
@@ -144,13 +150,13 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoading && profile.name.isEmpty()) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
+            CircularProgressIndicator(color = Color.White)
         } else {
             Text(
                 profile.name.ifEmpty { userName },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -158,21 +164,18 @@ fun ProfileScreen(
             Text(
                 profile.phone,
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = Color.White.copy(alpha = 0.7f)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                ) {
+                Box(modifier = Modifier.glass(RoundedCornerShape(20.dp), 0.16f, 0.30f)) {
                     Text(
                         currentRole.replaceFirstChar { it.uppercase() },
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = Color.White,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -180,7 +183,7 @@ fun ProfileScreen(
                 if (profile.bloodGroup.isNotEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = Color(0xFFB3101B).copy(alpha = 0.15f)
+                        color = Color(0xFFFFE3E5)
                     ) {
                         Text(
                             "🩸 ${profile.bloodGroup}",
@@ -198,17 +201,18 @@ fun ProfileScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Home, null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        tint = Color.White.copy(alpha = 0.6f),
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         profile.address,
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.7f)
                     )
                 }
             }
+        }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -218,9 +222,10 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = com.nangalsanjh.app.theme.InkOnLight
                 )
             ) {
+                Box(modifier = Modifier.aurora(listOf(Color(0xFF3A7BFF).copy(alpha = 0.30f), Color(0xFF8E5BFF).copy(alpha = 0.20f)), 11000)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -232,20 +237,17 @@ fun ProfileScreen(
                                 userPoints.level,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = Color.White
                             )
                             Text(
                                 "${userPoints.points} Seva Points",
                                 fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                color = Color.White.copy(alpha = 0.7f)
                             )
                         }
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.onSurface
-                        ) {
+                        Box(modifier = Modifier.glass(RoundedCornerShape(14.dp), 0.18f, 0.34f)) {
                             Text(
-                                userPoints.points.toString(),
+                                animatedInt(userPoints.points).toString(),
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -261,9 +263,9 @@ fun ProfileScreen(
 
                     LinearProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier.fillMaxWidth().height(6.dp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        trackColor = MaterialTheme.colorScheme.secondaryContainer
+                        modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                        color = Color(0xFF6FA2FF),
+                        trackColor = Color.White.copy(alpha = 0.15f)
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -271,21 +273,18 @@ fun ProfileScreen(
                     Text(
                         "${userPoints.points}/${userPoints.nextLevelPoints} pts to next level",
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.6f)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    ) {
+                    Box(modifier = Modifier.glass(RoundedCornerShape(12.dp), 0.10f, 0.22f)) {
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
-                                "🏆 Seva Points Levels",
+                                tr("🏆 Seva Points Levels"),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = Color.White
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             listOf(
@@ -303,21 +302,22 @@ fun ProfileScreen(
                                         level,
                                         fontSize = 12.sp,
                                         color = if (userPoints.level == level)
-                                            MaterialTheme.colorScheme.primary
+                                            Color(0xFF8FB8FF)
                                         else
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                            Color.White.copy(alpha = 0.7f),
                                         fontWeight = if (userPoints.level == level)
                                             FontWeight.Bold else FontWeight.Normal
                                     )
                                     Text(
                                         range,
                                         fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                        color = Color.White.copy(alpha = 0.45f)
                                     )
                                 }
                             }
                         }
                     }
+                }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -340,7 +340,7 @@ fun ProfileScreen(
                 )
                 StatCard(
                     count = profile.complaintsCount.toString(),
-                    label = "Complaints",
+                    label = tr("Complaints"),
                     emoji = "📋"
                 )
                 if (currentRole == "worker") {
@@ -357,8 +357,8 @@ fun ProfileScreen(
 
         ProfileMenuItem(
             icon = Icons.Default.Edit,
-            title = "Edit Profile",
-            subtitle = "Change name or address",
+            title = tr("Edit Profile"),
+            subtitle = tr("Change name or address"),
             onClick = { showEditDialog = true }
         )
 
@@ -366,7 +366,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Build,
-                title = "Change Work Category",
+                title = tr("Change Work Category"),
                 subtitle = profile.category.ifEmpty { "Set your category" },
                 onClick = { showCategoryDialog = true }
             )
@@ -375,7 +375,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.Favorite,
-            title = "Blood Group",
+            title = tr("Blood Group"),
             subtitle = if (profile.bloodGroup.isEmpty()) "Set your blood group"
             else "Current: ${profile.bloodGroup}",
             onClick = { showBloodGroupDialog = true }
@@ -385,15 +385,15 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.AutoMirrored.Filled.Article,
-                title = "My Work",
+                title = tr("My Work"),
                 subtitle = "${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} active posts",
                 onClick = { showMyWork = true }
             )
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Work,
-                title = "My Jobs",
-                subtitle = "Jobs you've accepted",
+                title = tr("My Jobs"),
+                subtitle = tr("Jobs you've accepted"),
                 onClick = { showMyJobs = true }
             )
         }
@@ -402,8 +402,8 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.AccountBalanceWallet,
-                title = "My Earnings",
-                subtitle = "Track your income & history",
+                title = tr("My Earnings"),
+                subtitle = tr("Track your income & history"),
                 onClick = { showMyEarnings = true }
             )
         }
@@ -412,15 +412,15 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Report,
-                title = "My Complaints",
+                title = tr("My Complaints"),
                 subtitle = "${profile.complaintsCount} complaints",
                 onClick = { showMyComplaints = true }
             )
             Spacer(modifier = Modifier.height(8.dp))
             ProfileMenuItem(
                 icon = Icons.Default.Assignment,
-                title = "My Job Requests",
-                subtitle = "Auto-deletes after 48 hrs",
+                title = tr("My Job Requests"),
+                subtitle = tr("Auto-deletes after 48 hrs"),
                 onClick = { showMyJobRequests = true }
             )
         }
@@ -428,7 +428,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.Info,
-            title = "About Nangal Seva",
+            title = tr("About Nangal Seva"),
             subtitle = "Version 1.0 • Nangal, Punjab",
             onClick = { showAbout = true }
         )
@@ -436,7 +436,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.Default.SwitchAccount,
-            title = "Switch Profile",
+            title = tr("Switch Profile"),
             subtitle = "Currently: ${currentRole.replaceFirstChar { it.uppercase() }}",
             onClick = { showSwitchProfile = true }
         )
@@ -444,8 +444,8 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ProfileMenuItem(
             icon = Icons.AutoMirrored.Filled.Logout,
-            title = "Logout",
-            subtitle = "Sign out from app",
+            title = tr("Logout"),
+            subtitle = tr("Sign out from app"),
             onClick = onLogout,
             isDestructive = true
         )
@@ -531,13 +531,13 @@ fun SwitchProfileDialog(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Admin Passcode", fontWeight = FontWeight.Bold)
+                    Text(tr("Admin Passcode"), fontWeight = FontWeight.Bold)
                 }
             },
             text = {
                 Column {
                     Text(
-                        "Enter department passcode to switch to Admin role",
+                        tr("Enter department passcode to switch to Admin role"),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -548,7 +548,7 @@ fun SwitchProfileDialog(
                             passcode = it
                             passcodeError = null
                         },
-                        label = { Text("Passcode") },
+                        label = { Text(tr("Passcode")) },
                         singleLine = true,
                         visualTransformation = if (showPassword)
                             VisualTransformation.None
@@ -593,7 +593,7 @@ fun SwitchProfileDialog(
                     },
                     enabled = passcode.isNotBlank(),
                     shape = RoundedCornerShape(8.dp)
-                ) { Text("Verify & Switch") }
+                ) { Text(tr("Verify & Switch")) }
             },
             dismissButton = {
                 TextButton(
@@ -602,7 +602,7 @@ fun SwitchProfileDialog(
                         passcode = ""
                         passcodeError = null
                     }
-                ) { Text("Cancel") }
+                ) { Text(tr("Cancel")) }
             }
         )
         return
@@ -618,13 +618,13 @@ fun SwitchProfileDialog(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Switch Profile", fontWeight = FontWeight.Bold)
+                Text(tr("Switch Profile"), fontWeight = FontWeight.Bold)
             }
         },
         text = {
             Column {
                 Text(
-                    "Select your role. Admin requires a passcode.",
+                    tr("Select your role. Admin requires a passcode."),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -718,7 +718,7 @@ fun SwitchProfileDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
         }
     )
 }
@@ -751,7 +751,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
                 }
                 Column {
-                    Text("My Work", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(tr("My Work"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
                     Text(
                         "${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} active posts",
                         fontSize = 12.sp,
@@ -769,8 +769,8 @@ fun MyWorkScreen(onBack: () -> Unit) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("📭", fontSize = 56.sp)
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text("No work posted yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                        Text("Tap + to post your services", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                        Text(tr("No work posted yet"), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                        Text(tr("Tap + to post your services"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
                     }
                 }
             } else {
@@ -869,15 +869,15 @@ fun MyWorkScreen(onBack: () -> Unit) {
     deletingPostId?.let { postId ->
         AlertDialog(
             onDismissRequest = { deletingPostId = null },
-            title = { Text("Delete this post?", fontWeight = FontWeight.Bold) },
-            text = { Text("This can't be undone.", fontSize = 13.sp) },
+            title = { Text(tr("Delete this post?"), fontWeight = FontWeight.Bold) },
+            text = { Text(tr("This can't be undone."), fontSize = 13.sp) },
             confirmButton = {
                 Button(
                     onClick = { postViewModel.deletePost(postId); deletingPostId = null },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(tr("Delete")) }
             },
-            dismissButton = { TextButton(onClick = { deletingPostId = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { deletingPostId = null }) { Text(tr("Cancel")) } }
         )
     }
 }
@@ -900,10 +900,10 @@ fun EditWorkerPostDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Work Post", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("Edit Work Post"), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Category", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(tr("Category"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(categories) { cat ->
                         FilterChip(
@@ -913,14 +913,14 @@ fun EditWorkerPostDialog(
                         )
                     }
                 }
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
-                OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Rate") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(tr("Description")) }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text(tr("Rate")) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
 
                 ExposedDropdownMenuBox(expanded = showAvailabilityMenu, onExpandedChange = { showAvailabilityMenu = it }) {
                     OutlinedTextField(
                         value = availability,
                         onValueChange = { availability = it },
-                        label = { Text("Availability") },
+                        label = { Text(tr("Availability")) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(),
                         singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showAvailabilityMenu) }
@@ -937,9 +937,9 @@ fun EditWorkerPostDialog(
             Button(
                 onClick = { onSave(selectedCategory, description, price, availability) },
                 enabled = description.isNotBlank()
-            ) { Text("Save Changes") }
+            ) { Text(tr("Save Changes")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }
 
@@ -969,7 +969,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
             }
-            Text("My Job Requests", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(tr("My Job Requests"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -980,8 +980,8 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📭", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("No active job requests", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                    Text("Requests auto-delete after 48 hours", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                    Text(tr("No active job requests"), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(tr("Requests auto-delete after 48 hours"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
                 }
             }
         } else {
@@ -1045,7 +1045,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                                 ) {
                                     Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Send Feedback")
+                                    Text(tr("Send Feedback"))
                                 }
                             } else if (post.rated) {
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -1065,14 +1065,14 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
     deletingId?.let { postId ->
         AlertDialog(
             onDismissRequest = { deletingId = null },
-            title = { Text("Delete this request?", fontWeight = FontWeight.Bold) },
+            title = { Text(tr("Delete this request?"), fontWeight = FontWeight.Bold) },
             confirmButton = {
                 Button(
                     onClick = { postViewModel.deletePost(postId); deletingId = null },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(tr("Delete")) }
             },
-            dismissButton = { TextButton(onClick = { deletingId = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { deletingId = null }) { Text(tr("Cancel")) } }
         )
     }
 
@@ -1110,7 +1110,7 @@ fun MyComplaintsScreen(onBack: () -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
             }
             Text(
-                "My Complaints", fontWeight = FontWeight.Bold, fontSize = 18.sp,
+                tr("My Complaints"), fontWeight = FontWeight.Bold, fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -1123,8 +1123,8 @@ fun MyComplaintsScreen(onBack: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📋", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("No complaints yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                    Text("Report a civic issue to get started", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
+                    Text(tr("No complaints yet"), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(tr("Report a civic issue to get started"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f))
                 }
             }
         } else {
@@ -1162,7 +1162,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
             }
             Text(
-                "About Nangal Seva", fontWeight = FontWeight.Bold, fontSize = 18.sp,
+                tr("About Nangal Seva"), fontWeight = FontWeight.Bold, fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -1176,7 +1176,7 @@ fun AboutScreen(onBack: () -> Unit) {
             Text("🏙️", fontSize = 64.sp)
             Spacer(modifier = Modifier.height(16.dp))
             Text("Nangal Seva", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            Text("ਨੰਗਲ ਸੇਵਾ", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+            Text(tr("ਨੰਗਲ ਸੇਵਾ"), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(8.dp))
             Text("Apna Shehar, Apni Zimmedari", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
             Spacer(modifier = Modifier.height(32.dp))
@@ -1222,31 +1222,28 @@ fun ProfileMenuItem(
     onClick: () -> Unit,
     isDestructive: Boolean = false
 ) {
-    Card(
+    val tint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    PressableCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        onClick = onClick
+        onClick = onClick,
+        onClickLabel = title
     ) {
         Row(
             modifier = Modifier.heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = if (isDestructive) MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
-                else MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.size(44.dp)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            listOf(tint.copy(alpha = 0.22f), tint.copy(alpha = 0.06f))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        icon, contentDescription = null,
-                        tint = if (isDestructive) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -1266,7 +1263,13 @@ fun ProfileMenuItem(
                     )
                 }
             }
-            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            Box(
+                modifier = Modifier.size(28.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
@@ -1277,20 +1280,20 @@ fun EditProfileDialog(currentName: String, currentAddress: String, isLoading: Bo
     var address by remember { mutableStateOf(currentAddress) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Profile", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("Edit Profile"), fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(tr("Full Name")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Area / Mohalla") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
+                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text(tr("Area / Mohalla")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
             }
         },
         confirmButton = {
             Button(onClick = { onSave(name.trim(), address.trim()) }, enabled = name.isNotBlank() && address.isNotBlank() && !isLoading, shape = RoundedCornerShape(8.dp)) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text("Save")
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text(tr("Save"))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }
 
@@ -1302,7 +1305,7 @@ fun ChangeCategoryDialog(currentCategory: String, isLoading: Boolean, onDismiss:
     val isOther = selectedCategory == "❓ Other"
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Change Work Category", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("Change Work Category"), fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 categories.forEach { category ->
@@ -1313,16 +1316,16 @@ fun ChangeCategoryDialog(currentCategory: String, isLoading: Boolean, onDismiss:
                 }
                 if (isOther) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = customCategory, onValueChange = { customCategory = it }, label = { Text("Enter your work type") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(12.dp))
+                    OutlinedTextField(value = customCategory, onValueChange = { customCategory = it }, label = { Text(tr("Enter your work type")) }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(12.dp))
                 }
             }
         },
         confirmButton = {
             Button(onClick = { val final = if (isOther && customCategory.isNotBlank()) customCategory.trim() else selectedCategory; onSave(final) }, enabled = selectedCategory.isNotEmpty() && (!isOther || customCategory.isNotBlank()) && !isLoading, shape = RoundedCornerShape(8.dp)) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text("Save")
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary) else Text(tr("Save"))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }
 
@@ -1339,7 +1342,7 @@ fun ChangeBloodGroupDialog(
     var isDonor by remember { mutableStateOf(currentIsDonor) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("🩸 Blood Group", fontWeight = FontWeight.Bold) },
+        title = { Text(tr("🩸 Blood Group"), fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 bloodGroups.chunked(4).forEach { row ->
@@ -1355,17 +1358,17 @@ fun ChangeBloodGroupDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = isDonor, onCheckedChange = { isDonor = it }, colors = CheckboxDefaults.colors(checkedColor = Color(0xFFB3101B)))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("I am willing to donate blood if needed", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
+                        Text(tr("I am willing to donate blood if needed"), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
                     }
                 }
             }
         },
         confirmButton = {
             Button(onClick = { onSave(selectedBloodGroup, isDonor) }, enabled = !isLoading, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB3101B)), shape = RoundedCornerShape(8.dp)) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White) else Text("Save")
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White) else Text(tr("Save"))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }
 
@@ -1384,7 +1387,7 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onSurface)
             }
-            Text("My Jobs", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(tr("My Jobs"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
         }
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1395,7 +1398,7 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("🧰", fontSize = 56.sp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("No jobs accepted yet", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text(tr("No jobs accepted yet"), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                 }
             }
         } else {
@@ -1435,7 +1438,7 @@ fun MyJobsWorkerScreen(onBack: () -> Unit) {
                                     onClick = { postViewModel.completeJob(post.id) },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp)
-                                ) { Text("Mark Complete") }
+                                ) { Text(tr("Mark Complete")) }
                             } else if (post.rated) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1463,7 +1466,7 @@ fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, 
         title = { Text("How was $workerName's service?", fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text("Rate your experience", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(tr("Rate your experience"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 Spacer(modifier = Modifier.height(10.dp))
                 Row {
                     (1..5).forEach { star ->
@@ -1481,7 +1484,7 @@ fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, 
                 OutlinedTextField(
                     value = comment,
                     onValueChange = { comment = it },
-                    label = { Text("Tell us more (optional)") },
+                    label = { Text(tr("Tell us more (optional)")) },
                     placeholder = { Text("Eg. Arrived at 5 PM, fixed the leak quickly, very polite") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
@@ -1494,8 +1497,8 @@ fun FeedbackDialog(workerName: String, onDismiss: () -> Unit, onSubmit: (Float, 
                 onClick = { onSubmit(rating.toFloat(), comment.trim()) },
                 enabled = rating > 0,
                 shape = RoundedCornerShape(8.dp)
-            ) { Text("Submit Feedback") }
+            ) { Text(tr("Submit Feedback")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Skip") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Skip")) } }
     )
 }

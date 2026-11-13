@@ -1,5 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.ui.draw.clipToBounds
 import android.content.Intent
 import android.net.Uri
@@ -154,8 +156,8 @@ fun SeekerFeedContent(userName: String = "", onNavigate: (Int) -> Unit = {}) {
                         ) {
                             NSEmptyState(
                                 icon = androidx.compose.material.icons.Icons.Default.Newspaper,
-                                title = "Nothing to show right now",
-                                subtitle = "Community news, ads, and emergency alerts will appear here"
+                                title = tr("Nothing to show right now"),
+                                subtitle = tr("Community news, ads, and emergency alerts will appear here")
                             )
                         }
                     }
@@ -557,7 +559,7 @@ fun EmergencyAnnouncementCard(
                 Spacer(Modifier.width(Spacing.sm))
 
                 Text(
-                    "Emergency Need",
+                    tr("Emergency Need"),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.error
@@ -849,7 +851,7 @@ fun AnnouncementDetailDialog(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Close")
+                Text(tr("Close"))
             }
         }
     )
@@ -983,7 +985,7 @@ fun WorkerFeedContent(userName: String) {
             // WORKER HEADER
             Column(modifier = Modifier.padding(start = Spacing.lg, end = Spacing.lg, top = Spacing.lg)) {
                 Text(
-                    "WORKER  ·  ਕਾਮਾ",
+                    tr("WORKER  ·  ਕਾਮਾ"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     letterSpacing = 1.2.sp
@@ -1034,7 +1036,7 @@ fun WorkerFeedContent(userName: String) {
                                 Spacer(Modifier.width(10.dp))
                             }
                             Text(
-                                "Availability Status",
+                                tr("Availability Status"),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -1109,8 +1111,8 @@ fun WorkerFeedContent(userName: String) {
 
                     NSEmptyState(
                         emoji = "📭",
-                        title = "No jobs in demand",
-                        subtitle = "Seeker requests matching your category (or open to all) will show here"
+                        title = tr("No jobs in demand"),
+                        subtitle = tr("Seeker requests matching your category (or open to all) will show here")
                     )
                 }
 
@@ -1257,7 +1259,7 @@ fun WorkerPostDialog(
 
         title = {
             Text(
-                "Post Service",
+                tr("Post Service"),
                 style = MaterialTheme.typography.titleMedium
             )
         },
@@ -1269,7 +1271,7 @@ fun WorkerPostDialog(
             ) {
 
                 Text(
-                    "Category",
+                    tr("Category"),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1330,7 +1332,7 @@ fun WorkerPostDialog(
                             availability = it
                         },
                         label = {
-                            Text("Availability")
+                            Text(tr("Availability"))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1378,7 +1380,7 @@ fun WorkerPostDialog(
         confirmButton = {
 
             NSButton(
-                text = "Post Service",
+                text = tr("Post Service"),
                 onClick = {
                     onPost(
                         selectedCategory,
@@ -1396,7 +1398,7 @@ fun WorkerPostDialog(
         dismissButton = {
 
             NSOutlinedButton(
-                text = "Cancel",
+                text = tr("Cancel"),
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -1425,7 +1427,7 @@ fun JobDemandCard(
     val timerColor = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+        Column(modifier = Modifier.accentGlow(if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, pulse = isUrgent).padding(Spacing.lg)) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1442,7 +1444,7 @@ fun JobDemandCard(
                     )
                     if (post.isOpenToAll) {
                         Spacer(modifier = Modifier.width(8.dp))
-                        NSStatusBadge(text = "Broadcast", color = Color(0xFF1F5FBF))
+                        NSStatusBadge(text = tr("Broadcast"), color = Color(0xFF1F5FBF))
                     }
                 }
                 Text(
@@ -1492,7 +1494,7 @@ fun JobDemandCard(
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth().height(6.dp).clip(Radius.full),
-                color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                color = if (isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.secondaryContainer
             )
 
@@ -1500,12 +1502,12 @@ fun JobDemandCard(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NSOutlinedButton(
-                    text = "Decline",
+                    text = tr("Decline"),
                     onClick = onDecline,
                     modifier = Modifier.weight(1f)
                 )
                 NSButton(
-                    text = "Accept & Call",
+                    text = tr("Accept & Call"),
                     onClick = onAccept,
                     modifier = Modifier.weight(1f),
                     leadingIcon = Icons.Default.Call

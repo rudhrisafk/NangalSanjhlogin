@@ -11,9 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nangalsanjh.app.theme.Radius
@@ -28,7 +31,17 @@ fun ScreenHeader(
     modifier: Modifier = Modifier,
     horizontalPadding: androidx.compose.ui.unit.Dp = Spacing.lg
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = Spacing.md)) {
+    var shown by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(Unit) { shown = true }
+    val a by androidx.compose.animation.core.animateFloatAsState(
+        if (shown) 1f else 0f, androidx.compose.animation.core.tween(500), label = "headerIn"
+    )
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .graphicsLayer { alpha = a; translationX = (1f - a) * -24f }
+            .padding(horizontal = horizontalPadding, vertical = Spacing.md)
+    ) {
         Text(
             eyebrow,
             style = MaterialTheme.typography.labelMedium,
@@ -104,9 +117,19 @@ fun EmptyBlock(
         modifier = modifier.padding(Spacing.xxxl),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val floatY by androidx.compose.animation.core.rememberInfiniteTransition(label = "float").animateFloat(
+            initialValue = -5f, targetValue = 5f,
+            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                androidx.compose.animation.core.tween(1800, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                androidx.compose.animation.core.RepeatMode.Reverse
+            ),
+            label = "floatY"
+        )
         Box(
             modifier = Modifier
                 .size(72.dp)
+                .graphicsLayer { translationY = floatY * density }
+                .pulseRing(MaterialTheme.colorScheme.outline, periodMs = 2600)
                 .clip(Radius.full)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
@@ -155,3 +178,28 @@ fun Modifier.glass(
         ),
         shape
     )
+
+/**
+ * Status accent for cards: a soft corner glow plus a slim bar on the left edge.
+ * [pulse] makes the glow breathe (use for urgent items).
+ */
+@androidx.compose.runtime.Composable
+fun Modifier.accentGlow(color: Color, pulse: Boolean = false): Modifier {
+    val k = if (pulse) breathing(to = 2f, periodMs = 1100) - 1f else 0f
+    return this.drawBehind {
+        val a = if (pulse) 0.10f + 0.12f * k else 0.14f
+        drawRect(
+            androidx.compose.ui.graphics.Brush.radialGradient(
+                colors = listOf(color.copy(alpha = a), Color.Transparent),
+                center = androidx.compose.ui.geometry.Offset(0f, 0f),
+                radius = size.width * 0.8f
+            )
+        )
+        drawRect(
+            androidx.compose.ui.graphics.Brush.verticalGradient(
+                listOf(color, color.copy(alpha = 0.25f))
+            ),
+            size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height)
+        )
+    }
+}

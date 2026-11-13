@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -140,7 +142,7 @@ fun AdminAnnouncementsScreen() {
                             Row {
                                 TextButton(onClick = { editingAnnouncement = announcement }) { Text("Edit") }
                                 TextButton(onClick = { deletingAnnouncement = announcement }) {
-                                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                                    Text(tr("Delete"), color = MaterialTheme.colorScheme.error)
                                 }
                             }
                         }
@@ -184,14 +186,14 @@ fun AdminAnnouncementsScreen() {
         AlertDialog(
             onDismissRequest = { deletingAnnouncement = null },
             title = { Text("Delete this announcement?", fontWeight = FontWeight.Bold) },
-            text = { Text("This can't be undone.", fontSize = 13.sp) },
+            text = { Text(tr("This can't be undone."), fontSize = 13.sp) },
             confirmButton = {
                 Button(
                     onClick = { viewModel.deleteAnnouncement(announcement.id); deletingAnnouncement = null },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text(tr("Delete")) }
             },
-            dismissButton = { TextButton(onClick = { deletingAnnouncement = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { deletingAnnouncement = null }) { Text(tr("Cancel")) } }
         )
     }
 }
@@ -230,7 +232,7 @@ fun AnnouncementFormDialog(
                 }
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text(if (type == "headline") "Headline text" else "Title") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 if (type != "headline") {
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(tr("Description")) }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                 OutlinedTextField(
                     value = imageUrl,
                     onValueChange = { imageUrl = it },
@@ -264,6 +266,6 @@ fun AnnouncementFormDialog(
                 enabled = title.isNotBlank() && (type == "headline" || description.isNotBlank())
             ) { Text(if (existing == null) "Publish" else "Save Changes") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } }
     )
 }

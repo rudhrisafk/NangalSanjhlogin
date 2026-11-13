@@ -1,5 +1,6 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -35,21 +36,21 @@ fun ProfileSetupScreen(
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Text(
-            "STEP 2 OF 2 · ਪ੍ਰੋਫਾਈਲ",
+            tr("STEP 2 OF 2 · ਪ੍ਰੋਫਾਈਲ"),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.2.sp
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Setup your profile",
+            tr("Setup your profile"),
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            "Tell us about yourself so neighbours can trust you.",
+            tr("Tell us about yourself so neighbours can trust you."),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -59,7 +60,7 @@ fun ProfileSetupScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Full name") },
+            label = { Text(tr("Full name")) },
             placeholder = { Text("Eg. Rajesh Kumar") },
             leadingIcon = { Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
             singleLine = true,
@@ -76,7 +77,7 @@ fun ProfileSetupScreen(
         OutlinedTextField(
             value = address,
             onValueChange = { address = it },
-            label = { Text("Area / Mohalla") },
+            label = { Text(tr("Area / Mohalla")) },
             placeholder = { Text("Eg. Sector 4, Nangal") },
             leadingIcon = { Icon(Icons.Default.Home, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
             singleLine = true,
@@ -132,7 +133,7 @@ fun ProfileSetupScreen(
                     strokeWidth = 2.dp
                 )
             } else {
-                Text("Continue", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(tr("Continue"), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

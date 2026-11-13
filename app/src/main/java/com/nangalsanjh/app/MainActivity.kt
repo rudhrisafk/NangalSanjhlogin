@@ -10,7 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -19,6 +22,8 @@ import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.messaging.FirebaseMessaging
 import com.nangalsanjh.app.navigation.NangalSevaNavHost
+import com.nangalsanjh.app.ui.screens.LocalAppLanguage
+import com.nangalsanjh.app.viewmodel.AppLanguage
 import com.nangalsanjh.app.viewmodel.AppTheme
 import com.nangalsanjh.app.theme.NangalSevaTheme
 import com.nangalsanjh.app.viewmodel.ThemeViewModel
@@ -49,10 +54,27 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val theme by themeViewModel.theme.collectAsState()
+            val language by themeViewModel.language.collectAsState()
+
+            // Load saved language once, before first frame
+            remember {
+                val saved = getSharedPreferences("nangal_prefs", MODE_PRIVATE)
+                    .getString("app_language", AppLanguage.ENGLISH.name)
+                runCatching { AppLanguage.valueOf(saved ?: "") }
+                    .getOrNull()?.let { themeViewModel.setLanguage(it) }
+                true
+            }
+            // Save whenever it changes
+            LaunchedEffect(language) {
+                getSharedPreferences("nangal_prefs", MODE_PRIVATE)
+                    .edit().putString("app_language", language.name).apply()
+            }
 
             NangalSevaTheme(isDark = theme == AppTheme.DARK) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    NangalSevaNavHost(themeViewModel = themeViewModel)
+                CompositionLocalProvider(LocalAppLanguage provides language) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        NangalSevaNavHost(themeViewModel = themeViewModel)
+                    }
                 }
             }
         }

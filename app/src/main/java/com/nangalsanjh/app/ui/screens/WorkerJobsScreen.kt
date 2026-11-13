@@ -1,5 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -93,7 +95,7 @@ fun WorkerJobsScreen() {
                 ) {
                     Column {
                         Text(
-                            "Availability Status",
+                            tr("Availability Status"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
                             color = MaterialTheme.colorScheme.onSurface
@@ -150,7 +152,7 @@ fun WorkerJobsScreen() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Job Requests",
+                tr("Job Requests"),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
@@ -179,8 +181,8 @@ fun WorkerJobsScreen() {
             ) {
                 EmptyBlock(
                     icon = Icons.Default.Inbox,
-                    title = "No job requests for your category",
-                    subtitle = "New requests will show up here."
+                    title = tr("No job requests for your category"),
+                    subtitle = tr("New requests will show up here.")
                 )
             }
         } else {
@@ -266,7 +268,7 @@ fun JobRequestCard(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Decline", fontSize = 12.sp)
+                    Text(tr("Decline"), fontSize = 12.sp)
                 }
                 Button(
                     onClick = onAccept,
@@ -279,7 +281,7 @@ fun JobRequestCard(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Call Seeker", fontSize = 12.sp)
+                    Text(tr("Call Seeker"), fontSize = 12.sp)
                 }
             }
         }

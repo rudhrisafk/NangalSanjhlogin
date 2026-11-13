@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -88,7 +90,7 @@ fun AdminReportsScreen() {
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) { Text("Block") }
             },
-            dismissButton = { TextButton(onClick = { confirmBlockUid = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { confirmBlockUid = null }) { Text(tr("Cancel")) } }
         )
     }
 }

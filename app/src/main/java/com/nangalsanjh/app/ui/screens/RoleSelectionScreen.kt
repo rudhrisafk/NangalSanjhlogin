@@ -55,20 +55,20 @@ fun RoleSelectionScreen(
         ) {
             Spacer(modifier = Modifier.height(Spacing.huge))
             Text(
-                text = "STEP 1 OF 1  ·  ਆਪਣੀ ਭੂਮਿਕਾ ਚੁਣੋ",
+                text = tr("STEP 1 OF 1  ·  ਆਪਣੀ ਭੂਮਿਕਾ ਚੁਣੋ"),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 1.2.sp
             )
             Spacer(modifier = Modifier.height(Spacing.sm))
             Text(
-                text = "How will you use Nangal Seva?",
+                text = tr("How will you use Nangal Seva?"),
                 style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(Spacing.sm))
             Text(
-                text = "You can switch your role later from your profile.",
+                text = tr("You can switch your role later from your profile."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -76,8 +76,8 @@ fun RoleSelectionScreen(
 
             RoleCard(
                 number = "01",
-                title = "Seeker",
-                subtitle = "Find trusted workers, post a job request and report civic issues.",
+                title = tr("Seeker"),
+                subtitle = tr("Find trusted workers, post a job request and report civic issues."),
                 icon = Icons.Default.Person,
                 isSelected = selectedRole == "seeker",
                 isCurrent = currentRole == "seeker",
@@ -87,8 +87,8 @@ fun RoleSelectionScreen(
 
             RoleCard(
                 number = "02",
-                title = "Worker",
-                subtitle = "Offer your skills, accept jobs nearby and build your rating.",
+                title = tr("Worker"),
+                subtitle = tr("Offer your skills, accept jobs nearby and build your rating."),
                 icon = Icons.Default.Build,
                 isSelected = selectedRole == "worker",
                 isCurrent = currentRole == "worker",
@@ -98,8 +98,8 @@ fun RoleSelectionScreen(
 
             RoleCard(
                 number = "03",
-                title = "Admin",
-                subtitle = "Municipal or government official managing the city.",
+                title = tr("Admin"),
+                subtitle = tr("Municipal or government official managing the city."),
                 icon = Icons.Default.AdminPanelSettings,
                 isSelected = selectedRole == "admin",
                 isCurrent = currentRole == "admin",
@@ -109,7 +109,7 @@ fun RoleSelectionScreen(
         }
 
         NSButton(
-            text = "Continue",
+            text = tr("Continue"),
             onClick = { onRoleSelected(selectedRole) },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedRole.isNotEmpty() && selectedRole != currentRole
@@ -176,7 +176,7 @@ fun RoleCard(
                 )
                 if (isCurrent) {
                     Spacer(modifier = Modifier.width(Spacing.sm))
-                    NSStatusBadge(text = "Active", color = primary)
+                    NSStatusBadge(text = tr("Active"), color = primary)
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))

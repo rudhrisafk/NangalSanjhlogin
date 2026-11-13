@@ -1,5 +1,6 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -77,7 +78,7 @@ fun AdminPasscodeScreen(
                 passcode = it
                 error = null
             },
-            label = { Text("Passcode") },
+            label = { Text(tr("Passcode")) },
             placeholder = { Text("Enter admin passcode") },
             singleLine = true,
             visualTransformation = if (showPasscode)

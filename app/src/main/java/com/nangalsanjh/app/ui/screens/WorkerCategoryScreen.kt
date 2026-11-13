@@ -2,6 +2,7 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
@@ -61,21 +62,21 @@ fun WorkerCategoryScreen(
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Text(
-            "WORKER SETUP · ਕੰਮ ਦੀ ਜਾਣਕਾਰੀ",
+            tr("WORKER SETUP · ਕੰਮ ਦੀ ਜਾਣਕਾਰੀ"),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.2.sp
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Your work details",
+            tr("Your work details"),
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            "Pick what you do. Seekers will find you by this.",
+            tr("Pick what you do. Seekers will find you by this."),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -136,7 +137,7 @@ fun WorkerCategoryScreen(
             OutlinedTextField(
                 value = customCategory,
                 onValueChange = { customCategory = it },
-                label = { Text("Enter your work type") },
+                label = { Text(tr("Enter your work type")) },
                 placeholder = { Text("Eg. AC Repair, DJ Services...") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -149,7 +150,7 @@ fun WorkerCategoryScreen(
         OutlinedTextField(
             value = experience,
             onValueChange = { if (it.length <= 2) experience = it.filter { c -> c.isDigit() } },
-            label = { Text("Years of Experience") },
+            label = { Text(tr("Years of Experience")) },
             placeholder = { Text("Eg. 5") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -165,7 +166,7 @@ fun WorkerCategoryScreen(
         OutlinedTextField(
             value = price,
             onValueChange = { price = it },
-            label = { Text("Your Charges / Price") },
+            label = { Text(tr("Your Charges / Price")) },
             placeholder = { Text("Eg. ₹500/day or ₹200/hour") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -180,8 +181,8 @@ fun WorkerCategoryScreen(
         OutlinedTextField(
             value = about,
             onValueChange = { about = it },
-            label = { Text("About Your Services") },
-            placeholder = { Text("Describe your skills and experience...") },
+            label = { Text(tr("About Your Services")) },
+            placeholder = { Text(tr("Describe your skills and experience...")) },
             modifier = Modifier.fillMaxWidth(),
             minLines = 3,
             shape = RoundedCornerShape(16.dp),
@@ -195,8 +196,8 @@ fun WorkerCategoryScreen(
         OutlinedTextField(
             value = aadhar,
             onValueChange = { if (it.length <= 12) aadhar = it },
-            label = { Text("Aadhar Card Number") },
-            placeholder = { Text("12-digit Aadhar number") },
+            label = { Text(tr("Aadhar Card Number")) },
+            placeholder = { Text(tr("12-digit Aadhar number")) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -208,7 +209,7 @@ fun WorkerCategoryScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            "Aadhar details are stored securely for verification only",
+            tr("Aadhar details are stored securely for verification only"),
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -234,7 +235,7 @@ fun WorkerCategoryScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Save & Continue", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(tr("Save & Continue"), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 

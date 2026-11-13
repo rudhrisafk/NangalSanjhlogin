@@ -91,12 +91,22 @@ fun SeekerHome(
     onNavigate: (Int) -> Unit
 ) {
     val firstName = userName.trim().substringBefore(" ").ifEmpty { "there" }
-    val greeting = remember {
-        when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
-            in 5..11 -> "GOOD MORNING  ·  ਸ਼ੁਭ ਸਵੇਰ"
-            in 12..16 -> "GOOD AFTERNOON  ·  ਸ਼ੁਭ ਦੁਪਹਿਰ"
-            in 17..20 -> "GOOD EVENING  ·  ਸ਼ੁਭ ਸ਼ਾਮ"
-            else -> "NAMASTE  ·  ਸਤ ਸ੍ਰੀ ਅਕਾਲ"
+    val lang = LocalAppLanguage.current
+    val greeting = remember(lang) {
+        val slot = when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+            in 5..11 -> 0
+            in 12..16 -> 1
+            in 17..20 -> 2
+            else -> 3
+        }
+        when (lang) {
+            com.nangalsanjh.app.viewmodel.AppLanguage.ENGLISH -> listOf(
+                "GOOD MORNING  ·  ਸ਼ੁਭ ਸਵੇਰ", "GOOD AFTERNOON  ·  ਸ਼ੁਭ ਦੁਪਹਿਰ",
+                "GOOD EVENING  ·  ਸ਼ੁਭ ਸ਼ਾਮ", "NAMASTE  ·  ਸਤ ਸ੍ਰੀ ਅਕਾਲ")[slot]
+            com.nangalsanjh.app.viewmodel.AppLanguage.HINDI -> listOf(
+                "शुभ प्रभात", "शुभ दोपहर", "शुभ संध्या", "नमस्ते")[slot]
+            com.nangalsanjh.app.viewmodel.AppLanguage.PUNJABI -> listOf(
+                "ਸ਼ੁਭ ਸਵੇਰ", "ਸ਼ੁਭ ਦੁਪਹਿਰ", "ਸ਼ੁਭ ਸ਼ਾਮ", "ਸਤ ਸ੍ਰੀ ਅਕਾਲ")[slot]
         }
     }
     val ink = InkOnLight
@@ -131,16 +141,22 @@ fun SeekerHome(
                 )
                 Spacer(Modifier.height(Spacing.sm))
                 Text(
-                    "Hi $firstName, what do you need today?",
+                    when (lang) {
+                        com.nangalsanjh.app.viewmodel.AppLanguage.ENGLISH -> "Hi $firstName, what do you need today?"
+                        com.nangalsanjh.app.viewmodel.AppLanguage.HINDI -> "नमस्ते $firstName, आज आपको क्या चाहिए?"
+                        com.nangalsanjh.app.viewmodel.AppLanguage.PUNJABI -> "ਸਤ ਸ੍ਰੀ ਅਕਾਲ $firstName, ਅੱਜ ਤੁਹਾਨੂੰ ਕੀ ਚਾਹੀਦਾ ਹੈ?"
+                    },
                     style = MaterialTheme.typography.displayMedium,
                     color = Color.White
                 )
-                Spacer(Modifier.height(Spacing.xs))
-                Text(
-                    "ਅੱਜ ਤੁਹਾਨੂੰ ਕਿਸ ਚੀਜ਼ ਦੀ ਲੋੜ ਹੈ?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.75f)
-                )
+                if (lang == com.nangalsanjh.app.viewmodel.AppLanguage.ENGLISH) {
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        tr("ਅੱਜ ਤੁਹਾਨੂੰ ਕਿਸ ਚੀਜ਼ ਦੀ ਲੋੜ ਹੈ?"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.75f)
+                    )
+                }
                 Spacer(Modifier.height(Spacing.lg))
 
                 // Search-style entry into Services
@@ -155,11 +171,29 @@ fun SeekerHome(
                 ) {
                     Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.85f))
                     Spacer(Modifier.width(Spacing.md))
-                    Text(
-                        "Plumber, electrician, tutor…",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.85f)
-                    )
+                    val hints = remember {
+                        listOf("Plumber chahiye?", "Electrician, AC repair…", "Tutor, painter, cleaner…", "Report a street light…")
+                    }
+                    var hintIdx by remember { mutableStateOf(0) }
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            delay(2400)
+                            hintIdx = (hintIdx + 1) % hints.size
+                        }
+                    }
+                    androidx.compose.animation.Crossfade(
+                        targetState = hintIdx,
+                        animationSpec = tween(500),
+                        label = "hint"
+                    ) { i ->
+                        Text(
+                            hints[i],
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 Spacer(Modifier.height(Spacing.md))
                 androidx.compose.material3.Button(
@@ -173,7 +207,7 @@ fun SeekerHome(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Post a job request", style = MaterialTheme.typography.labelLarge)
+                    Text(tr("Post a job request"), style = MaterialTheme.typography.labelLarge)
                 }
                 Spacer(Modifier.height(Spacing.md))
                 Row(
@@ -188,7 +222,7 @@ fun SeekerHome(
                     Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFFB4AB), modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(Spacing.md))
                     Text(
-                        "Emergency help",
+                        tr("Emergency help"),
                         style = MaterialTheme.typography.labelLarge,
                         color = Color.White,
                         modifier = Modifier.weight(1f)
@@ -243,18 +277,21 @@ fun SeekerHome(
 
 @Composable
 private fun SectionLabel(title: String, punjabi: String) {
+    val english = LocalAppLanguage.current == com.nangalsanjh.app.viewmodel.AppLanguage.ENGLISH
     Column {
         Text(
-            title,
+            tr(title),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.2.sp
         )
-        Text(
-            punjabi,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (english) {
+            Text(
+                punjabi,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -267,20 +304,25 @@ private fun QuickTile(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    PressableCard(modifier = modifier, onClick = onClick, onClickLabel = label) {
+    val english = LocalAppLanguage.current == com.nangalsanjh.app.viewmodel.AppLanguage.ENGLISH
+    PressableCard(modifier = modifier, onClick = onClick, onClickLabel = tr(label)) {
         Column(modifier = Modifier.padding(Spacing.lg).fillMaxWidth()) {
             Box(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(Radius.md)
-                    .background(tint.copy(alpha = 0.12f)),
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            listOf(tint.copy(alpha = 0.22f), tint.copy(alpha = 0.06f))
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
             }
             Spacer(Modifier.height(Spacing.md))
-            Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-            Text(punjabi, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr(label), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(if (english) punjabi else label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -304,8 +346,8 @@ private fun StepRow(number: String, title: String, body: String) {
         )
         Spacer(Modifier.width(Spacing.lg))
         Column {
-            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-            Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr(title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+            Text(tr(body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -322,6 +364,6 @@ private fun TrustChip(text: String, modifier: Modifier = Modifier) {
     ) {
         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF138A4B), modifier = Modifier.size(14.dp))
         Spacer(Modifier.width(4.dp))
-        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+        Text(tr(text), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
     }
 }

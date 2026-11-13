@@ -2,6 +2,7 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -83,8 +86,8 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 NSEmptyState(
                     icon = Icons.Default.Assignment,
-                    title = "No complaints yet",
-                    subtitle = "Be the first to report a civic issue",
+                    title = tr("No complaints yet"),
+                    subtitle = tr("Be the first to report a civic issue"),
                     actionText = if (userRole == "seeker") "Report Issue" else "",
                     onAction = if (userRole == "seeker") ({ handleReportClick() }) else null
                 )
@@ -92,9 +95,9 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
         } else {
             Column(modifier = Modifier.fillMaxSize()) {
                 ScreenHeader(
-                    eyebrow = "COMPLAINTS  ·  ਸ਼ਿਕਾਇਤਾਂ",
+                    eyebrow = tr("COMPLAINTS  ·  ਸ਼ਿਕਾਇਤਾਂ"),
                     title = if (userRole == "admin") "Citizen complaints" else "Civic issues in Nangal",
-                    subtitle = "Track reports from pending to resolved."
+                    subtitle = tr("Track reports from pending to resolved.")
                 )
                 if (userRole == "seeker" && isOnCooldown) {
                     val hoursLeft = (cooldownRemainingMs / (60 * 60 * 1000)) + 1
@@ -175,7 +178,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                 )
             },
             confirmButton = {
-                NSButton(text = "Okay", onClick = { showCooldownDialog = false }, modifier = Modifier.fillMaxWidth())
+                NSButton(text = tr("Okay"), onClick = { showCooldownDialog = false }, modifier = Modifier.fillMaxWidth())
             }
         )
     }
@@ -212,7 +215,7 @@ fun RealComplaintCard(
     }
 
     NSCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Spacing.lg)) {
+        Column(modifier = Modifier.accentGlow(statusColor, pulse = complaint.status == "Pending").padding(Spacing.lg)) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -265,23 +268,23 @@ fun RealComplaintCard(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Mark In Review", style = MaterialTheme.typography.bodyMedium) },
+                                    text = { Text(tr("Mark In Review"), style = MaterialTheme.typography.bodyMedium) },
                                     leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     onClick = { selectedStatus = "In Review"; showMenu = false; showUpdateDialog = true }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Mark Resolved", style = MaterialTheme.typography.bodyMedium) },
+                                    text = { Text(tr("Mark Resolved"), style = MaterialTheme.typography.bodyMedium) },
                                     leadingIcon = { Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     onClick = { selectedStatus = "Resolved"; showMenu = false; showUpdateDialog = true }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Add Points", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
+                                    text = { Text(tr("Add Points"), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) },
                                     leadingIcon = { Text("🏅", fontSize = 14.sp) },
                                     onClick = { showMenu = false; showPointsDialog = true }
                                 )
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                 DropdownMenuItem(
-                                    text = { Text("Delete", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) },
+                                    text = { Text(tr("Delete"), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) },
                                     leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp)) },
                                     onClick = { showMenu = false; showDeleteDialog = true }
                                 )
@@ -316,6 +319,9 @@ fun RealComplaintCard(
                 Text(complaint.location, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
+            Spacer(modifier = Modifier.height(Spacing.md))
+            ComplaintTimeline(complaint.status, statusColor)
+
             if (complaint.departmentUpdate.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(Spacing.md))
                 NSDivider()
@@ -347,24 +353,24 @@ fun RealComplaintCard(
             onDismissRequest = { showUpdateDialog = false },
             shape = Radius.xl,
             containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Update Status", style = MaterialTheme.typography.titleMedium) },
+            title = { Text(tr("Update Status"), style = MaterialTheme.typography.titleMedium) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
                     NSStatusBadge(
                         text = "→ $selectedStatus",
                         color = if (selectedStatus == "Resolved") NangalColors.Green else NangalColors.Yellow
                     )
-                    NSTextField(value = updateText, onValueChange = { updateText = it }, label = "Department Note", placeholder = "Add update for citizen...", singleLine = false, minLines = 2, modifier = Modifier.fillMaxWidth())
+                    NSTextField(value = updateText, onValueChange = { updateText = it }, label = "Department Note", placeholder = tr("Add update for citizen..."), singleLine = false, minLines = 2, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
                 NSButton(
-                    text = "Update",
+                    text = tr("Update"),
                     onClick = { onStatusUpdate(complaint.id, selectedStatus, updateText); showUpdateDialog = false },
                     modifier = Modifier.fillMaxWidth()
                 )
             },
-            dismissButton = { NSOutlinedButton(text = "Cancel", onClick = { showUpdateDialog = false }, modifier = Modifier.fillMaxWidth()) }
+            dismissButton = { NSOutlinedButton(text = tr("Cancel"), onClick = { showUpdateDialog = false }, modifier = Modifier.fillMaxWidth()) }
         )
     }
 
@@ -377,7 +383,7 @@ fun RealComplaintCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("🏅", fontSize = 20.sp)
                     Spacer(modifier = Modifier.width(Spacing.sm))
-                    Text("Add Seva Points", style = MaterialTheme.typography.titleMedium)
+                    Text(tr("Add Seva Points"), style = MaterialTheme.typography.titleMedium)
                 }
             },
             text = {
@@ -400,11 +406,11 @@ fun RealComplaintCard(
                     }
 
                     NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = "Custom Points", placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                    NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = "Reason", placeholder = "Why giving points?", modifier = Modifier.fillMaxWidth())
+                    NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = "Reason", placeholder = tr("Why giving points?"), modifier = Modifier.fillMaxWidth())
 
                     NSCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(Spacing.md)) {
-                            Text("Points Levels", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(tr("Points Levels"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(Spacing.sm))
                             listOf("🌱 Nagarik" to "0-99", "🥉 Seva Sevak" to "100-199", "🥈 Seva Mitra" to "200-299", "⭐ Seva Ratna" to "300-499", "🏆 Seva Samrat" to "500+").forEach { (level, range) ->
                                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -430,7 +436,7 @@ fun RealComplaintCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             },
-            dismissButton = { NSOutlinedButton(text = "Cancel", onClick = { showPointsDialog = false; pointsToAdd = ""; pointsReason = "" }, modifier = Modifier.fillMaxWidth()) }
+            dismissButton = { NSOutlinedButton(text = tr("Cancel"), onClick = { showPointsDialog = false; pointsToAdd = ""; pointsReason = "" }, modifier = Modifier.fillMaxWidth()) }
         )
     }
 
@@ -439,17 +445,17 @@ fun RealComplaintCard(
             onDismissRequest = { showDeleteDialog = false },
             shape = Radius.xl,
             containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Delete Complaint", style = MaterialTheme.typography.titleMedium) },
-            text = { Text("This action cannot be undone.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+            title = { Text(tr("Delete Complaint"), style = MaterialTheme.typography.titleMedium) },
+            text = { Text(tr("This action cannot be undone."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 Button(
                     onClick = { onDelete(complaint.id); showDeleteDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     shape = Radius.md,
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Delete", style = MaterialTheme.typography.labelLarge) }
+                ) { Text(tr("Delete"), style = MaterialTheme.typography.labelLarge) }
             },
-            dismissButton = { NSOutlinedButton(text = "Cancel", onClick = { showDeleteDialog = false }, modifier = Modifier.fillMaxWidth()) }
+            dismissButton = { NSOutlinedButton(text = tr("Cancel"), onClick = { showDeleteDialog = false }, modifier = Modifier.fillMaxWidth()) }
         )
     }
 }
@@ -484,10 +490,10 @@ fun NewComplaintDialog(
         onDismissRequest = onDismiss,
         shape = Radius.xl,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("Report Issue", style = MaterialTheme.typography.titleMedium) },
+        title = { Text(tr("Report Issue"), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                Text("Category", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Category"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     items(categories) { cat ->
                         FilterChip(
@@ -540,7 +546,7 @@ fun NewComplaintDialog(
         },
         confirmButton = {
             NSButton(
-                text = "Submit",
+                text = tr("Submit"),
                 onClick = {
                     val cat = if (isOther && customCategory.isNotBlank()) "❓ $customCategory" else selectedCategory
                     onSubmit(cat, description, location, latitude, longitude)
@@ -550,6 +556,40 @@ fun NewComplaintDialog(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        dismissButton = { NSOutlinedButton(text = "Cancel", onClick = onDismiss, modifier = Modifier.fillMaxWidth()) }
+        dismissButton = { NSOutlinedButton(text = tr("Cancel"), onClick = onDismiss, modifier = Modifier.fillMaxWidth()) }
     )
+}
+
+/** Reported → In Review → Resolved progress line. */
+@Composable
+private fun ComplaintTimeline(status: String, color: Color) {
+    val reached = when (status) { "Resolved" -> 3; "In Review" -> 2; else -> 1 }
+    val steps = listOf("Reported", "In Review", "Resolved")
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            steps.forEachIndexed { i, _ ->
+                val on = i < reached
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(if (on) color else MaterialTheme.colorScheme.outlineVariant)
+                )
+                if (i < steps.lastIndex) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(2.dp)
+                            .background(if (i + 1 < reached) color else MaterialTheme.colorScheme.outlineVariant)
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            steps.forEach {
+                Text(tr(it), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
 }

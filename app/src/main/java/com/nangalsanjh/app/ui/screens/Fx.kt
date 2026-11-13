@@ -3,6 +3,7 @@ package com.nangalsanjh.app.ui.screens
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -111,4 +112,88 @@ fun breathing(to: Float = 1.12f, periodMs: Int = 1800): Float {
         label = "breathV"
     )
     return v
+}
+
+/** One-shot confetti burst; fires every time [trigger] changes to a new value > 0. Never blocks touches. */
+@Composable
+fun ConfettiBurst(trigger: Int, modifier: Modifier = Modifier) {
+    val progress = androidx.compose.runtime.remember { Animatable(1f) }
+    val palette = androidx.compose.runtime.remember {
+        listOf(Color(0xFFE8590C), Color(0xFF3A7BFF), Color(0xFF19C3B1), Color(0xFF8E5BFF), Color(0xFFF59F00), Color(0xFFD92D3A))
+    }
+    class P(val a: Float, val v: Float, val c: Color, val s: Float, val spin: Float)
+    val parts = androidx.compose.runtime.remember(trigger) {
+        val r = kotlin.random.Random(trigger * 31 + 7)
+        List(70) {
+            P(
+                a = (Math.PI * (0.15 + 0.7 * r.nextDouble())).toFloat(), // upward fan
+                v = 0.55f + r.nextFloat() * 0.75f,
+                c = palette[r.nextInt(palette.size)],
+                s = 0.8f + r.nextFloat() * 1.1f,
+                spin = (r.nextFloat() - 0.5f) * 14f
+            )
+        }
+    }
+    androidx.compose.runtime.LaunchedEffect(trigger) {
+        if (trigger > 0) {
+            progress.snapTo(0f)
+            progress.animateTo(1f, tween(1900, easing = LinearEasing))
+        }
+    }
+    if (trigger == 0 || progress.value >= 1f) return
+    androidx.compose.foundation.Canvas(modifier = modifier.androidx_fillMax()) {
+        val t = progress.value
+        val ox = size.width / 2f
+        val oy = size.height * 0.82f
+        val speed = size.height * 0.95f
+        val g = size.height * 1.5f
+        for (p in parts) {
+            val x = ox + kotlin.math.cos(p.a) * p.v * speed * t * 0.9f
+            val y = oy - kotlin.math.sin(p.a) * p.v * speed * t + 0.5f * g * t * t
+            val fade = (1f - ((t - 0.7f) / 0.3f)).coerceIn(0f, 1f)
+            val w = 9f * p.s
+            androidx.compose.ui.graphics.drawscope.rotate(p.spin * t * 60f, Offset(x, y)) {
+                drawRect(p.c.copy(alpha = fade), topLeft = Offset(x - w / 2, y - w / 3), size = androidx.compose.ui.geometry.Size(w, w * 0.6f))
+            }
+        }
+    }
+}
+
+private fun Modifier.androidx_fillMax(): Modifier = this.then(Modifier.fillMaxSize())
+
+/** Fade + slide in once per item (remembered across scrolling and rotation). */
+@Composable
+fun RevealOnce(key: Any, index: Int = 0, content: @Composable () -> Unit) {
+    var seen by androidx.compose.runtime.saveable.rememberSaveable(key = key.toString()) {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
+    var visible by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(seen) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (!seen) {
+            kotlinx.coroutines.delay(index.coerceIn(0, 6) * 60L)
+            visible = true
+            seen = true
+        }
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(tween(320)) +
+            androidx.compose.animation.slideInVertically(tween(320)) { it / 8 }
+    ) { content() }
+}
+
+/** Slowly flowing accent gradient for titles, built on the normal text colour. */
+@Composable
+fun flowingTitleBrush(base: Color, accent1: Color = Color(0xFF3A7BFF), accent2: Color = Color(0xFF8E5BFF)): Brush {
+    val shift by rememberInfiniteTransition(label = "title").animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(5200, easing = LinearEasing), RepeatMode.Reverse),
+        label = "titleShift"
+    )
+    val start = -120f + shift * 260f
+    return Brush.horizontalGradient(
+        colors = listOf(base, base, accent1, accent2, base, base),
+        startX = start, endX = start + 260f,
+        tileMode = androidx.compose.ui.graphics.TileMode.Clamp
+    )
 }

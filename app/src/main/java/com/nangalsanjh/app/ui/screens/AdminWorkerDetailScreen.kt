@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -172,7 +174,7 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                 Text("Job history & fee slips", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(bottom = 10.dp))
 
                 if (completedJobs.isEmpty()) {
-                    Text("No completed jobs yet", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(tr("No completed jobs yet"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     completedJobs.forEach { job ->
                         Surface(

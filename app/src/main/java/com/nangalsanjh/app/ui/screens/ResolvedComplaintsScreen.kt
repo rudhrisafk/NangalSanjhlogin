@@ -1,5 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
+import com.nangalsanjh.app.ui.bouncy.Button
+import com.nangalsanjh.app.ui.bouncy.OutlinedButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,7 +31,7 @@ fun ResolvedComplaintsScreen() {
                 Text("✅", fontSize = 48.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "No resolved complaints yet",
+                    tr("No resolved complaints yet"),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }
@@ -148,7 +150,7 @@ fun ResolvedComplaintCard(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Reopen Complaint?", fontWeight = FontWeight.Bold) },
+            title = { Text(tr("Reopen Complaint?"), fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     Text("Yeh complaint wapas 'In Review' mein chali jayegi.")
@@ -156,7 +158,7 @@ fun ResolvedComplaintCard(
                     OutlinedTextField(
                         value = updateText,
                         onValueChange = { updateText = it },
-                        label = { Text("Reason (optional)") },
+                        label = { Text(tr("Reason (optional)")) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -165,10 +167,10 @@ fun ResolvedComplaintCard(
                 Button(onClick = {
                     onStatusUpdate(complaint.id, "In Review", updateText)
                     showDialog = false
-                }) { Text("Confirm") }
+                }) { Text(tr("Confirm")) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDialog = false }) { Text(tr("Cancel")) }
             }
         )
     }
