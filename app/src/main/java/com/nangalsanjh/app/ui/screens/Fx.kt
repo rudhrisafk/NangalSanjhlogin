@@ -160,3 +160,40 @@ fun ConfettiBurst(trigger: Int, modifier: Modifier = Modifier) {
 }
 
 private fun Modifier.androidx_fillMax(): Modifier = this.then(Modifier.fillMaxSize())
+
+/** Fade + slide in once per item (remembered across scrolling and rotation). */
+@Composable
+fun RevealOnce(key: Any, index: Int = 0, content: @Composable () -> Unit) {
+    var seen by androidx.compose.runtime.saveable.rememberSaveable(key = key.toString()) {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
+    var visible by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(seen) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (!seen) {
+            kotlinx.coroutines.delay(index.coerceIn(0, 6) * 60L)
+            visible = true
+            seen = true
+        }
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(tween(320)) +
+            androidx.compose.animation.slideInVertically(tween(320)) { it / 8 }
+    ) { content() }
+}
+
+/** Slowly flowing accent gradient for titles, built on the normal text colour. */
+@Composable
+fun flowingTitleBrush(base: Color, accent1: Color = Color(0xFF3A7BFF), accent2: Color = Color(0xFF8E5BFF)): Brush {
+    val shift by rememberInfiniteTransition(label = "title").animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(5200, easing = LinearEasing), RepeatMode.Reverse),
+        label = "titleShift"
+    )
+    val start = -120f + shift * 260f
+    return Brush.horizontalGradient(
+        colors = listOf(base, base, accent1, accent2, base, base),
+        startX = start, endX = start + 260f,
+        tileMode = androidx.compose.ui.graphics.TileMode.Clamp
+    )
+}

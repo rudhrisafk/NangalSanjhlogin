@@ -192,15 +192,17 @@ fun JobPostsTab() {
                 } else {
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(filtered) { post ->
-                            JobPostCard(
-                                post = post,
-                                worker = workerByUid[post.uid],
-                                onCall = {
-                                    val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${post.userPhone}") }
-                                    context.startActivity(intent)
-                                },
-                                onMoreClick = { detailPost = post }
-                            )
+                            RevealOnce(key = "post-${post.uid}-${post.timeStamp}", index = filtered.indexOf(post)) {
+                                JobPostCard(
+                                    post = post,
+                                    worker = workerByUid[post.uid],
+                                    onCall = {
+                                        val intent = Intent(Intent.ACTION_DIAL).apply { data = Uri.parse("tel:${post.userPhone}") }
+                                        context.startActivity(intent)
+                                    },
+                                    onMoreClick = { detailPost = post }
+                                )
+                            }
                         }
                     }
                 }

@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,7 +30,17 @@ fun ScreenHeader(
     modifier: Modifier = Modifier,
     horizontalPadding: androidx.compose.ui.unit.Dp = Spacing.lg
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = Spacing.md)) {
+    var shown by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(Unit) { shown = true }
+    val a by androidx.compose.animation.core.animateFloatAsState(
+        if (shown) 1f else 0f, androidx.compose.animation.core.tween(500), label = "headerIn"
+    )
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .graphicsLayer { alpha = a; translationX = (1f - a) * -24f }
+            .padding(horizontal = horizontalPadding, vertical = Spacing.md)
+    ) {
         Text(
             eyebrow,
             style = MaterialTheme.typography.labelMedium,
@@ -104,9 +116,19 @@ fun EmptyBlock(
         modifier = modifier.padding(Spacing.xxxl),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val floatY by androidx.compose.animation.core.rememberInfiniteTransition(label = "float").animateFloat(
+            initialValue = -5f, targetValue = 5f,
+            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                androidx.compose.animation.core.tween(1800, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                androidx.compose.animation.core.RepeatMode.Reverse
+            ),
+            label = "floatY"
+        )
         Box(
             modifier = Modifier
                 .size(72.dp)
+                .graphicsLayer { translationY = floatY * density }
+                .pulseRing(MaterialTheme.colorScheme.outline, periodMs = 2600)
                 .clip(Radius.full)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
