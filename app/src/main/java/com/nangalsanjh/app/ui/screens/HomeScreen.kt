@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,13 +37,13 @@ fun HomeScreen(
     onRoleSwitch: ((String) -> Unit)? = null,
     isProfileSetup: Boolean = true,
 ) {
-    var activeRole by remember { mutableStateOf(userRole) }
-    var selectedTab by remember { mutableStateOf(0) }
-    var showAIAssistant by remember { mutableStateOf(false) }
-    var showEmergency by remember { mutableStateOf(false) }
-    var showBloodDonors by remember { mutableStateOf(false) }
-    var showSettings by remember { mutableStateOf(false) }
-    var showProfile by remember { mutableStateOf(false) }
+    var activeRole by rememberSaveable { mutableStateOf(userRole) }
+    var selectedTab by rememberSaveable { mutableStateOf(0) }
+    var showAIAssistant by rememberSaveable { mutableStateOf(false) }
+    var showEmergency by rememberSaveable { mutableStateOf(false) }
+    var showBloodDonors by rememberSaveable { mutableStateOf(false) }
+    var showSettings by rememberSaveable { mutableStateOf(false) }
+    var showProfile by rememberSaveable { mutableStateOf(false) }
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
 
     var showProfileSetupPopup by remember(isProfileSetup) { mutableStateOf(!isProfileSetup) }
@@ -556,20 +557,20 @@ fun getNavItems(role: String): List<NavItem> = when (role) {
 @Composable
 fun SeekerContent(tab: Int, userName: String, onLogout: () -> Unit, onNavigate: (Int) -> Unit = {}) {
     when (tab) {
-        0 -> CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate)
-        1 -> ServicesScreen()
-        3 -> ComplaintsScreen(userRole = "seeker", userName = userName)
+        0 -> RefreshBox { CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate) }
+        1 -> RefreshBox { ServicesScreen() }
+        3 -> RefreshBox { ComplaintsScreen(userRole = "seeker", userName = userName) }
         4 -> MapScreen(userRole = "seeker")
-        else -> CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate)
+        else -> RefreshBox { CommunityFeedScreen(userName = userName, userRole = "seeker", onNavigate = onNavigate) }
     }
 }
 
 @Composable
 fun WorkerContent(tab: Int, userName: String, onLogout: () -> Unit) {
     when (tab) {
-        0 -> CommunityFeedScreen(userName = userName, userRole = "worker")
+        0 -> RefreshBox { CommunityFeedScreen(userName = userName, userRole = "worker") }
         1 -> MapScreen(userRole = "worker")
-        else -> CommunityFeedScreen(userName = userName, userRole = "worker")
+        else -> RefreshBox { CommunityFeedScreen(userName = userName, userRole = "worker") }
     }
 }
 

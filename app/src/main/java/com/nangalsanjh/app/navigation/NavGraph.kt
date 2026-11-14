@@ -2,6 +2,7 @@ package com.nangalsanjh.app.navigation
 
 import android.app.Activity
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -56,11 +57,11 @@ fun NangalSevaNavHost(themeViewModel: ThemeViewModel) {
     var existingBloodGroup by remember { mutableStateOf("") }
 
     // Login Persistence
-    var startDestination by remember { mutableStateOf(Screen.Login.route) }
+    var startDestination by rememberSaveable { mutableStateOf(Screen.Login.route) }
     // Splash animation plays while the auth check runs; both must finish before we continue
-    var minSplashDone by remember { mutableStateOf(false) }
+    var minSplashDone by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) { delay(650); minSplashDone = true }
-    var isCheckingAuth by remember { mutableStateOf(true) }
+    var isCheckingAuth by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser

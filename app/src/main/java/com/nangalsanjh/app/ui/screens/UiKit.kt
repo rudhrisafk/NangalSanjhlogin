@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -241,4 +242,28 @@ fun SkeletonList(count: Int = 4, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+
+/** Pull-down-to-refresh wrapper. Re-syncs Firestore listeners and runs [onRefresh]. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@androidx.compose.runtime.Composable
+fun RefreshBox(onRefresh: () -> Unit = {}, content: @androidx.compose.runtime.Composable () -> Unit) {
+    var refreshing by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = refreshing,
+        onRefresh = {
+            refreshing = true
+            onRefresh()
+            // Reconnect Firestore so listeners pull the latest from the server
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            db.disableNetwork().addOnCompleteListener { db.enableNetwork() }
+            scope.launch {
+                kotlinx.coroutines.delay(1200)
+                refreshing = false
+            }
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { content() }
 }
