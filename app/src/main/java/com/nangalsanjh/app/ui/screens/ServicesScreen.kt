@@ -160,9 +160,7 @@ fun JobPostsTab() {
             Spacer(modifier = Modifier.height(4.dp))
 
             if (isLoading && jobPosts.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
-                }
+                SkeletonList()
             } else {
                 fun priceValue(price: String): Double = price.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: Double.MAX_VALUE
 

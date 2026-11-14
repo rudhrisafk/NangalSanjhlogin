@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -203,5 +204,41 @@ fun Modifier.accentGlow(color: Color, pulse: Boolean = false): Modifier {
             ),
             size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height)
         )
+    }
+}
+
+/** Placeholder list shown while data loads (replaces a lone spinner). */
+@androidx.compose.runtime.Composable
+fun SkeletonList(count: Int = 4, modifier: Modifier = Modifier) {
+    androidx.compose.foundation.layout.Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)
+    ) {
+        repeat(count) {
+            val bar = MaterialTheme.colorScheme.surfaceVariant
+            androidx.compose.foundation.layout.Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+                    .shimmerSweep()
+                    .padding(16.dp)
+            ) {
+                androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(bar))
+                    Spacer(Modifier.width(12.dp))
+                    androidx.compose.foundation.layout.Column {
+                        Box(Modifier.width(120.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(bar))
+                        Spacer(Modifier.height(8.dp))
+                        Box(Modifier.width(70.dp).height(10.dp).clip(RoundedCornerShape(6.dp)).background(bar))
+                    }
+                }
+                Spacer(Modifier.height(14.dp))
+                Box(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(6.dp)).background(bar))
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.fillMaxWidth(0.7f).height(10.dp).clip(RoundedCornerShape(6.dp)).background(bar))
+            }
+        }
     }
 }

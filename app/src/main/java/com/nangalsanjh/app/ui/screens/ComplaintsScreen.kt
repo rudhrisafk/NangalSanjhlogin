@@ -75,13 +75,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
             .background(MaterialTheme.colorScheme.background)
     ) {
         if (isLoading && complaints.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+            SkeletonList()
         } else if (complaints.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 NSEmptyState(
