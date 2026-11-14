@@ -267,3 +267,12 @@ fun RefreshBox(onRefresh: () -> Unit = {}, content: @androidx.compose.runtime.Co
         modifier = Modifier.fillMaxSize()
     ) { content() }
 }
+
+
+/**
+ * Fixed height that grows with the user's text size (never unbounded, so children using
+ * fillMaxHeight cannot stretch to the whole screen).
+ */
+@androidx.compose.runtime.Composable
+fun Modifier.scaledHeight(base: androidx.compose.ui.unit.Dp): Modifier =
+    this.height(base * androidx.compose.ui.platform.LocalDensity.current.fontScale.coerceIn(1f, 1.3f))

@@ -2,6 +2,8 @@
 
 package com.nangalsanjh.app.theme
 
+import com.nangalsanjh.app.ui.screens.scaledHeight
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -130,7 +132,7 @@ fun NSButton(
     Box(
         modifier = modifier
             .scale(pressScale)
-            .height(54.dp)
+            .scaledHeight(54.dp)
             .clip(Radius.md)
             .then(
                 if (isActive) Modifier
@@ -200,7 +202,7 @@ fun NSOutlinedButton(
             onClick()
         },
         interactionSource = source,
-        modifier = modifier.scale(pressScale).height(54.dp),
+        modifier = modifier.scale(pressScale).scaledHeight(54.dp),
         enabled = enabled,
         shape = Radius.md,
         colors = ButtonDefaults.outlinedButtonColors(
