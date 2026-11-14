@@ -477,7 +477,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp)
+                .heightIn(min = 44.dp)
                 .background(MaterialTheme.colorScheme.background),
             verticalAlignment = Alignment.CenterVertically
         ) {

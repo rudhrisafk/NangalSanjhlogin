@@ -223,7 +223,7 @@ fun WorkerCategoryScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             enabled = selectedCategory.isNotEmpty() &&
                     (!isOther || customCategory.isNotBlank()) &&
                     !isLoading,

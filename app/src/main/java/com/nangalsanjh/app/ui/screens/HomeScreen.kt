@@ -158,6 +158,10 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         thickness = 1.dp
                     )
+                    val navDensity = androidx.compose.ui.platform.LocalDensity.current
+                    CompositionLocalProvider(
+                        androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(navDensity.density, 1f)
+                    ) {
                     NavigationBar(
                         containerColor = Color.Transparent,
                         tonalElevation = 0.dp
@@ -250,6 +254,7 @@ fun HomeScreen(
                                 )
                             }
                         }
+                    }
                     }
                 }
             }

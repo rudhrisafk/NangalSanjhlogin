@@ -155,13 +155,13 @@ fun AdminWorkerDetailScreen(workerUid: String, onBack: () -> Unit) {
                         if (p.isBlocked) {
                             Button(
                                 onClick = { db.collection("users").document(workerUid).update("isBlocked", false) },
-                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                 shape = RoundedCornerShape(14.dp)
                             ) { Text("Unblock worker", fontWeight = FontWeight.Bold) }
                         } else {
                             OutlinedButton(
                                 onClick = { db.collection("users").document(workerUid).update("isBlocked", true) },
-                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                 shape = RoundedCornerShape(14.dp),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)

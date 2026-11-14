@@ -118,7 +118,7 @@ fun ProfileSetupScreen(
 
         Button(
             onClick = { onContinueClick(name.trim(), address.trim()) },
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
             enabled = name.isNotBlank() && address.isNotBlank() && !isLoading,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(

@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalAppLanguage provides language,
                     androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(
-                        baseDensity.density, baseDensity.fontScale * textScale
+                        baseDensity.density, (baseDensity.fontScale * textScale).coerceAtMost(1.5f)
                     )
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {

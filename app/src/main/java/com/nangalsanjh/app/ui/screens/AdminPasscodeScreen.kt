@@ -134,7 +134,7 @@ fun AdminPasscodeScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .heightIn(min = 52.dp),
             enabled = passcode.isNotBlank() && !isLoading,
             shape = RoundedCornerShape(12.dp)
         ) {
