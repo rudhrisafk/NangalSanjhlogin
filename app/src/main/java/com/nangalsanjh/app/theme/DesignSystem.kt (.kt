@@ -130,7 +130,7 @@ fun NSButton(
     Box(
         modifier = modifier
             .scale(pressScale)
-            .heightIn(min = 54.dp)
+            .height(54.dp)
             .clip(Radius.md)
             .then(
                 if (isActive) Modifier
@@ -200,7 +200,7 @@ fun NSOutlinedButton(
             onClick()
         },
         interactionSource = source,
-        modifier = modifier.scale(pressScale).heightIn(min = 54.dp),
+        modifier = modifier.scale(pressScale).height(54.dp),
         enabled = enabled,
         shape = Radius.md,
         colors = ButtonDefaults.outlinedButtonColors(
