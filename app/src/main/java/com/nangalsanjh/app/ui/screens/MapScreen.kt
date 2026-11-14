@@ -198,7 +198,7 @@ fun MapScreen(userRole: String = "seeker") {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(tr("On the way to customer"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text("Customer: ${activeJob.userName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text(trl("Customer: ${activeJob.userName}", "ग्राहक: ${activeJob.userName}", "ਗਾਹਕ: ${activeJob.userName}"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                         if (activeJob.address.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("${activeJob.address}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
@@ -263,7 +263,7 @@ fun MapScreen(userRole: String = "seeker") {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(tr("Worker on the way"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Worker: ${activeJob.assignedWorkerName}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(trl("Worker: ${activeJob.assignedWorkerName}", "कारीगर: ${activeJob.assignedWorkerName}", "ਕਾਮਾ: ${activeJob.assignedWorkerName}"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
@@ -294,9 +294,9 @@ fun MapScreen(userRole: String = "seeker") {
                         fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    LegendRow(color = Color(0xFFD92D3A), label = "Pending ($pendingCount)")
-                    LegendRow(color = Color(0xFFF59F00), label = "In Review ($reviewCount)")
-                    LegendRow(color = Color(0xFF138A4B), label = "Resolved ($resolvedCount)")
+                    LegendRow(color = Color(0xFFD92D3A), label = trl("Pending ($pendingCount)", "लंबित ($pendingCount)", "ਲੰਬਿਤ ($pendingCount)"))
+                    LegendRow(color = Color(0xFFF59F00), label = trl("In Review ($reviewCount)", "समीक्षा में ($reviewCount)", "ਸਮੀਖਿਆ ਵਿੱਚ ($reviewCount)"))
+                    LegendRow(color = Color(0xFF138A4B), label = trl("Resolved ($resolvedCount)", "हल हुईं ($resolvedCount)", "ਹੱਲ ਹੋਈਆਂ ($resolvedCount)"))
                 }
             }
 

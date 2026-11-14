@@ -107,7 +107,7 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
                     ) {
                         Text(
-                            "You can file your next complaint in ${hoursLeft}h",
+                            trl("You can file your next complaint in ${hoursLeft}h", "अगली शिकायत ${hoursLeft} घंटे बाद दर्ज कर सकते हैं", "ਅਗਲੀ ਸ਼ਿਕਾਇਤ ${hoursLeft} ਘੰਟੇ ਬਾਅਦ ਦਰਜ ਕਰ ਸਕਦੇ ਹੋ"),
                             modifier = Modifier.padding(Spacing.md),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.error
@@ -169,10 +169,10 @@ fun ComplaintsScreen(userRole: String, userName: String = "") {
             onDismissRequest = { showCooldownDialog = false },
             shape = Radius.xl,
             containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("⏳ Please wait", style = MaterialTheme.typography.titleMedium) },
+            title = { Text(tr("⏳ Please wait"), style = MaterialTheme.typography.titleMedium) },
             text = {
                 Text(
-                    "You already filed a complaint recently. You can file your next one in about ${hoursLeft} hour(s), to prevent spam.",
+                    trl("You already filed a complaint recently. You can file your next one in about ${hoursLeft} hour(s), to prevent spam.", "आपने हाल ही में शिकायत दर्ज की है। स्पैम रोकने के लिए अगली शिकायत लगभग ${hoursLeft} घंटे बाद दर्ज करें।", "ਤੁਸੀਂ ਹਾਲ ਹੀ ਵਿੱਚ ਸ਼ਿਕਾਇਤ ਦਰਜ ਕੀਤੀ ਹੈ। ਸਪੈਮ ਰੋਕਣ ਲਈ ਅਗਲੀ ਸ਼ਿਕਾਇਤ ਲਗਭਗ ${hoursLeft} ਘੰਟੇ ਬਾਅਦ ਦਰਜ ਕਰੋ।"),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -360,7 +360,7 @@ fun RealComplaintCard(
                         text = "→ $selectedStatus",
                         color = if (selectedStatus == "Resolved") NangalColors.Green else NangalColors.Yellow
                     )
-                    NSTextField(value = updateText, onValueChange = { updateText = it }, label = "Department Note", placeholder = tr("Add update for citizen..."), singleLine = false, minLines = 2, modifier = Modifier.fillMaxWidth())
+                    NSTextField(value = updateText, onValueChange = { updateText = it }, label = tr("Department Note"), placeholder = tr("Add update for citizen..."), singleLine = false, minLines = 2, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
@@ -388,7 +388,7 @@ fun RealComplaintCard(
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                    Text("Reporter: ${complaint.reporter}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(trl("Reporter: ${complaint.reporter}", "शिकायतकर्ता: ${complaint.reporter}", "ਸ਼ਿਕਾਇਤਕਰਤਾ: ${complaint.reporter}"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                         listOf("10", "25", "50", "100").forEach { pts ->
@@ -405,8 +405,8 @@ fun RealComplaintCard(
                         }
                     }
 
-                    NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = "Custom Points", placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                    NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = "Reason", placeholder = tr("Why giving points?"), modifier = Modifier.fillMaxWidth())
+                    NSTextField(value = pointsToAdd, onValueChange = { pointsToAdd = it }, label = tr("Custom Points"), placeholder = "1–500", modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                    NSTextField(value = pointsReason, onValueChange = { pointsReason = it }, label = tr("Reason"), placeholder = tr("Why giving points?"), modifier = Modifier.fillMaxWidth())
 
                     NSCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(Spacing.md)) {
@@ -509,11 +509,11 @@ fun NewComplaintDialog(
                 }
 
                 if (isOther) {
-                    NSTextField(value = customCategory, onValueChange = { customCategory = it }, label = "Specify Issue", modifier = Modifier.fillMaxWidth())
+                    NSTextField(value = customCategory, onValueChange = { customCategory = it }, label = tr("Specify Issue"), modifier = Modifier.fillMaxWidth())
                 }
 
-                NSTextField(value = description, onValueChange = { description = it }, label = "Describe the Issue", singleLine = false, minLines = 3, modifier = Modifier.fillMaxWidth())
-                NSTextField(value = location, onValueChange = { location = it }, label = "Location / Area", leadingIcon = Icons.Default.LocationOn, modifier = Modifier.fillMaxWidth())
+                NSTextField(value = description, onValueChange = { description = it }, label = tr("Describe the Issue"), singleLine = false, minLines = 3, modifier = Modifier.fillMaxWidth())
+                NSTextField(value = location, onValueChange = { location = it }, label = tr("Location / Area"), leadingIcon = Icons.Default.LocationOn, modifier = Modifier.fillMaxWidth())
 
                 Surface(
                     shape = Radius.md,

@@ -497,7 +497,7 @@ fun HeadlineTicker(newsItems: List<Announcement>) {
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "NEWS",
+                    tr("NEWS"),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -630,7 +630,7 @@ fun EmergencyAnnouncementCard(
                 Spacer(Modifier.height(10.dp))
 
                 NSButton(
-                    text = "Call ${announcement.contact}",
+                    text = trl("Call ${announcement.contact}", "कॉल करें ${announcement.contact}", "ਕਾਲ ਕਰੋ ${announcement.contact}"),
                     onClick = {
                         val intent = Intent(
                             Intent.ACTION_DIAL,
@@ -795,7 +795,7 @@ fun AnnouncementDetailDialog(
                     Spacer(Modifier.height(10.dp))
 
                     Text(
-                        "🩸 Blood needed: ${announcement.bloodType}",
+                        trl("🩸 Blood needed: ${announcement.bloodType}", "🩸 खून चाहिए: ${announcement.bloodType}", "🩸 ਖੂਨ ਚਾਹੀਦਾ: ${announcement.bloodType}"),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.error
@@ -839,7 +839,7 @@ fun AnnouncementDetailDialog(
 
                     Spacer(Modifier.width(8.dp))
 
-                    Text("Call ${announcement.contact}")
+                    Text(trl("Call ${announcement.contact}", "कॉल करें ${announcement.contact}", "ਕਾਲ ਕਰੋ ${announcement.contact}"))
                 }
             }
         },
@@ -1304,8 +1304,8 @@ fun WorkerPostDialog(
                 NSTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = "Describe your service",
-                    placeholder = "Skills, experience...",
+                    label = tr("Describe your service"),
+                    placeholder = tr("Skills, experience..."),
                     singleLine = false,
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth()
@@ -1314,7 +1314,7 @@ fun WorkerPostDialog(
                 NSTextField(
                     value = price,
                     onValueChange = { price = it },
-                    label = "Your Rate",
+                    label = tr("Your Rate"),
                     placeholder = "₹500/day",
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -1436,7 +1436,7 @@ fun JobDemandCard(
             ) {
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        cleanCategory,
+                        trCat(cleanCategory),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
@@ -1485,7 +1485,7 @@ fun JobDemandCard(
                 Icon(Icons.Default.Timer, contentDescription = null, tint = timerColor, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    "Respond in ${minutes}:${seconds.toString().padStart(2, '0')}",
+                    trl("Respond in ${minutes}:${seconds.toString().padStart(2, '0')}", "जवाब दें: ${minutes}:${seconds.toString().padStart(2, '0')}", "ਜਵਾਬ ਦਿਓ: ${minutes}:${seconds.toString().padStart(2, '0')}"),
                     style = MaterialTheme.typography.labelLarge,
                     color = timerColor
                 )

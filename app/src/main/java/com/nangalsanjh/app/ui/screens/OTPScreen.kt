@@ -72,7 +72,7 @@ fun OTPScreen(
             Spacer(modifier = Modifier.height(Spacing.sm))
 
             Text(
-                "Sent to $phoneNumber",
+                trl("Sent to $phoneNumber", "$phoneNumber पर भेजा गया", "$phoneNumber ਤੇ ਭੇਜਿਆ ਗਿਆ"),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -160,7 +160,7 @@ fun OTPScreen(
                 }
             } else {
                 Text(
-                    "Resend in ${resendTimer}s",
+                    trl("Resend in ${resendTimer}s", "${resendTimer} सेकंड में दोबारा भेजें", "${resendTimer} ਸਕਿੰਟ ਵਿੱਚ ਦੁਬਾਰਾ ਭੇਜੋ"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

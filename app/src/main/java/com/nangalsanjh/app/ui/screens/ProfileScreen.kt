@@ -240,7 +240,7 @@ fun ProfileScreen(
                                 color = Color.White
                             )
                             Text(
-                                "${userPoints.points} Seva Points",
+                                trl("${userPoints.points} Seva Points", "${userPoints.points} सेवा पॉइंट्स", "${userPoints.points} ਸੇਵਾ ਪੁਆਇੰਟ"),
                                 fontSize = 13.sp,
                                 color = Color.White.copy(alpha = 0.7f)
                             )
@@ -271,7 +271,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        "${userPoints.points}/${userPoints.nextLevelPoints} pts to next level",
+                        trl("${userPoints.points}/${userPoints.nextLevelPoints} pts to next level", "अगले स्तर तक ${userPoints.points}/${userPoints.nextLevelPoints} पॉइंट्स", "ਅਗਲੇ ਪੱਧਰ ਤੱਕ ${userPoints.points}/${userPoints.nextLevelPoints} ਪੁਆਇੰਟ"),
                         fontSize = 11.sp,
                         color = Color.White.copy(alpha = 0.6f)
                     )
@@ -333,7 +333,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatCard(count = profile.postsCount.toString(), label = "Posts", emoji = "📝")
+                StatCard(count = profile.postsCount.toString(), label = tr("Posts"), emoji = "📝")
                 HorizontalDivider(
                     modifier = Modifier.height(50.dp).width(1.dp),
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
@@ -348,7 +348,7 @@ fun ProfileScreen(
                         modifier = Modifier.height(50.dp).width(1.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
-                    StatCard(count = profile.jobsDone.toString(), label = "Jobs", emoji = "✅")
+                    StatCard(count = profile.jobsDone.toString(), label = tr("Jobs"), emoji = "✅")
                 }
             }
         }
@@ -386,7 +386,7 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.AutoMirrored.Filled.Article,
                 title = tr("My Work"),
-                subtitle = "${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} active posts",
+                subtitle = trl("${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} active posts", "${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} चालू पोस्ट", "${profile.postsCount}/${PostViewModel.MAX_WORKER_POSTS} ਚਾਲੂ ਪੋਸਟਾਂ"),
                 onClick = { showMyWork = true }
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -413,7 +413,7 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Default.Report,
                 title = tr("My Complaints"),
-                subtitle = "${profile.complaintsCount} complaints",
+                subtitle = trl("${profile.complaintsCount} complaints", "${profile.complaintsCount} शिकायतें", "${profile.complaintsCount} ਸ਼ਿਕਾਇਤਾਂ"),
                 onClick = { showMyComplaints = true }
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -753,7 +753,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
                 Column {
                     Text(tr("My Work"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
                     Text(
-                        "${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} active posts",
+                        trl("${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} active posts", "${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} चालू पोस्ट", "${myPosts.size}/${PostViewModel.MAX_WORKER_POSTS} ਚਾਲੂ ਪੋਸਟਾਂ"),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -824,7 +824,7 @@ fun MyWorkScreen(onBack: () -> Unit) {
                                 Spacer(modifier = Modifier.height(6.dp))
                                 val hoursLeft = ((PostViewModel.WORKER_POST_EXPIRY_MS - (System.currentTimeMillis() - post.timeStamp)) / (60 * 60 * 1000)).toInt().coerceAtLeast(0)
                                 Text(
-                                    "Expires in ${hoursLeft}h — repost after expiry",
+                                    trl("Expires in ${hoursLeft}h — repost after expiry", "${hoursLeft} घंटे में समाप्त — बाद में दोबारा डालें", "${hoursLeft} ਘੰਟੇ ਵਿੱਚ ਖਤਮ — ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਪਾਓ"),
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                                 )
@@ -1032,7 +1032,7 @@ fun MyJobRequestsScreen(onBack: () -> Unit) {
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                "Auto-deletes in ${hoursLeft}h",
+                                trl("Auto-deletes in ${hoursLeft}h", "${hoursLeft} घंटे में अपने आप हट जाएगा", "${hoursLeft} ਘੰਟੇ ਵਿੱਚ ਆਪਣੇ ਆਪ ਹਟ ਜਾਵੇਗਾ"),
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                             )

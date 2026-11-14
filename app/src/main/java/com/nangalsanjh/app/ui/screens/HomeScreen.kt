@@ -1,6 +1,7 @@
 package com.nangalsanjh.app.ui.screens
 
 import com.nangalsanjh.app.ui.bouncy.OutlinedButton
+import com.nangalsanjh.app.ui.bouncy.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -198,13 +199,26 @@ fun HomeScreen(
                                         )
                                     },
                                     label = {
-                                        Text(
-                                            item.label,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            maxLines = 1,
-                                            softWrap = false,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
+                                        // Footer: English always; Hindi/Punjabi shown as a small second line
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                item.label,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                maxLines = 1,
+                                                softWrap = false,
+                                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                            )
+                                            navSecondary(item.label)?.let { second ->
+                                                Text(
+                                                    second,
+                                                    fontSize = 9.sp,
+                                                    maxLines = 1,
+                                                    softWrap = false,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
                                     },
                                     selected = selectedTab == index,
                                     onClick = {
@@ -357,7 +371,7 @@ fun HomeScreen(
                 }
             },
             text = {
-                Column {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Text(
                         tr("Theme"),
                         fontSize = 12.sp,
@@ -447,7 +461,11 @@ fun HomeScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showSettings = false }) { Text(tr("Done")) }
+                Button(
+                    onClick = { showSettings = false },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) { Text(tr("Done"), fontWeight = FontWeight.Bold) }
             }
         )
     }

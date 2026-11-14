@@ -335,7 +335,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
                 Column {
                     Text(post.userName, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(cleanCategory, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(trCat(cleanCategory), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (worker != null && worker.rating > 0f) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Icon(Icons.Default.Star, null, tint = Color(0xFFF59F00), modifier = Modifier.size(13.dp))
@@ -399,7 +399,7 @@ fun JobPostCard(post: Post, worker: WorkerModel?, onCall: () -> Unit, onMoreClic
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Expires in ${hoursLeft}h",
+            trl("Expires in ${hoursLeft}h", "${hoursLeft} घंटे में समाप्त", "${hoursLeft} ਘੰਟੇ ਵਿੱਚ ਖਤਮ"),
             style = MaterialTheme.typography.labelSmall,
             color = if (hoursLeft <= 6) Color(0xFFD92D3A) else MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -660,10 +660,10 @@ fun PostDetailDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        StatCard(count = worker.jobsDone.toString(), label = "Jobs Done", emoji = "✅")
+                        StatCard(count = worker.jobsDone.toString(), label = tr("Jobs Done"), emoji = "✅")
                         StatCard(
                             count = if (worker.isAvailable) "Yes" else "No",
-                            label = "Available",
+                            label = tr("Available"),
                             emoji = "🟢"
                         )
                     }
@@ -689,7 +689,7 @@ fun PostDetailDialog(
                 if (worker?.experience?.isNotEmpty() == true) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        "🛠️ ${worker.experience} years experience",
+                        trl("🛠️ ${worker.experience} years experience", "🛠️ ${worker.experience} साल का अनुभव", "🛠️ ${worker.experience} ਸਾਲ ਦਾ ਤਜਰਬਾ"),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )

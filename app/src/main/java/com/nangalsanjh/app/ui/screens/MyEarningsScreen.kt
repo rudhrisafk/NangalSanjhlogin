@@ -171,7 +171,7 @@ fun MyEarningsScreen(onBack: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    job.category.substringAfter(' '),
+                                    trCat(job.category.substringAfter(' ')),
                                     fontWeight = FontWeight.Bold, fontSize = 14.sp,
                                     maxLines = 1, overflow = TextOverflow.Ellipsis
                                 )

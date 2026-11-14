@@ -30,6 +30,43 @@ object TrData {
         E("In Review", "समीक्षा में", "ਸਮੀਖਿਆ ਵਿੱਚ"),
         E("Resolved", "हल हुई", "ਹੱਲ ਹੋਈ"),
 
+
+        // ── Worker side / leftovers ──
+        E("Working hours: 9AM - 7PM", "काम के घंटे: सुबह 9 – शाम 7", "ਕੰਮ ਦੇ ਘੰਟੇ: ਸਵੇਰੇ 9 – ਸ਼ਾਮ 7"),
+        E("Outside working hours", "काम के घंटों के बाहर", "ਕੰਮ ਦੇ ਘੰਟਿਆਂ ਤੋਂ ਬਾਹਰ"),
+        E("⏰ Toggle only works 9AM-7PM. Turn ON tomorrow at 9AM.", "⏰ स्विच सिर्फ सुबह 9 से शाम 7 तक चलता है। कल सुबह 9 बजे ON करें।", "⏰ ਸਵਿੱਚ ਸਿਰਫ਼ ਸਵੇਰੇ 9 ਤੋਂ ਸ਼ਾਮ 7 ਤੱਕ ਚੱਲਦਾ ਹੈ। ਕੱਲ੍ਹ ਸਵੇਰੇ 9 ਵਜੇ ON ਕਰੋ।"),
+        E("Describe your service", "अपनी सेवा बताएं", "ਆਪਣੀ ਸੇਵਾ ਦੱਸੋ"),
+        E("Skills, experience...", "हुनर, अनुभव...", "ਹੁਨਰ, ਤਜਰਬਾ..."),
+        E("Your Rate", "आपका रेट", "ਤੁਹਾਡਾ ਰੇਟ"),
+        E("Department Note", "विभाग का नोट", "ਵਿਭਾਗ ਦਾ ਨੋਟ"),
+        E("Custom Points", "कस्टम पॉइंट्स", "ਕਸਟਮ ਪੁਆਇੰਟ"),
+        E("Reason", "कारण", "ਕਾਰਨ"),
+        E("Specify Issue", "समस्या बताएं", "ਸਮੱਸਿਆ ਦੱਸੋ"),
+        E("Describe the Issue", "समस्या का विवरण", "ਸਮੱਸਿਆ ਦਾ ਵੇਰਵਾ"),
+        E("Location / Area", "जगह / इलाका", "ਜਗ੍ਹਾ / ਇਲਾਕਾ"),
+        E("⏳ Please wait", "⏳ कृपया रुकें", "⏳ ਕਿਰਪਾ ਕਰਕੇ ਰੁਕੋ"),
+        E("More details (optional)", "और जानकारी (वैकल्पिक)", "ਹੋਰ ਜਾਣਕਾਰੀ (ਵਿਕਲਪਿਕ)"),
+        E("Thanks, admin will review this.", "धन्यवाद, एडमिन इसकी जांच करेगा।", "ਧੰਨਵਾਦ, ਐਡਮਿਨ ਇਸਦੀ ਜਾਂਚ ਕਰੇਗਾ।"),
+        E("Jobs Done", "पूरे किए काम", "ਪੂਰੇ ਕੀਤੇ ਕੰਮ"),
+        E("Available", "उपलब्ध", "ਉਪਲਬਧ"),
+        E("Posts", "पोस्ट", "ਪੋਸਟਾਂ"),
+        E("Jobs", "काम", "ਕੰਮ"),
+        E("NEWS", "खबर", "ਖ਼ਬਰ"),
+        E("You", "आप", "ਤੁਸੀਂ"),
+        E("Nangal AI", "नंगल AI", "ਨੰਗਲ AI"),
+        E("Online  ·  Hindi, Punjabi, English", "ऑनलाइन  ·  हिंदी, पंजाबी, English", "ਆਨਲਾਈਨ  ·  ਹਿੰਦੀ, ਪੰਜਾਬੀ, English"),
+        E("Eg. Rajesh Kumar", "जैसे राजेश कुमार", "ਜਿਵੇਂ ਰਾਜੇਸ਼ ਕੁਮਾਰ"),
+        E("Eg. Sector 4, Nangal", "जैसे सेक्टर 4, नंगल", "ਜਿਵੇਂ ਸੈਕਟਰ 4, ਨੰਗਲ"),
+        E("Eg. 5", "जैसे 5", "ਜਿਵੇਂ 5"),
+        E("Eg. ₹500/day or ₹200/hour", "जैसे ₹500/दिन या ₹200/घंटा", "ਜਿਵੇਂ ₹500/ਦਿਨ ਜਾਂ ₹200/ਘੰਟਾ"),
+        E("Eg. AC Repair, DJ Services...", "जैसे AC रिपेयर, DJ सेवा...", "ਜਿਵੇਂ AC ਮੁਰੰਮਤ, DJ ਸੇਵਾ..."),
+        E("Describe your skills and experience...", "अपने हुनर और अनुभव के बारे में लिखें...", "ਆਪਣੇ ਹੁਨਰ ਅਤੇ ਤਜਰਬੇ ਬਾਰੇ ਲਿਖੋ..."),
+        E("Plumber", "प्लंबर", "ਪਲੰਬਰ"), E("Electrician", "इलेक्ट्रीशियन", "ਇਲੈਕਟ੍ਰੀਸ਼ੀਅਨ"),
+        E("Carpenter", "बढ़ई", "ਤਰਖਾਣ"), E("Painter", "पेंटर", "ਪੇਂਟਰ"), E("Mason", "राजमिस्त्री", "ਰਾਜ ਮਿਸਤਰੀ"),
+        E("Cleaner", "सफाईकर्मी", "ਸਫ਼ਾਈ ਕਰਮੀ"), E("Labour", "मज़दूर", "ਮਜ਼ਦੂਰ"), E("Automobile", "ऑटोमोबाइल", "ਆਟੋਮੋਬਾਈਲ"),
+        E("Medical Tests", "मेडिकल टेस्ट", "ਮੈਡੀਕਲ ਟੈਸਟ"), E("Taxi Service", "टैक्सी सेवा", "ਟੈਕਸੀ ਸੇਵਾ"),
+        E("Veterinary", "पशु चिकित्सा", "ਪਸ਼ੂ ਇਲਾਜ"), E("Other", "अन्य", "ਹੋਰ"),
+
         // ── Home / settings ──
         E("Complete Your Profile", "अपनी प्रोफ़ाइल पूरी करें", "ਆਪਣੀ ਪ੍ਰੋਫਾਈਲ ਪੂਰੀ ਕਰੋ"),
         E("Your profile isn't set up yet. Complete it to get the most out of Nangal Seva.", "आपकी प्रोफ़ाइल अभी सेट नहीं है। नंगल सेवा का पूरा लाभ लेने के लिए इसे पूरा करें।", "ਤੁਹਾਡੀ ਪ੍ਰੋਫਾਈਲ ਅਜੇ ਸੈੱਟ ਨਹੀਂ ਹੈ। ਨੰਗਲ ਸੇਵਾ ਦਾ ਪੂਰਾ ਲਾਭ ਲੈਣ ਲਈ ਇਸਨੂੰ ਪੂਰਾ ਕਰੋ।"),
@@ -274,4 +311,41 @@ object TrData {
 
     val hi: Map<String, String> = all.associate { it.en to it.hi }
     val pa: Map<String, String> = all.associate { it.en to it.pa }
+}
+
+/** Per-language text for strings with dynamic parts (write the values with ${...} already filled in). */
+@Composable
+fun trl(en: String, hi: String, pa: String): String = when (LocalAppLanguage.current) {
+    AppLanguage.ENGLISH -> en
+    AppLanguage.HINDI -> hi
+    AppLanguage.PUNJABI -> pa
+}
+
+/** Footer (bottom-nav) secondary label. Footer always shows English; this is the extra line for Hindi/Punjabi. */
+@Composable
+fun navSecondary(en: String): String? {
+    val lang = LocalAppLanguage.current
+    if (lang == AppLanguage.ENGLISH) return null
+    val row = when (en) {
+        "Feed" -> "फ़ीड" to "ਫੀਡ"
+        "Services" -> "सेवाएं" to "ਸੇਵਾਵਾਂ"
+        "SOS" -> "SOS" to "SOS"
+        "Complaints" -> "शिकायतें" to "ਸ਼ਿਕਾਇਤਾਂ"
+        "Map" -> "नक्शा" to "ਨਕਸ਼ਾ"
+        "Dashboard" -> "डैशबोर्ड" to "ਡੈਸ਼ਬੋਰਡ"
+        "Issues" -> "मुद्दे" to "ਮੁੱਦੇ"
+        "Resolved" -> "हल हुईं" to "ਹੱਲ ਹੋਈਆਂ"
+        "Reports" -> "रिपोर्ट" to "ਰਿਪੋਰਟਾਂ"
+        "Notices" -> "सूचनाएं" to "ਸੂਚਨਾਵਾਂ"
+        else -> return null
+    }
+    return if (lang == AppLanguage.HINDI) row.first else row.second
+}
+
+/** Translates a category name like "🔧 Plumber" (keeps the emoji prefix) or plain "Plumber". */
+@Composable
+fun trCat(raw: String): String {
+    val sp = raw.indexOf(' ')
+    return if (sp > 0 && !raw[0].isLetterOrDigit()) raw.substring(0, sp) + " " + tr(raw.substring(sp + 1))
+    else tr(raw)
 }

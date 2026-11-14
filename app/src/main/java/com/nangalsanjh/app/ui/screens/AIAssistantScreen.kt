@@ -142,7 +142,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                             Spacer(modifier = Modifier.width(Spacing.md))
                             Column {
                                 Text(
-                                    "Nangal AI",
+                                    tr("Nangal AI"),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = Color.White
                                 )
@@ -159,7 +159,7 @@ fun AIAssistantDialog(onDismiss: () -> Unit) {
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        "Online  ·  Hindi, Punjabi, English",
+                                        tr("Online  ·  Hindi, Punjabi, English"),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = Color.White.copy(alpha = 0.9f)
                                     )

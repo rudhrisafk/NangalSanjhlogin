@@ -99,7 +99,7 @@ fun MyFavoritesScreen(onBack: () -> Unit) {
                                     maxLines = 1, overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
-                                    fav.category.substringAfter(' '),
+                                    trCat(fav.category.substringAfter(' ')),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1, overflow = TextOverflow.Ellipsis

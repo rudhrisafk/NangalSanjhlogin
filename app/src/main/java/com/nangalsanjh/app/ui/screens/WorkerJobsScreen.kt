@@ -134,7 +134,7 @@ fun WorkerJobsScreen() {
                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
                     ) {
                         Text(
-                            "⏰ Toggle only works 9AM-7PM. Turn ON tomorrow at 9AM.",
+                            tr("⏰ Toggle only works 9AM-7PM. Turn ON tomorrow at 9AM."),
                             modifier = Modifier.padding(8.dp),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.error
@@ -163,7 +163,7 @@ fun WorkerJobsScreen() {
                     color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
-                        workerCategory,
+                        trCat(workerCategory),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -232,7 +232,7 @@ fun JobRequestCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    post.category,
+                    trCat(post.category),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface

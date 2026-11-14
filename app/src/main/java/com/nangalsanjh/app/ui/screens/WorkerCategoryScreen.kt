@@ -116,7 +116,7 @@ fun WorkerCategoryScreen(
                                 Spacer(Modifier.width(6.dp))
                             }
                             Text(
-                                text = category.substringAfter(' '),
+                                text = trCat(category.substringAfter(' ')),
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -138,7 +138,7 @@ fun WorkerCategoryScreen(
                 value = customCategory,
                 onValueChange = { customCategory = it },
                 label = { Text(tr("Enter your work type")) },
-                placeholder = { Text("Eg. AC Repair, DJ Services...") },
+                placeholder = { Text(tr("Eg. AC Repair, DJ Services...")) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
@@ -151,7 +151,7 @@ fun WorkerCategoryScreen(
             value = experience,
             onValueChange = { if (it.length <= 2) experience = it.filter { c -> c.isDigit() } },
             label = { Text(tr("Years of Experience")) },
-            placeholder = { Text("Eg. 5") },
+            placeholder = { Text(tr("Eg. 5")) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -167,7 +167,7 @@ fun WorkerCategoryScreen(
             value = price,
             onValueChange = { price = it },
             label = { Text(tr("Your Charges / Price")) },
-            placeholder = { Text("Eg. ₹500/day or ₹200/hour") },
+            placeholder = { Text(tr("Eg. ₹500/day or ₹200/hour")) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),

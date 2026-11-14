@@ -30,7 +30,7 @@ fun ReportUserDialog(
         title = { Text(if (submitted) "Reported" else "Report $reportedName") },
         text = {
             if (submitted) {
-                Text("Thanks, admin will review this.")
+                Text(tr("Thanks, admin will review this."))
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     reasons.forEach { r ->
@@ -42,7 +42,7 @@ fun ReportUserDialog(
                     OutlinedTextField(
                         value = details,
                         onValueChange = { details = it },
-                        label = { Text("More details (optional)") },
+                        label = { Text(tr("More details (optional)")) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
