@@ -55,6 +55,17 @@ class MainActivity : ComponentActivity() {
             val themeViewModel: ThemeViewModel = viewModel()
             val theme by themeViewModel.theme.collectAsState()
             val language by themeViewModel.language.collectAsState()
+            val textScale by themeViewModel.textScale.collectAsState()
+            remember {
+                themeViewModel.setTextScale(
+                    getSharedPreferences("nangal_prefs", MODE_PRIVATE).getFloat("text_scale", 1.0f)
+                )
+                true
+            }
+            LaunchedEffect(textScale) {
+                getSharedPreferences("nangal_prefs", MODE_PRIVATE)
+                    .edit().putFloat("text_scale", textScale).apply()
+            }
 
             // Load saved language once, before first frame
             remember {
@@ -71,7 +82,13 @@ class MainActivity : ComponentActivity() {
             }
 
             NangalSevaTheme(isDark = theme == AppTheme.DARK) {
-                CompositionLocalProvider(LocalAppLanguage provides language) {
+                val baseDensity = androidx.compose.ui.platform.LocalDensity.current
+                CompositionLocalProvider(
+                    LocalAppLanguage provides language,
+                    androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(
+                        baseDensity.density, baseDensity.fontScale * textScale
+                    )
+                ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         NangalSevaNavHost(themeViewModel = themeViewModel)
                     }

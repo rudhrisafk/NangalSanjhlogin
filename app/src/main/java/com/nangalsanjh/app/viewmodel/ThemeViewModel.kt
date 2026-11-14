@@ -14,6 +14,11 @@ class ThemeViewModel : ViewModel() {
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
     val language: StateFlow<AppLanguage> = _language
 
+    // Text size multiplier: 1.0 normal, 1.15 large, 1.3 extra large
+    private val _textScale = MutableStateFlow(1.0f)
+    val textScale: StateFlow<Float> = _textScale
+    fun setTextScale(scale: Float) { _textScale.value = scale }
+
     fun setTheme(target: AppTheme) { _theme.value = target }
 
     fun toggleTheme() {

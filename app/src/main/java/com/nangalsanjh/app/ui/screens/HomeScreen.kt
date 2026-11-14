@@ -38,7 +38,15 @@ fun HomeScreen(
     isProfileSetup: Boolean = true,
 ) {
     var activeRole by rememberSaveable { mutableStateOf(userRole) }
-    var selectedTab by rememberSaveable { mutableStateOf(0) }
+    val appContext = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { appContext.getSharedPreferences("nangal_prefs", android.content.Context.MODE_PRIVATE) }
+    var selectedTab by rememberSaveable {
+        mutableStateOf(
+            prefs.getInt("last_tab_$userRole", 0)
+                .takeIf { it in 0 until getNavItems(userRole).size && !getNavItems(userRole)[it].isSOS } ?: 0
+        )
+    }
+    var lastRole by rememberSaveable { mutableStateOf(userRole) }
     var showAIAssistant by rememberSaveable { mutableStateOf(false) }
     var showEmergency by rememberSaveable { mutableStateOf(false) }
     var showBloodDonors by rememberSaveable { mutableStateOf(false) }
@@ -51,9 +59,15 @@ fun HomeScreen(
     val theme by themeViewModel.theme.collectAsState()
     val language by themeViewModel.language.collectAsState()
 
+    // Reset tab only when the role actually changes (not on restore)
     LaunchedEffect(activeRole) {
-        selectedTab = 0
+        if (activeRole != lastRole) { selectedTab = 0; lastRole = activeRole }
     }
+    // Remember last tab per role, even after the app is closed
+    LaunchedEffect(selectedTab, activeRole) {
+        prefs.edit().putInt("last_tab_$activeRole", selectedTab).apply()
+    }
+    val textScale by themeViewModel.textScale.collectAsState()
 
     if (showAIAssistant) {
         AIAssistantDialog { showAIAssistant = false }
@@ -419,6 +433,42 @@ fun HomeScreen(
                                     MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurface
                             )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        tr("Text size"),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(1.0f to "Normal", 1.15f to "Large", 1.3f to "Extra large").forEach { (scale, label) ->
+                            val on = kotlin.math.abs(textScale - scale) < 0.01f
+                            OutlinedButton(
+                                onClick = { themeViewModel.setTextScale(scale) },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(10.dp),
+                                contentPadding = PaddingValues(horizontal = 4.dp),
+                                colors = if (on) ButtonDefaults.outlinedButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ) else ButtonDefaults.outlinedButtonColors()
+                            ) {
+                                Text(
+                                    tr(label),
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
 

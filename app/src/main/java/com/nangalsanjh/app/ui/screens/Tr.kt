@@ -31,6 +31,11 @@ object TrData {
         E("Resolved", "हल हुई", "ਹੱਲ ਹੋਈ"),
 
 
+        E("Text size", "टेक्स्ट का आकार", "ਟੈਕਸਟ ਦਾ ਆਕਾਰ"),
+        E("Normal", "सामान्य", "ਆਮ"),
+        E("Large", "बड़ा", "ਵੱਡਾ"),
+        E("Extra large", "बहुत बड़ा", "ਬਹੁਤ ਵੱਡਾ"),
+
         // ── Worker side / leftovers ──
         E("Working hours: 9AM - 7PM", "काम के घंटे: सुबह 9 – शाम 7", "ਕੰਮ ਦੇ ਘੰਟੇ: ਸਵੇਰੇ 9 – ਸ਼ਾਮ 7"),
         E("Outside working hours", "काम के घंटों के बाहर", "ਕੰਮ ਦੇ ਘੰਟਿਆਂ ਤੋਂ ਬਾਹਰ"),
