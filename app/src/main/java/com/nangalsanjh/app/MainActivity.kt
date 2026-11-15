@@ -42,7 +42,8 @@ class MainActivity : ComponentActivity() {
 
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(
-            DebugAppCheckProviderFactory.getInstance()
+            if (BuildConfig.DEBUG) DebugAppCheckProviderFactory.getInstance()
+            else com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory.getInstance()
         )
 
         askNotificationPermission()

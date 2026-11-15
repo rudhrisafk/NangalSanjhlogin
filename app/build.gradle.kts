@@ -5,6 +5,12 @@
     alias(libs.plugins.googleServices)
 }
 
+// Secrets live in local.properties (never committed)
+val localProps = java.util.Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
 android {
     namespace = "com.nangalsanjh.app"
     compileSdk = 35
@@ -16,6 +22,10 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String", "OPENROUTER_API_KEY",
+            "\"${localProps.getProperty("OPENROUTER_API_KEY", "")}\""
+        )
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -36,6 +46,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {

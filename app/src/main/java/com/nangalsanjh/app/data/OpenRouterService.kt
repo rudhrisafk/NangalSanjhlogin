@@ -10,7 +10,8 @@ import java.net.URL
 object OpenRouterService {
 
 
-    private const val API_KEY = "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"
+    // Set OPENROUTER_API_KEY in local.properties (not committed)
+    private val API_KEY: String = com.nangalsanjh.app.BuildConfig.OPENROUTER_API_KEY
     private const val API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
     suspend fun sendMessage(
